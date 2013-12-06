@@ -11,7 +11,7 @@ without prior notices. **Yii 2.0 is not ready for production use yet.**
 
 [![Build Status](https://secure.travis-ci.org/yiisoft/yii2.png)](http://travis-ci.org/yiisoft/yii2)
 
-This is the yii2-sphinx extension.
+This is the yii2-mongodb extension.
 
 
 Installation
