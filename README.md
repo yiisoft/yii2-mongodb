@@ -1,70 +1,111 @@
-Yii PHP Framework Version 2
+MongoDb Extension for Yii 2
 ===========================
 
-Thank you for choosing Yii 2 - a modern PHP framework designed for professional Web development.
-
-Yii 2 is a complete rewrite of its previous version Yii 1.1 which is one of the most popular PHP frameworks.
-Yii 2 inherits the main spirit behind Yii for being simple, fast and highly extensible.
-Yii 2 requires PHP 5.4 and embraces best practices and protocols found in modern Web application development.
+This extension provides the [MongoDB](http://www.mongodb.org/) integration for the Yii2 framework.
 
 
-**Yii 2 is not ready for production use yet.** We may make significant changes without prior notices.
-We expect to make the first stable release of Yii 2 in early 2014.
-
-If you mainly want to learn Yii with no real project development requirement, we highly recommend
-you start with Yii 2 as it will be our main focus for the next few years.
-
-If you have a real project with tight schedule, you should stick to [Yii 1.1](https://github.com/yiisoft/yii)
-which is the latest stable release of Yii.
-
-
-[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2/v/stable.png)](https://packagist.org/packages/yiisoft/yii2)
-[![Total Downloads](https://poser.pugx.org/yiisoft/yii2/downloads.png)](https://packagist.org/packages/yiisoft/yii2)
-[![Build Status](https://secure.travis-ci.org/yiisoft/yii2.png)](http://travis-ci.org/yiisoft/yii2)
-[![Dependency Status](https://www.versioneye.com/php/yiisoft:yii2/dev-master/badge.png)](https://www.versioneye.com/php/yiisoft:yii2/dev-master)
-
-
-DIRECTORY STRUCTURE
--------------------
-
-      apps/                ready-to-use application templates
-          advanced/        a template suitable for building sophisticated Web applications
-          basic/           a template suitable for building simple Web applications
-          benchmark/       an application demonstrating the performance of Yii
-      build/               internally used build tools
-      docs/                documentation
-      extensions/          extensions
-      framework/           core framework code
-      tests/               tests of the core framework code
-
-
-REQUIREMENTS
+Installation
 ------------
 
-The minimum requirement by Yii is that your Web server supports PHP 5.4.
+This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/book.mongo.php) version 1.3.0 or higher.
+
+The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
+
+Either run
+
+```
+php composer.phar require --prefer-dist yiisoft/yii2-mongodb "*"
+```
+
+or add
+
+```
+"yiisoft/yii2-mongodb": "*"
+```
+
+to the require section of your composer.json.
 
 
-DOCUMENTATION
--------------
+Usage & Documentation
+---------------------
 
-A draft of the [Definitive Guide](docs/guide/index.md) is available.
+To use this extension, simply add the following code in your application configuration:
 
-For 1.1 users, you may refer to [Upgrading from Yii 1.1](docs/guide/upgrade-from-v1.md)
-to have a general idea of what has changed in 2.0.
+```php
+return [
+	//....
+	'components' => [
+		'mongodb' => [
+			'class' => '\yii\mongodb\Connection',
+			'dsn' => 'mongodb://developer:password@localhost:27017/mydatabase',
+		],
+	],
+];
+```
 
+This extension provides ActiveRecord solution similar ot the [[\yii\db\ActiveRecord]].
+To declare an ActiveRecord class you need to extend [[\yii\mongodb\ActiveRecord]] and
+implement the `collectionName` and 'attributes' methods:
 
-HOW TO PARTICIPATE
-------------------
+```php
+use yii\mongodb\ActiveRecord;
 
-**Your participation to Yii 2 development is very welcome!**
+class Customer extends ActiveRecord
+{
+	/**
+	 * @return string the name of the index associated with this ActiveRecord class.
+	 */
+	public static function collectionName()
+	{
+		return 'customer';
+	}
 
-You may participate in the following ways:
+	/**
+	 * @return array list of attribute names.
+	 */
+	public function attributes()
+	{
+		return ['_id', 'name', 'email', 'address', 'status'];
+	}
+}
+```
 
-* [Report issues](https://github.com/yiisoft/yii2/issues)
-* [Give us feedback or start a design discussion](http://www.yiiframework.com/forum/index.php/forum/42-design-discussions-for-yii-20/)
-* Fix issues, develop features, write/polish documentation
-    - Before you start, please adopt an existing issue (labelled with "ready for adoption") or start a new one to avoid duplicated efforts.
-    - Please submit a merge request after you finish development.
+Note: collection primary key name ('_id') should be always explicitly setup as an attribute.
 
-In order to make it easier we've prepared [special `yii2-dev` Composer package](https://github.com/yiisoft/yii2/blob/master/docs/internals/getting-started.md).
+You can use [[\yii\data\ActiveDataProvider]] with [[\yii\mongodb\Query]] and [[\yii\mongodb\ActiveQuery]]:
 
+```php
+use yii\data\ActiveDataProvider;
+use yii\mongodb\Query;
+
+$query = new Query;
+$query->from('customer')->where(['status' => 2]);
+$provider = new ActiveDataProvider([
+	'query' => $query,
+	'pagination' => [
+		'pageSize' => 10,
+	]
+]);
+$models = $provider->getModels();
+```
+
+```php
+use yii\data\ActiveDataProvider;
+use app\models\Customer;
+
+$provider = new ActiveDataProvider([
+	'query' => Customer::find(),
+	'pagination' => [
+		'pageSize' => 10,
+	]
+]);
+$models = $provider->getModels();
+```
+
+This extension supports [MongoGridFS](http://docs.mongodb.org/manual/core/gridfs/) via
+classes under namespace "\yii\mongodb\file".
+
+This extension supports logging and profiling, however log messages does not contain
+actual text of the performed queries, they contains only a “close approximation” of it
+composed on the values which can be extracted from PHP Mongo extension classes.
+If you need to see actual query text, you should use specific tools for that.
