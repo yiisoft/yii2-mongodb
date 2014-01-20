@@ -29,7 +29,7 @@ class ActiveFixture extends \yii\test\BaseActiveFixture
 	 * Note that you normally do not need to reset the table if you implement [[loadSchema()]] because
 	 * there will be no existing data.
 	 */
-	public $resetTable = false;
+	public $resetCollection = true;
 
 	/**
 	 * @inheritdoc
@@ -50,8 +50,8 @@ class ActiveFixture extends \yii\test\BaseActiveFixture
 	 */
 	protected function loadData()
 	{
-		if ($this->resetTable) {
-			$this->resetTable();
+		if ($this->resetCollection) {
+			$this->resetCollection();
 		}
 		foreach ($this->getData() as $alias => $row) {
 			$this->getCollection()->insert($row);
@@ -59,7 +59,8 @@ class ActiveFixture extends \yii\test\BaseActiveFixture
 		}
 	}
 
-	protected function getCollection() {
+	protected function getCollection()
+	{
 		return $this->db->getCollection($this->getCollectionName());
 	}
 
@@ -103,7 +104,7 @@ class ActiveFixture extends \yii\test\BaseActiveFixture
 	 * Removes all existing data from the specified table and resets sequence number if any.
 	 * This method is called before populating fixture data into the table associated with this fixture.
 	 */
-	protected function resetTable()
+	protected function resetCollection()
 	{
 		$this->getCollection()->remove();
 	}
