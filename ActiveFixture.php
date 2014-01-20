@@ -53,8 +53,8 @@ class ActiveFixture extends \yii\test\BaseActiveFixture
 		if ($this->resetTable) {
 			$this->resetTable();
 		}
-		$this->getCollection()->insert($this->getData());
 		foreach ($this->getData() as $alias => $row) {
+			$this->getCollection()->insert($row);
 			$this->data[$alias] = $row;
 		}
 	}
