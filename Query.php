@@ -109,8 +109,13 @@ class Query extends Component implements QueryInterface
         }
         $selectFields = [];
         if (!empty($this->select)) {
-            foreach ($this->select as $fieldName) {
-                $selectFields[$fieldName] = true;
+            foreach ($this->select as $key=>$fieldName) {
+                if(is_array($fieldName)){
+                    $selectFields[$key]=$fieldName;
+                }
+                else{
+                    $selectFields[$fieldName] = true;
+                }
             }
         }
         $cursor = $this->getCollection($db)->find($where, $selectFields);
