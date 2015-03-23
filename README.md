@@ -1,9 +1,14 @@
 MongoDb Extension for Yii 2
 ===========================
 
-This extension provides the [MongoDB](http://www.mongodb.org/) integration for the Yii2 framework.
+This extension provides the [MongoDB](http://www.mongodb.org/) integration for the [Yii framework 2.0](http://www.yiiframework.com).
 
 For license information check the [LICENSE](LICENSE.md)-file.
+
+[![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-mongodb/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
+[![Total Downloads](https://poser.pugx.org/yiisoft/yii2-mongodb/downloads.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
+[![Build Status](https://travis-ci.org/yiisoft/yii2-mongodb.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-mongodb)
+
 
 Installation
 ------------
