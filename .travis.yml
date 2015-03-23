@@ -44,7 +44,7 @@ before_script:
 
 
 script:
-  - vendor/bin/phpunit --verbose $PHPUNIT_FLAGS
+  - phpunit --verbose $PHPUNIT_FLAGS
 
 after_script:
   - |
