@@ -453,7 +453,7 @@ class CollectionTest extends TestCase
     {
         $collection = $this->getConnection()->getCollection('customer');
 
-        $fileName = realpath(__DIR__ . '/../../../../extensions/gii/assets/logo.png');
+        $fileName = __FILE__;
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
