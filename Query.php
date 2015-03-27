@@ -179,6 +179,7 @@ class Query extends Component implements QueryInterface
      * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
      */
     public function batch($batchSize = 100, $db = null)
     {
@@ -206,6 +207,7 @@ class Query extends Component implements QueryInterface
      * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
      */
     public function each($batchSize = 100, $db = null)
     {

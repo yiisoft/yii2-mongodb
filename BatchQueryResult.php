@@ -8,9 +8,24 @@
 namespace yii\mongodb;
 
 use yii\base\Object;
+use yii\helpers\Json;
+use Yii;
 
 /**
- * BatchQueryResult
+ * BatchQueryResult represents a batch query from which you can retrieve data in batches.
+ *
+ * You usually do not instantiate BatchQueryResult directly. Instead, you obtain it by
+ * calling [[Query::batch()]] or [[Query::each()]]. Because BatchQueryResult implements the `Iterator` interface,
+ * you can iterate it to obtain a batch of data in each iteration. For example,
+ *
+ * ```php
+ * $query = (new Query)->from('user');
+ * foreach ($query->batch() as $i => $users) {
+ *     // $users represents the rows in the $i-th batch
+ * }
+ * foreach ($query->each() as $user) {
+ * }
+ * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0.4
@@ -116,6 +131,8 @@ class BatchQueryResult extends Object implements \Iterator
                 // @see https://jira.mongodb.org/browse/PHP-457
                 $this->_cursor->batchSize($this->batchSize);
             }
+            $token = 'find(' . Json::encode($this->_cursor->info()) . ')';
+            Yii::info($token, __METHOD__);
         }
 
         $rows = [];
