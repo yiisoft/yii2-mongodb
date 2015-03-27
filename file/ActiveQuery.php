@@ -72,7 +72,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    protected function buildCursor($db = null)
+    public function buildCursor($db = null)
     {
         if ($this->primaryModel !== null) {
             // lazy loading
@@ -105,27 +105,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Executes query and returns all results as an array.
      * @param \yii\mongodb\Connection $db the Mongo connection used to execute the query.
      * If null, the Mongo connection returned by [[modelClass]] will be used.
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     * @return array|ActiveRecord the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all($db = null)
     {
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor);
-        if (!empty($rows)) {
-            $models = $this->createModels($rows);
-            if (!empty($this->with)) {
-                $this->findWith($this->with, $models);
-            }
-            if (!$this->asArray) {
-                foreach ($models as $model) {
-                    $model->afterFind();
-                }
-            }
-
-            return $models;
-        } else {
-            return [];
-        }
+        return parent::all($db);
     }
 
     /**
@@ -140,25 +124,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         $row = parent::one($db);
         if ($row !== false) {
-            if ($this->asArray) {
-                $model = $row;
-            } else {
-                /* @var $class ActiveRecord */
-                $class = $this->modelClass;
-                $model = $class::instantiate($row);
-                $class = get_class($model);
-                $class::populateRecord($model, $row);
-            }
-            if (!empty($this->with)) {
-                $models = [$model];
-                $this->findWith($this->with, $models);
-                $model = $models[0];
-            }
-            if (!$this->asArray) {
-                $model->afterFind();
-            }
-
-            return $model;
+            $models = $this->populate([$row]);
+            return reset($models) ?: null;
         } else {
             return null;
         }
@@ -181,5 +148,31 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         }
 
         return $db->getFileCollection($this->from);
+    }
+
+    /**
+     * Converts the raw query results into the format as specified by this query.
+     * This method is internally used to convert the data fetched from MongoDB
+     * into the format as required by this query.
+     * @param array $rows the raw query result from MongoDB
+     * @return array the converted query result
+     */
+    public function populate($rows)
+    {
+        if (empty($rows)) {
+            return [];
+        }
+
+        $models = $this->createModels($rows);
+        if (!empty($this->with)) {
+            $this->findWith($this->with, $models);
+        }
+        if (!$this->asArray) {
+            foreach ($models as $model) {
+                $model->afterFind();
+            }
+        }
+
+        return $models;
     }
 }
