@@ -100,7 +100,7 @@ class Query extends Component implements QueryInterface
      * @param Connection $db the database connection used to execute the query.
      * @return \MongoCursor mongo cursor instance.
      */
-    protected function buildCursor($db = null)
+    public function buildCursor($db = null)
     {
         $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
         if (!empty($this->orderBy)) {
@@ -127,7 +127,7 @@ class Query extends Component implements QueryInterface
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->fetchRowsInternal($cursor, $all, $indexBy);
+            $result = $this->fetchRowsInternal($cursor, $all);
             Yii::endProfile($token, __METHOD__);
 
             return $result;
@@ -140,11 +140,10 @@ class Query extends Component implements QueryInterface
     /**
      * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
-     * @param string|callable $indexBy value to index by.
      * @return array|boolean result.
      * @see Query::fetchRows()
      */
-    protected function fetchRowsInternal($cursor, $all, $indexBy)
+    protected function fetchRowsInternal($cursor, $all)
     {
         $result = [];
         if ($all) {
@@ -160,6 +159,67 @@ class Query extends Component implements QueryInterface
         }
 
         return $result;
+    }
+
+    /**
+     * Starts a batch query.
+     *
+     * A batch query supports fetching data in batches, which can keep the memory usage under a limit.
+     * This method will return a [[BatchQueryResult]] object which implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     *
+     * For example,
+     *
+     * ```php
+     * $query = (new Query)->from('user');
+     * foreach ($query->batch() as $rows) {
+     *     // $rows is an array of 10 or fewer rows from user collection
+     * }
+     * ```
+     *
+     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
+     * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
+     */
+    public function batch($batchSize = 100, $db = null)
+    {
+        return Yii::createObject([
+            'class' => BatchQueryResult::className(),
+            'query' => $this,
+            'batchSize' => $batchSize,
+            'db' => $db,
+            'each' => false,
+        ]);
+    }
+
+    /**
+     * Starts a batch query and retrieves data row by row.
+     * This method is similar to [[batch()]] except that in each iteration of the result,
+     * only one row of data is returned. For example,
+     *
+     * ```php
+     * $query = (new Query)->from('user');
+     * foreach ($query->each() as $row) {
+     * }
+     * ```
+     *
+     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
+     * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
+     */
+    public function each($batchSize = 100, $db = null)
+    {
+        return Yii::createObject([
+            'class' => BatchQueryResult::className(),
+            'query' => $this,
+            'batchSize' => $batchSize,
+            'db' => $db,
+            'each' => true,
+        ]);
     }
 
     /**

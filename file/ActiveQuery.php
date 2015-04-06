@@ -72,7 +72,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    protected function buildCursor($db = null)
+    public function buildCursor($db = null)
     {
         if ($this->primaryModel !== null) {
             // lazy loading
