@@ -149,16 +149,7 @@ class Query extends Component implements QueryInterface
         $result = [];
         if ($all) {
             foreach ($cursor as $row) {
-                if ($indexBy !== null) {
-                    if (is_string($indexBy)) {
-                        $key = $row[$indexBy];
-                    } else {
-                        $key = call_user_func($indexBy, $row);
-                    }
-                    $result[$key] = $row;
-                } else {
-                    $result[] = $row;
-                }
+                $result[] = $row;
             }
         } else {
             if ($cursor->hasNext()) {
@@ -180,8 +171,32 @@ class Query extends Component implements QueryInterface
     public function all($db = null)
     {
         $cursor = $this->buildCursor($db);
+        $rows = $this->fetchRows($cursor, true, $this->indexBy);
+        return $this->populate($rows);
+    }
 
-        return $this->fetchRows($cursor, true, $this->indexBy);
+    /**
+     * Converts the raw query results into the format as specified by this query.
+     * This method is internally used to convert the data fetched from database
+     * into the format as required by this query.
+     * @param array $rows the raw query result from database
+     * @return array the converted query result
+     */
+    public function populate($rows)
+    {
+        if ($this->indexBy === null) {
+            return $rows;
+        }
+        $result = [];
+        foreach ($rows as $row) {
+            if (is_string($this->indexBy)) {
+                $key = $row[$this->indexBy];
+            } else {
+                $key = call_user_func($this->indexBy, $row);
+            }
+            $result[$key] = $row;
+        }
+        return $result;
     }
 
     /**
@@ -194,7 +209,6 @@ class Query extends Component implements QueryInterface
     public function one($db = null)
     {
         $cursor = $this->buildCursor($db);
-
         return $this->fetchRows($cursor, false);
     }
 

@@ -5,6 +5,7 @@ namespace yiiunit\extensions\mongodb;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
+use yiiunit\extensions\mongodb\data\ar\Item;
 
 /**
  * @group mongodb
@@ -22,6 +23,7 @@ class ActiveRelationTest extends TestCase
     {
         $this->dropCollection(Customer::collectionName());
         $this->dropCollection(CustomerOrder::collectionName());
+        $this->dropCollection(Item::collectionName());
         parent::tearDown();
     }
 

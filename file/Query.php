@@ -51,16 +51,7 @@ class Query extends \yii\mongodb\Query
             foreach ($cursor as $file) {
                 $row = $file->file;
                 $row['file'] = $file;
-                if ($indexBy !== null) {
-                    if (is_string($indexBy)) {
-                        $key = $row[$indexBy];
-                    } else {
-                        $key = call_user_func($indexBy, $row);
-                    }
-                    $result[$key] = $row;
-                } else {
-                    $result[] = $row;
-                }
+                $result[] = $row;
             }
         } else {
             if ($cursor->hasNext()) {
