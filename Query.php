@@ -100,7 +100,7 @@ class Query extends Component implements QueryInterface
      * @param Connection $db the database connection used to execute the query.
      * @return \MongoCursor mongo cursor instance.
      */
-    protected function buildCursor($db = null)
+    public function buildCursor($db = null)
     {
         $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
         if (!empty($this->orderBy)) {
@@ -116,18 +116,16 @@ class Query extends Component implements QueryInterface
      * Fetches rows from the given Mongo cursor.
      * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
-     * @param string|callable $indexBy the column name or PHP callback,
-     * by which the query results should be indexed by.
      * @throws Exception on failure.
      * @return array|boolean result.
      */
-    protected function fetchRows($cursor, $all = true, $indexBy = null)
+    protected function fetchRows($cursor, $all = true)
     {
         $token = 'find(' . Json::encode($cursor->info()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->fetchRowsInternal($cursor, $all, $indexBy);
+            $result = $this->fetchRowsInternal($cursor, $all);
             Yii::endProfile($token, __METHOD__);
 
             return $result;
@@ -140,25 +138,15 @@ class Query extends Component implements QueryInterface
     /**
      * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
-     * @param string|callable $indexBy value to index by.
      * @return array|boolean result.
      * @see Query::fetchRows()
      */
-    protected function fetchRowsInternal($cursor, $all, $indexBy)
+    protected function fetchRowsInternal($cursor, $all)
     {
         $result = [];
         if ($all) {
             foreach ($cursor as $row) {
-                if ($indexBy !== null) {
-                    if (is_string($indexBy)) {
-                        $key = $row[$indexBy];
-                    } else {
-                        $key = call_user_func($indexBy, $row);
-                    }
-                    $result[$key] = $row;
-                } else {
-                    $result[] = $row;
-                }
+                $result[] = $row;
             }
         } else {
             if ($cursor->hasNext()) {
@@ -172,6 +160,67 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Starts a batch query.
+     *
+     * A batch query supports fetching data in batches, which can keep the memory usage under a limit.
+     * This method will return a [[BatchQueryResult]] object which implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     *
+     * For example,
+     *
+     * ```php
+     * $query = (new Query)->from('user');
+     * foreach ($query->batch() as $rows) {
+     *     // $rows is an array of 10 or fewer rows from user collection
+     * }
+     * ```
+     *
+     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
+     * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
+     */
+    public function batch($batchSize = 100, $db = null)
+    {
+        return Yii::createObject([
+            'class' => BatchQueryResult::className(),
+            'query' => $this,
+            'batchSize' => $batchSize,
+            'db' => $db,
+            'each' => false,
+        ]);
+    }
+
+    /**
+     * Starts a batch query and retrieves data row by row.
+     * This method is similar to [[batch()]] except that in each iteration of the result,
+     * only one row of data is returned. For example,
+     *
+     * ```php
+     * $query = (new Query)->from('user');
+     * foreach ($query->each() as $row) {
+     * }
+     * ```
+     *
+     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
+     * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
+     * and can be traversed to retrieve the data in batches.
+     * @since 2.0.4
+     */
+    public function each($batchSize = 100, $db = null)
+    {
+        return Yii::createObject([
+            'class' => BatchQueryResult::className(),
+            'query' => $this,
+            'batchSize' => $batchSize,
+            'db' => $db,
+            'each' => true,
+        ]);
+    }
+
+    /**
      * Executes the query and returns all results as an array.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
@@ -180,8 +229,32 @@ class Query extends Component implements QueryInterface
     public function all($db = null)
     {
         $cursor = $this->buildCursor($db);
+        $rows = $this->fetchRows($cursor, true);
+        return $this->populate($rows);
+    }
 
-        return $this->fetchRows($cursor, true, $this->indexBy);
+    /**
+     * Converts the raw query results into the format as specified by this query.
+     * This method is internally used to convert the data fetched from database
+     * into the format as required by this query.
+     * @param array $rows the raw query result from database
+     * @return array the converted query result
+     */
+    public function populate($rows)
+    {
+        if ($this->indexBy === null) {
+            return $rows;
+        }
+        $result = [];
+        foreach ($rows as $row) {
+            if (is_string($this->indexBy)) {
+                $key = $row[$this->indexBy];
+            } else {
+                $key = call_user_func($this->indexBy, $row);
+            }
+            $result[$key] = $row;
+        }
+        return $result;
     }
 
     /**
@@ -194,7 +267,6 @@ class Query extends Component implements QueryInterface
     public function one($db = null)
     {
         $cursor = $this->buildCursor($db);
-
         return $this->fetchRows($cursor, false);
     }
 

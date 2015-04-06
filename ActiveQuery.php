@@ -96,7 +96,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    protected function buildCursor($db = null)
+    public function buildCursor($db = null)
     {
         if ($this->primaryModel !== null) {
             // lazy loading
@@ -129,14 +129,11 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      * Executes query and returns all results as an array.
      * @param Connection $db the Mongo connection used to execute the query.
      * If null, the Mongo connection returned by [[modelClass]] will be used.
-     * @return array the query results. If the query results in nothing, an empty array will be returned.
+     * @return array|ActiveRecord the query results. If the query results in nothing, an empty array will be returned.
      */
     public function all($db = null)
     {
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor);
-
-        return $this->populate($rows);
+        return parent::all($db);
     }
 
     /**
