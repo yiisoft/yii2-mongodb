@@ -80,7 +80,7 @@ class ActiveRecordTest extends TestCase
 
         // find all
         $customers = CustomerFile::find()->all();
-        $this->assertEquals(10, count($customers));
+        $this->assertCount(10, $customers);
         $this->assertTrue($customers[0] instanceof CustomerFile);
         $this->assertTrue($customers[1] instanceof CustomerFile);
 
