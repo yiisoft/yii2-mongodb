@@ -152,8 +152,8 @@ class Query extends Component implements QueryInterface
                 $result[] = $row;
             }
         } else {
-            if ($cursor->hasNext()) {
-                $result = $cursor->getNext();
+            if ($row = $cursor->getNext()) {
+                $result = $row;
             } else {
                 $result = false;
             }
