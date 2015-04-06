@@ -463,4 +463,36 @@ class CollectionTest extends TestCase
         $this->assertTrue($id instanceof \MongoId);
         $this->assertNotEmpty($id->__toString());
     }
+
+    /**
+     * @depends testBatchInsert
+     */
+    public function testDistinct()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+
+        $rows = [
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+            ],
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+            ],
+            [
+                'name' => 'customer 3',
+                'status' => 2,
+            ],
+        ];
+        $collection->batchInsert($rows);
+
+        $rows = $collection->distinct('status');
+        $this->assertFalse($rows === false);
+        $this->assertCount(2, $rows);
+
+        $rows = $collection->distinct('status', ['status' => 1]);
+        $this->assertFalse($rows === false);
+        $this->assertCount(1, $rows);
+    }
 }
