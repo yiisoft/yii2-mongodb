@@ -310,4 +310,30 @@ class ActiveRecordTest extends TestCase
         $animal = Animal::find()->where(['type' => Cat::className()])->one();
         $this->assertEquals('meow', $animal->getDoes());
     }
+
+    /**
+     * @depends testInsert
+     *
+     * @see https://github.com/yiisoft/yii2/issues/6026
+     */
+    public function testEmbed()
+    {
+        $record = new Customer();
+        $address = new \stdClass();
+        $address->country = 'USA';
+        $address->city = 'New York';
+        $record->addressModel = $address;
+
+        $record->save();
+
+        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertFalse($record->isNewRecord);
+
+        $this->assertEquals($address->country, $record->address['country']);
+        $this->assertEquals($address->city, $record->address['city']);
+
+        $record = Customer::findOne($record->_id);
+        $this->assertEquals($address->country, $record->address['country']);
+        $this->assertEquals($address->city, $record->address['city']);
+    }
 }

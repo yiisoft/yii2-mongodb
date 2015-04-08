@@ -13,6 +13,8 @@ use yii\db\BaseActiveRecord;
 use yii\db\StaleObjectException;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
+use yii\mongodb\embed\ContainerInterface;
+use yii\mongodb\embed\ContainerTrait;
 
 /**
  * ActiveRecord is the base class for classes representing Mongo documents in terms of objects.
@@ -20,8 +22,10 @@ use yii\helpers\StringHelper;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
  */
-abstract class ActiveRecord extends BaseActiveRecord
+abstract class ActiveRecord extends BaseActiveRecord implements ContainerInterface
 {
+    use ContainerTrait;
+
     /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
@@ -160,6 +164,15 @@ abstract class ActiveRecord extends BaseActiveRecord
     public function attributes()
     {
         throw new InvalidConfigException('The attributes() method of mongodb ActiveRecord has to be implemented by child classes.');
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function save($runValidation = true, $attributeNames = null)
+    {
+        $this->synchronizeWithEmbed();
+        return parent::save($runValidation, $attributeNames);
     }
 
     /**

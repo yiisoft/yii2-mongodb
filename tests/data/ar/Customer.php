@@ -41,4 +41,9 @@ class Customer extends ActiveRecord
     {
         return new CustomerQuery(get_called_class());
     }
+
+    public function embedAddressModel()
+    {
+        return $this->hasEmbed('address', 'stdClass');
+    }
 }
