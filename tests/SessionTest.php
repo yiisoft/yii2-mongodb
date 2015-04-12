@@ -142,9 +142,6 @@ class SessionTest extends TestCase
         $this->assertCount(1, $rows, 'Wrong records count!');
     }
 
-    /**
-     * @depends testWriteSession
-     */
     public function testExpire()
     {
         /** @var Session $session */
