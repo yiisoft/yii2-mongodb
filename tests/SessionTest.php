@@ -5,6 +5,10 @@ namespace yiiunit\extensions\mongodb;
 use yii\mongodb\Session;
 use Yii;
 
+
+/**
+ * @group mongodb
+ */
 class SessionTest extends TestCase
 {
     /**
@@ -51,7 +55,7 @@ class SessionTest extends TestCase
         $row = array_shift($rows);
         $this->assertEquals($id, $row['id'], 'Wrong session id!');
         $this->assertEquals($dataSerialized, $row['data'], 'Wrong session data!');
-        $this->assertTrue($row['expire'] > time(), 'Wrong session expire!');
+        $this->assertTrue($row['expire'] > new \MongoDate(time()), 'Wrong session expire!');
 
         $newData = [
             'name' => 'new value'
@@ -108,7 +112,7 @@ class SessionTest extends TestCase
         $collection = $session->db->getCollection($session->sessionCollection);
         list($row) = $this->findAll($collection);
         $newRow = $row;
-        $newRow['expire'] = time() - 1;
+        $newRow['expire'] = new \MongoDate(time() - 1);
         unset($newRow['_id']);
         $collection->update(['_id' => $row['_id']], $newRow);
 
@@ -116,25 +120,28 @@ class SessionTest extends TestCase
         $this->assertEquals('', $sessionData, 'Expired session read!');
     }
 
-    public function testGcSession()
+    /**
+     * @depends testWriteSession
+     */
+    public function testExpire()
     {
-        $session = $this->createSession();
-        $collection = $session->db->getCollection($session->sessionCollection);
-        $collection->batchInsert([
-            [
-                'id' => uniqid(),
-                'expire' => time() + 10,
-                'data' => 'actual',
-            ],
-            [
-                'id' => uniqid(),
-                'expire' => time() - 10,
-                'data' => 'expired',
-            ],
+        /** @var Session $session */
+        $session = Yii::createObject([
+            'class' => Session::className(),
+            'db' => $this->getConnection(),
+            'sessionCollection' => static::$sessionCollection,
+            'timeout' => 2
         ]);
-        $this->assertTrue($session->gcSession(10), 'Unable to collection garbage session!');
 
-        $rows = $this->findAll($collection);
-        $this->assertCount(1, $rows, 'Wrong records count!');
+
+        $id = uniqid();
+        $data = [
+            'ttl' => 'test'
+        ];
+        $dataSerialized = serialize($data);
+        $session->writeSession($id, $dataSerialized);
+        $this->assertSame($dataSerialized, $session->readSession($id));
+        sleep(4);
+        $this->assertEmpty($session->readSession($id));
     }
 }

@@ -61,6 +61,9 @@ class Session extends \yii\web\Session
     {
         parent::init();
         $this->db = Instance::ensure($this->db, Connection::className());
+        $this->db
+            ->getCollection($this->sessionCollection)
+            ->createIndex('expire', ['expireAfterSeconds' => 0]);
     }
 
     /**
@@ -104,7 +107,7 @@ class Session extends \yii\web\Session
             // shouldn't reach here normally
             $collection->insert([
                 'id' => $newID,
-                'expire' => time() + $this->getTimeout()
+                'expire' => new \MongoDate(time() + $this->getTimeout())
             ]);
         }
     }
@@ -121,7 +124,7 @@ class Session extends \yii\web\Session
         $doc = $collection->findOne(
             [
                 'id' => $id,
-                'expire' => ['$gt' => time()],
+                'expire' => ['$gt' => new \MongoDate()],
             ],
             ['data' => 1, '_id' => 0]
         );
@@ -146,7 +149,7 @@ class Session extends \yii\web\Session
                 [
                     'id' => $id,
                     'data' => $data,
-                    'expire' => time() + $this->getTimeout(),
+                    'expire' => new \MongoDate(time() + $this->getTimeout()),
                 ],
                 ['upsert' => true]
             );
@@ -187,7 +190,7 @@ class Session extends \yii\web\Session
     public function gcSession($maxLifetime)
     {
         $this->db->getCollection($this->sessionCollection)
-            ->remove(['expire' => ['$lt' => time()]]);
+            ->remove(['expire' => ['$lt' => new \MongoDate()]]);
 
         return true;
     }
