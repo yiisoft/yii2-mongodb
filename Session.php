@@ -61,9 +61,11 @@ class Session extends \yii\web\Session
     {
         parent::init();
         $this->db = Instance::ensure($this->db, Connection::className());
-        $this->db
-            ->getCollection($this->sessionCollection)
-            ->createIndex('expire', ['expireAfterSeconds' => 0]);
+        if (!$this->getIsActive()) {
+            $this->db
+                ->getCollection($this->sessionCollection)
+                ->createIndex('expire', ['expireAfterSeconds' => 0]);
+        }
     }
 
     /**
