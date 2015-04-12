@@ -55,7 +55,7 @@ class SessionTest extends TestCase
         $row = array_shift($rows);
         $this->assertEquals($id, $row['id'], 'Wrong session id!');
         $this->assertEquals($dataSerialized, $row['data'], 'Wrong session data!');
-        $this->assertTrue($row['expire'] > new \MongoDate(time()), 'Wrong session expire!');
+        $this->assertTrue($row['expire'] > new \MongoDate(), 'Wrong session expire!');
 
         $newData = [
             'name' => 'new value'
@@ -118,6 +118,28 @@ class SessionTest extends TestCase
 
         $sessionData = $session->readSession($id);
         $this->assertEquals('', $sessionData, 'Expired session read!');
+    }
+
+    public function testGcSession()
+    {
+        $session = $this->createSession();
+        $collection = $session->db->getCollection($session->sessionCollection);
+        $collection->batchInsert([
+            [
+                'id' => uniqid(),
+                'expire' => new \MongoDate(time() + 10),
+                'data' => 'actual',
+            ],
+            [
+                'id' => uniqid(),
+                'expire' => new \MongoDate(time() - 10),
+                'data' => 'expired',
+            ],
+        ]);
+        $this->assertTrue($session->gcSession(10), 'Unable to collection garbage session!');
+
+        $rows = $this->findAll($collection);
+        $this->assertCount(1, $rows, 'Wrong records count!');
     }
 
     /**
