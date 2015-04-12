@@ -773,6 +773,7 @@ class Collection extends Object
     {
         static $map = [
             'AND' => '$and',
+            'NOT' => '$ne',
             'OR' => '$or',
             'IN' => '$in',
             'NOT IN' => '$nin',
@@ -828,6 +829,7 @@ class Collection extends Object
     {
         static $builders = [
             'AND' => 'buildAndCondition',
+            'NOT' => 'buildNotCondition',
             'OR' => 'buildOrCondition',
             'BETWEEN' => 'buildBetweenCondition',
             'NOT BETWEEN' => 'buildBetweenCondition',
@@ -899,6 +901,23 @@ class Collection extends Object
      * @return array the generated Mongo condition.
      */
     public function buildAndCondition($operator, $operands)
+    {
+        $operator = $this->normalizeConditionKeyword($operator);
+        $parts = [];
+        foreach ($operands as $operand) {
+            $parts[] = $this->buildCondition($operand);
+        }
+
+        return [$operator => $parts];
+    }
+
+    /**
+     * Connects two or more conditions with the `NOT` operator.
+     * @param string $operator the operator to use for connecting the given operands
+     * @param array $operands the Mongo conditions to connect.
+     * @return array the generated Mongo condition.
+     */
+    public function buildNotCondition($operator, $operands)
     {
         $operator = $this->normalizeConditionKeyword($operator);
         $parts = [];
