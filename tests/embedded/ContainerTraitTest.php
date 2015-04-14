@@ -1,10 +1,10 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\embed;
+namespace yiiunit\extensions\mongodb\embedded;
 
 use yii\base\Object;
-use yii\mongodb\embed\ContainerInterface;
-use yii\mongodb\embed\ContainerTrait;
+use yii\mongodb\embedded\ContainerInterface;
+use yii\mongodb\embedded\ContainerTrait;
 use yiiunit\extensions\mongodb\TestCase;
 
 class ContainerTraitTest extends TestCase
@@ -16,8 +16,8 @@ class ContainerTraitTest extends TestCase
             'name1' => 'value1',
             'name2' => 'value2',
         ];
-        $this->assertTrue($container->getEmbed('model') instanceof \stdClass);
-        $this->assertTrue($container->getEmbed('model') === $container->model);
+        $this->assertTrue($container->getEmbedded('model') instanceof \stdClass);
+        $this->assertTrue($container->getEmbedded('model') === $container->model);
         $this->assertEquals('value1', $container->model->name1);
         $this->assertEquals('value2', $container->model->name2);
     }
@@ -33,7 +33,7 @@ class ContainerTraitTest extends TestCase
                 'name' => 'name2',
             ],
         ];
-        $this->assertTrue($container->getEmbed('list') === $container->list);
+        $this->assertTrue($container->getEmbedded('list') === $container->list);
         $this->assertTrue($container->list[0] instanceof \stdClass);
         $this->assertTrue($container->list[1] instanceof \stdClass);
 
@@ -92,7 +92,7 @@ class ContainerTraitTest extends TestCase
         $container->model->name = 'new name';
         $container->list[0]->name = 'new list name';
 
-        $embedValues = $container->getEmbedValues();
+        $embedValues = $container->getEmbeddedValues();
         $expectedEmbedValues = [
             'modelData' => [
                 'name' => 'new name'
@@ -116,7 +116,7 @@ class ContainerTraitTest extends TestCase
         $container->self = new Container();
         $container->self->model->name = 'self name';
 
-        $embedValues = $container->getEmbedValues();
+        $embedValues = $container->getEmbeddedValues();
         $expectedEmbedValues = [
             'selfData' => [
                 'modelData' => [
@@ -124,6 +124,7 @@ class ContainerTraitTest extends TestCase
                 ],
                 'listData' => [],
                 'selfData' => [],
+                'nullData' => null,
             ],
         ];
         $this->assertEquals($expectedEmbedValues, $embedValues);
@@ -132,7 +133,7 @@ class ContainerTraitTest extends TestCase
     /**
      * @depends testGetEmbedValues
      */
-    public function testSynchronizeWithEmbed()
+    public function testRefreshFromEmbedded()
     {
         $container = new Container();
         $container->modelData = [
@@ -140,9 +141,17 @@ class ContainerTraitTest extends TestCase
         ];
 
         $container->model->name = 'new name';
-        $container->synchronizeWithEmbed();
+        $container->refreshFromEmbedded();
 
         $this->assertEquals('new name', $container->modelData['name']);
+    }
+
+    public function testCreateFromNull()
+    {
+        $container = new Container();
+
+        $this->assertNull($container->null);
+        $this->assertTrue(is_object($container->nullAutoCreate));
     }
 }
 
@@ -150,6 +159,8 @@ class ContainerTraitTest extends TestCase
  * @property \stdClass $model
  * @property \stdClass[] $list
  * @property Container $self
+ * @property \stdClass[] $null
+ * @property \stdClass[] $nullAutoCreate
  */
 class Container extends Object implements ContainerInterface
 {
@@ -158,19 +169,30 @@ class Container extends Object implements ContainerInterface
     public $modelData = [];
     public $listData = [];
     public $selfData = [];
+    public $nullData;
 
     public function embedModel()
     {
-        return $this->hasEmbed('modelData', 'stdClass');
+        return $this->mapEmbedded('modelData', 'stdClass');
     }
 
     public function embedList()
     {
-        return $this->hasEmbedList('listData', 'stdClass');
+        return $this->mapEmbeddedList('listData', 'stdClass');
     }
 
     public function embedSelf()
     {
-        return $this->hasEmbed('selfData', __CLASS__);
+        return $this->mapEmbedded('selfData', __CLASS__);
+    }
+
+    public function embedNull()
+    {
+        return $this->mapEmbedded('nullData', 'stdClass', ['createFromNull' => false]);
+    }
+
+    public function embedNullAutoCreate()
+    {
+        return $this->mapEmbedded('nullData', 'stdClass');
     }
 }

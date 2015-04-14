@@ -5,7 +5,7 @@
  * @license http://www.yiiframework.com/license/
  */
 
-namespace yii\mongodb\embed;
+namespace yii\mongodb\embedded;
 
 use ArrayObject;
 use yii\base\InvalidParamException;
@@ -14,8 +14,8 @@ use Yii;
 use yii\helpers\ArrayHelper;
 
 /**
- * Represents mapping between embed object or object list and its container.
- * It stores declaration of embed policy and handles embed value composition and extraction.
+ * Represents mapping between embedded object or object list and its container.
+ * It stores declaration of embedded policy and handles embedded value composition and extraction.
  *
  * @see ContainerTrait
  *
@@ -36,15 +36,20 @@ class Mapping extends Object
      * @var boolean whether list of objects should match the source value.
      */
     public $multiple;
+    /**
+     * @var boolean whether to create empty object or list of objects, if the source field is null.
+     * If disabled [[getValue()]] will produce `null` value from null source.
+     */
+    public $createFromNull = true;
 
     /**
-     * @var mixed actual embed value.
+     * @var mixed actual embedded value.
      */
     private $_value = false;
 
 
     /**
-     * Sets the embed value.
+     * Sets the embedded value.
      * @param array|object|null $value actual value.
      * @throws InvalidParamException on invalid argument
      */
@@ -72,9 +77,9 @@ class Mapping extends Object
     }
 
     /**
-     * Returns actual embed value.
+     * Returns actual embedded value.
      * @param object $owner owner object.
-     * @return object|object[]|null embed value.
+     * @return object|object[]|null embedded value.
      */
     public function getValue($owner)
     {
@@ -98,12 +103,15 @@ class Mapping extends Object
         }
 
         $sourceValue = $owner->{$this->source};
+        if ($this->createFromNull && $sourceValue === null) {
+            $sourceValue = [];
+        }
 
         if ($this->multiple) {
             $value = new ArrayObject();
             foreach ($sourceValue as $key => $frame) {
                 if (!is_array($frame)) {
-                    throw new InvalidParamException("Source value for the embed should be an array.");
+                    throw new InvalidParamException("Source value for the embedded should be an array.");
                 }
                 $value[$key] = Yii::createObject(array_merge($targetConfig, $frame));
             }
@@ -114,29 +122,29 @@ class Mapping extends Object
             return null;
         }
         if (!is_array($sourceValue)) {
-            throw new InvalidParamException("Source value for the embed should be an array.");
+            throw new InvalidParamException("Source value for the embedded should be an array.");
         }
         return Yii::createObject(array_merge($targetConfig, $sourceValue));
     }
 
     /**
-     * Extract embed object(s) values as array.
+     * Extract embedded object(s) values as array.
      * @param object $owner owner object
      * @return array|null extracted values.
      */
     public function extractValues($owner)
     {
-        $embedValue = $this->getValue($owner);
-        if ($embedValue === null) {
+        $embeddedValue = $this->getValue($owner);
+        if ($embeddedValue === null) {
             $value = null;
         } else {
             if ($this->multiple) {
                 $value = [];
-                foreach ($embedValue as $key => $object) {
+                foreach ($embeddedValue as $key => $object) {
                     $value[$key] = $this->extractObjectValues($object);
                 }
             } else {
-                $value = $this->extractObjectValues($embedValue);
+                $value = $this->extractObjectValues($embeddedValue);
             }
         }
         return $value;
@@ -150,7 +158,7 @@ class Mapping extends Object
     {
         $values = ArrayHelper::toArray($object);
         if ($object instanceof ContainerInterface) {
-            $values = array_merge($values, $object->getEmbedValues());
+            $values = array_merge($values, $object->getEmbeddedValues());
         }
         return $values;
     }
