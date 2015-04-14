@@ -102,6 +102,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         if (!$this->beforeSave(true)) {
             return false;
         }
+        $this->refreshFromEmbedded();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
             $currentAttributes = $this->getAttributes();
@@ -145,6 +146,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         if (!$this->beforeSave(false)) {
             return false;
         }
+        $this->refreshFromEmbedded();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
             $this->afterSave(false, $values);

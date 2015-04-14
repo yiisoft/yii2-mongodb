@@ -44,6 +44,6 @@ class Customer extends ActiveRecord
 
     public function embedAddressModel()
     {
-        return $this->hasEmbed('address', 'stdClass');
+        return $this->mapEmbedded('address', 'stdClass');
     }
 }

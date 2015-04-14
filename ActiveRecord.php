@@ -13,8 +13,8 @@ use yii\db\BaseActiveRecord;
 use yii\db\StaleObjectException;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
-use yii\mongodb\embed\ContainerInterface;
-use yii\mongodb\embed\ContainerTrait;
+use yii\mongodb\embedded\ContainerInterface;
+use yii\mongodb\embedded\ContainerTrait;
 
 /**
  * ActiveRecord is the base class for classes representing Mongo documents in terms of objects.
@@ -167,15 +167,6 @@ abstract class ActiveRecord extends BaseActiveRecord implements ContainerInterfa
     }
 
     /**
-     * @inheritdoc
-     */
-    public function save($runValidation = true, $attributeNames = null)
-    {
-        $this->synchronizeWithEmbed();
-        return parent::save($runValidation, $attributeNames);
-    }
-
-    /**
      * Inserts a row into the associated Mongo collection using the attribute values of this record.
      *
      * This method performs the following steps in order:
@@ -231,6 +222,7 @@ abstract class ActiveRecord extends BaseActiveRecord implements ContainerInterfa
         if (!$this->beforeSave(true)) {
             return false;
         }
+        $this->refreshFromEmbedded();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
             $currentAttributes = $this->getAttributes();
@@ -260,6 +252,7 @@ abstract class ActiveRecord extends BaseActiveRecord implements ContainerInterfa
         if (!$this->beforeSave(false)) {
             return false;
         }
+        $this->refreshFromEmbedded();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
             $this->afterSave(false, $values);
