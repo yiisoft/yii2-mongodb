@@ -154,12 +154,13 @@ trait ContainerTrait
     }
 
     /**
-     * @param string $name embedded name
-     * @throws \yii\base\InvalidParamException
-     * @throws \yii\base\InvalidConfigException
+     * Returns mapping information about specified embedded entity.
+     * @param string $name embedded name.
+     * @throws \yii\base\InvalidParamException if specified embedded does not exists.
+     * @throws \yii\base\InvalidConfigException on invalid mapping declaration.
      * @return Mapping embedded mapping.
      */
-    private function getEmbeddedMapping($name)
+    public function getEmbeddedMapping($name)
     {
         if (!isset($this->_embedded[$name])) {
             $method = $this->composeEmbeddedDeclarationMethodName($name);

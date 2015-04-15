@@ -53,4 +53,13 @@ interface ContainerInterface
      * Fills up own fields by values fetched from embedded objects.
      */
     public function refreshFromEmbedded();
+
+    /**
+     * Returns mapping information about specified embedded entity.
+     * @param string $name embedded name.
+     * @throws \yii\base\InvalidParamException if specified embedded does not exists.
+     * @throws \yii\base\InvalidConfigException on invalid mapping declaration.
+     * @return Mapping embedded mapping.
+     */
+    public function getEmbeddedMapping($name);
 }
