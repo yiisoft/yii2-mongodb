@@ -31,6 +31,7 @@ class QueryRunTest extends TestCase
         for ($i = 1; $i <= 10; $i++) {
             $rows[] = [
                 'name' => 'name' . $i,
+                'status' => $i,
                 'address' => 'address' . $i,
                 'avatar' => [
                     'width' => 50 + $i,
@@ -209,6 +210,23 @@ class QueryRunTest extends TestCase
             ->where(['LIKE', 'name', 'ME1'])
             ->all($connection);
         $this->assertEquals($rows, $rowsUppercase);
+    }
+
+    public function testNot()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['not', 'status', ['$gte' => 10]])
+            ->all($connection);
+        $this->assertEquals(9, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['not', 'name', 'name1'])
+            ->all($connection);
+        $this->assertEquals(9, count($rows));
     }
 
     public function testModify()

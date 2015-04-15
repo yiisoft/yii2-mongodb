@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #7010: Fixed `yii\mongodb\Query::one()` fails on PHP MongoDB extension version 1.6.x (im-kulikov, klimov-paul)
+- Enh #7798: Added support for 'NOT' conditions at `yii\mongodb\Collection` (klimov-paul)
 
 
 2.0.3 March 01, 2015
