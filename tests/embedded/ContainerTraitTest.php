@@ -153,6 +153,28 @@ class ContainerTraitTest extends TestCase
         $this->assertNull($container->null);
         $this->assertTrue(is_object($container->nullAutoCreate));
     }
+
+    /**
+     * @depends testFillUpEmbed
+     */
+    public function testUnsetSource()
+    {
+        $container = new Container();
+        $container->modelData = [
+            'name1' => 'value1',
+            'name2' => 'value2',
+        ];
+        $embedded = $container->getEmbedded('model');
+        $this->assertNull($container->modelData);
+
+        $container = new Container();
+        $container->nullData = [
+            'name1' => 'value1',
+            'name2' => 'value2',
+        ];
+        $embedded = $container->getEmbedded('null');
+        $this->assertNotNull($container->modelData);
+    }
 }
 
 /**
@@ -188,7 +210,7 @@ class Container extends Object implements ContainerInterface
 
     public function embedNull()
     {
-        return $this->mapEmbedded('nullData', 'stdClass', ['createFromNull' => false]);
+        return $this->mapEmbedded('nullData', 'stdClass', ['createFromNull' => false, 'unsetSource' => false]);
     }
 
     public function embedNullAutoCreate()

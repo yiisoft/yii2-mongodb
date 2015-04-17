@@ -41,6 +41,11 @@ class Mapping extends Object
      * If disabled [[getValue()]] will produce `null` value from null source.
      */
     public $createFromNull = true;
+    /**
+     * @var boolean whether to set `null` for the owner [[source]] field, after the embedded value created.
+     * While enabled this saves memory usage, but also makes it impossible to use embedded and raw value at the same time.
+     */
+    public $unsetSource = true;
 
     /**
      * @var mixed actual embedded value.
@@ -108,23 +113,28 @@ class Mapping extends Object
         }
 
         if ($this->multiple) {
-            $value = new ArrayObject();
+            $result = new ArrayObject();
             foreach ($sourceValue as $key => $frame) {
                 if (!is_array($frame)) {
                     throw new InvalidParamException("Source value for the embedded should be an array.");
                 }
-                $value[$key] = Yii::createObject(array_merge($targetConfig, $frame));
+                $result[$key] = Yii::createObject(array_merge($targetConfig, $frame));
             }
-            return $value;
+        } else {
+            if ($sourceValue === null) {
+                return null;
+            }
+            if (!is_array($sourceValue)) {
+                throw new InvalidParamException("Source value for the embedded should be an array.");
+            }
+            $result = Yii::createObject(array_merge($targetConfig, $sourceValue));
         }
 
-        if ($sourceValue === null) {
-            return null;
+        if ($this->unsetSource) {
+            $owner->{$this->source} = null;
         }
-        if (!is_array($sourceValue)) {
-            throw new InvalidParamException("Source value for the embedded should be an array.");
-        }
-        return Yii::createObject(array_merge($targetConfig, $sourceValue));
+
+        return $result;
     }
 
     /**
