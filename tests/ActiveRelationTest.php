@@ -89,18 +89,36 @@ class ActiveRelationTest extends TestCase
         $this->assertTrue($customer instanceof Customer);
         $this->assertEquals((string) $customer->_id, (string) $order->customer_id);
         $this->assertEquals(1, count($order->relatedRecords));
+
+        /* @var $customer Customer */
+        $customer = Customer::findOne(['status' => 2]);
+        $this->assertFalse($customer->isRelationPopulated('orders'));
+        $orders = $customer->orders;
+        $this->assertTrue($customer->isRelationPopulated('orders'));
+        $this->assertTrue($orders[0] instanceof CustomerOrder);
+        $this->assertEquals((string) $customer->_id, (string) $orders[0]->customer_id);
     }
 
     public function testFindEager()
     {
+        /* @var $orders CustomerOrder[] */
         $orders = CustomerOrder::find()->with('customer')->all();
-        $this->assertEquals(10, count($orders));
+        $this->assertCount(10, $orders);
         $this->assertTrue($orders[0]->isRelationPopulated('customer'));
         $this->assertTrue($orders[1]->isRelationPopulated('customer'));
         $this->assertTrue($orders[0]->customer instanceof Customer);
         $this->assertEquals((string) $orders[0]->customer->_id, (string) $orders[0]->customer_id);
         $this->assertTrue($orders[1]->customer instanceof Customer);
         $this->assertEquals((string) $orders[1]->customer->_id, (string) $orders[1]->customer_id);
+
+        /* @var $customers Customer[] */
+        $customers = Customer::find()->with('orders')->all();
+        $this->assertCount(5, $customers);
+        $this->assertTrue($customers[0]->isRelationPopulated('orders'));
+        $this->assertTrue($customers[1]->isRelationPopulated('orders'));
+        $this->assertNotEmpty($customers[0]->orders);
+        $this->assertTrue($customers[0]->orders[0] instanceof CustomerOrder);
+        $this->assertEquals((string) $customers[0]->_id, (string) $customers[0]->orders[0]->customer_id);
     }
 
     /**
