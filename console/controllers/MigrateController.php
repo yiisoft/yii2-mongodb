@@ -128,7 +128,7 @@ class MigrateController extends BaseMigrateController
         $query = new Query;
         $rows = $query->select(['version', 'apply_time'])
             ->from($this->migrationCollection)
-            ->orderBy('version DESC')
+            ->orderBy(['apply_time' => SORT_DESC, 'version' => SORT_DESC])
             ->limit($limit)
             ->all($this->db);
         $history = ArrayHelper::map($rows, 'version', 'apply_time');
