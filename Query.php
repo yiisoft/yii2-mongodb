@@ -82,6 +82,25 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Set condition and sort by score for full text search
+     *
+     * @param string $text
+     * @param null|string $lang ru|en...
+     * @return static the query object itself.
+     */
+    public function whereText($text, $lang = null)
+    {
+        $text = ['$search' => $text];
+        if (!empty($lang)) {
+            $text['$language'] = $lang;
+        }
+
+        return $this->where(['$text' => $text])->
+        select(['score' => ['$meta' => 'textScore']])->
+        orderBy(['score' => ['$meta' => 'textScore']]);
+    }
+
+    /**
      * Sets the collection to be selected from.
      * @param string|array the collection to be selected from. If string considered as the name of the collection
      * inside the default database. If array - first element considered as the name of the database,
@@ -410,7 +429,16 @@ class Query extends Component implements QueryInterface
     {
         $sort = [];
         foreach ($this->orderBy as $fieldName => $sortOrder) {
-            $sort[$fieldName] = $sortOrder === SORT_DESC ? \MongoCollection::DESCENDING : \MongoCollection::ASCENDING;
+            switch ($sortOrder) {
+                case SORT_DESC:
+                    $sort[$fieldName] = \MongoCollection::DESCENDING;
+                    break;
+                case SORT_ASC:
+                    $sort[$fieldName] = \MongoCollection::ASCENDING;
+                    break;
+                default:
+                    $sort[$fieldName] = $sortOrder;
+            }
         }
         return $sort;
     }
