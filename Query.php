@@ -410,7 +410,16 @@ class Query extends Component implements QueryInterface
     {
         $sort = [];
         foreach ($this->orderBy as $fieldName => $sortOrder) {
-            $sort[$fieldName] = $sortOrder === SORT_DESC ? \MongoCollection::DESCENDING : \MongoCollection::ASCENDING;
+            switch ($sortOrder) {
+                case SORT_DESC:
+                    $sort[$fieldName] = \MongoCollection::DESCENDING;
+                    break;
+                case SORT_ASC:
+                    $sort[$fieldName] = \MongoCollection::ASCENDING;
+                    break;
+                default:
+                    $sort[$fieldName] = $sortOrder;
+            }
         }
         return $sort;
     }
