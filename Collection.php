@@ -845,7 +845,7 @@ class Collection extends Object
         }
         if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
             $operator = $condition[0];
-            if (strncmp($operator, '$', 1) !== 0) {
+            if (strncmp($operator, '$', 1) === 0) {
                 $method = 'buildSimpleCondition';
             } elseif (isset($builders[strtoupper($operator)])) {
                 $operator = strtoupper($operator);
