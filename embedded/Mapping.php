@@ -166,7 +166,7 @@ class Mapping extends Object
      */
     private function extractObjectValues($object)
     {
-        $values = ArrayHelper::toArray($object);
+        $values = ArrayHelper::toArray($object, [], false);
         if ($object instanceof ContainerInterface) {
             $values = array_merge($values, $object->getEmbeddedValues());
         }

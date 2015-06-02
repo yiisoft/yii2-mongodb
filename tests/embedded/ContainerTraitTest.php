@@ -146,6 +146,22 @@ class ContainerTraitTest extends TestCase
         $this->assertEquals('new name', $container->modelData['name']);
     }
 
+    /**
+     * @depends testRefreshFromEmbedded
+     */
+    public function testRefreshFromEmbeddedObjectValue()
+    {
+        $container = new Container();
+        $container->modelData = [
+            'object' => new \stdClass(),
+        ];
+        $container->model->object->name = 'object name';
+        $container->refreshFromEmbedded();
+
+        $this->assertTrue(is_object($container->modelData['object']));
+        $this->assertEquals('object name', $container->modelData['object']->name);
+    }
+
     public function testCreateFromNull()
     {
         $container = new Container();
