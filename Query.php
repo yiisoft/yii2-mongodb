@@ -72,7 +72,7 @@ class Query extends Component implements QueryInterface
     /**
      * Sets the list of fields of the results to return.
      * @param array $fields fields of the results to return.
-     * @return static the query object itself.
+     * @return $this the query object itself.
      */
     public function select(array $fields)
     {
@@ -86,7 +86,7 @@ class Query extends Component implements QueryInterface
      * @param string|array the collection to be selected from. If string considered as the name of the collection
      * inside the default database. If array - first element considered as the name of the database,
      * second - as name of collection inside that database
-     * @return static the query object itself.
+     * @return $this the query object itself.
      */
     public function from($collection)
     {
@@ -410,7 +410,16 @@ class Query extends Component implements QueryInterface
     {
         $sort = [];
         foreach ($this->orderBy as $fieldName => $sortOrder) {
-            $sort[$fieldName] = $sortOrder === SORT_DESC ? \MongoCollection::DESCENDING : \MongoCollection::ASCENDING;
+            switch ($sortOrder) {
+                case SORT_ASC:
+                    $sort[$fieldName] = \MongoCollection::ASCENDING;
+                    break;
+                case SORT_DESC:
+                    $sort[$fieldName] = \MongoCollection::DESCENDING;
+                    break;
+                default:
+                    $sort[$fieldName] = $sortOrder;
+            }
         }
         return $sort;
     }
