@@ -5,7 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
-- Enh #2022: Added support for querying on values using basic generic operators to `yii\mongodb\Query`
+- Enh #2022: Added support for querying on values using basic generic operators to `yii\mongodb\Query` (lennartvdd)
 
 
 2.0.4 May 10, 2015
