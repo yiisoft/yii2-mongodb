@@ -4,6 +4,8 @@ Yii Framework 2 mongodb extension Change Log
 2.0.5 under development
 -----------------------
 
+- Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
+
 
 2.0.4 May 10, 2015
 ------------------
