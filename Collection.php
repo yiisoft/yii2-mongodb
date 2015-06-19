@@ -371,6 +371,7 @@ class Collection extends Object
      */
     public function insert($data, $options = [])
     {
+        foreach ($data as $k => $v) if ($v === null) unset($data[$k]);
         $token = $this->composeLogToken('insert', [$data]);
         Yii::info($token, __METHOD__);
         try {
@@ -427,7 +428,13 @@ class Collection extends Object
         if ($options['multiple']) {
             $keys = array_keys($newData);
             if (!empty($keys) && strncmp('$', $keys[0], 1) !== 0) {
+                $unset = [];
+                foreach ($newData as $k => $v) if ($v === null) {
+                    $unset[$k] = $v;
+                    unset($newData[$k]);
+                }
                 $newData = ['$set' => $newData];
+                if (!empty($unset)) $newData['$unset'] = $unset;
             }
         }
         $token = $this->composeLogToken('update', [$condition, $newData, $options]);
