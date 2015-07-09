@@ -112,4 +112,19 @@ class QueryTest extends TestCase
         $this->assertEquals(10, $query->limit);
         $this->assertEquals(5, $query->offset);
     }
+
+    public function testOptions()
+    {
+        $query = new Query();
+        $options = [
+            '$comment' => 'test comment',
+            '$min' => ['ts' => 10],
+        ];
+        $query->options($options);
+        $this->assertEquals($options, $query->options);
+
+        $newComment = 'new comment';
+        $query->addOptions(['$comment' => $newComment]);
+        $this->assertEquals($newComment, $query->options['$comment']);
+    }
 }

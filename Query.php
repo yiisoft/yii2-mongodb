@@ -53,6 +53,12 @@ class Query extends Component implements QueryInterface
      * @see from()
      */
     public $from;
+    /**
+     * @var array cursor options in format: optionKey => optionValue
+     * @see \MongoCursor::addOption()
+     * @see options()
+     */
+    public $options = [];
 
 
     /**
@@ -96,6 +102,36 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Sets the cursor options.
+     * @param array $options cursor options in format: optionName => optionValue
+     * @return $this the query object itself
+     * @see addOptions()
+     */
+    public function options($options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    /**
+     * Adds additional cursor options.
+     * @param array $options cursor options in format: optionName => optionValue
+     * @return $this the query object itself
+     * @see options()
+     */
+    public function addOptions($options)
+    {
+        if (is_array($this->options)) {
+            $this->options = array_merge($this->options, $options);
+        } else {
+            $this->options = $options;
+        }
+
+        return $this;
+    }
+
+    /**
      * Builds the Mongo cursor for this query.
      * @param Connection $db the database connection used to execute the query.
      * @return \MongoCursor mongo cursor instance.
@@ -108,6 +144,10 @@ class Query extends Component implements QueryInterface
         }
         $cursor->limit($this->limit);
         $cursor->skip($this->offset);
+
+        foreach ($this->options as $key => $value) {
+            $cursor->addOption($key, $value);
+        }
 
         return $cursor;
     }
