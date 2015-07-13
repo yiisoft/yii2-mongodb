@@ -851,7 +851,8 @@ class Collection extends Object
                 $operator = strtoupper($operator);
                 $method = $builders[$operator];
             } else {
-                throw new InvalidParamException('Found unknown operator in query: ' . $operator);
+                $operator = $condition[0];
+                $method = 'buildSimpleCondition';
             }
             array_shift($condition);
             return $this->$method($operator, $condition);
@@ -1093,5 +1094,43 @@ class Collection extends Object
         }
 
         return [$column => $value];
+    }
+
+    /**
+     * Creates an Mongo condition like `{$operator:{field:value}}`.
+     * @param string $operator the operator to use. Besides regular MongoDB operators, aliases like `>`, `<=`,
+     * and so on, can be used here.
+     * @param array $operands the first operand is the column name.
+     * The second operand is a single value that column value should be compared with.
+     * @return string the generated Mongo condition.
+     * @throws InvalidParamException if wrong number of operands have been given.
+     */
+    public function buildSimpleCondition($operator, $operands)
+    {
+        if (count($operands) !== 2) {
+            throw new InvalidParamException("Operator '$operator' requires two operands.");
+        }
+
+        list($column, $value) = $operands;
+
+        if (strncmp('$', $operator, 1) !== 0) {
+            static $operatorMap = [
+                '>' => '$gt',
+                '<' => '$lt',
+                '>=' => '$gte',
+                '<=' => '$lte',
+                '!=' => '$ne',
+                '<>' => '$ne',
+                '=' => '$eq',
+                '==' => '$eq',
+            ];
+            if (isset($operatorMap[$operator])) {
+                $operator = $operatorMap[$operator];
+            } else {
+                throw new InvalidParamException("Unsupported operator '{$operator}'");
+            }
+        }
+
+        return [$column => [$operator => $value]];
     }
 }

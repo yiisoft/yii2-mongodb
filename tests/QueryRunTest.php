@@ -212,6 +212,29 @@ class QueryRunTest extends TestCase
         $this->assertEquals($rows, $rowsUppercase);
     }
 
+    public function testCompare()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['$gt', 'status', 8])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['>', 'status', 8])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['<=', 'status', 3])
+            ->all($connection);
+        $this->assertEquals(3, count($rows));
+    }
+
     public function testNot()
     {
         $connection = $this->getConnection();
@@ -253,6 +276,23 @@ class QueryRunTest extends TestCase
             ->where(['name' => 'not existing name'])
             ->modify(['$set' => ['name' => 'new name']], ['new' => false], $connection);
         $this->assertNull($row);
+    }
+
+    public function testOptions()
+    {
+        $connection = $this->getConnection();
+        $connection->getCollection('customer')->createIndex(['status' => 1]);
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->options([
+                '$min' => [
+                    'status' => 9
+                ],
+            ])
+            ->all($connection);
+
+        $this->assertCount(2, $rows);
     }
 
     /**
