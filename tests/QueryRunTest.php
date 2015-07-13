@@ -212,6 +212,29 @@ class QueryRunTest extends TestCase
         $this->assertEquals($rows, $rowsUppercase);
     }
 
+    public function testCompare()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['$gt', 'status', 8])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['>', 'status', 8])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['<=', 'status', 3])
+            ->all($connection);
+        $this->assertEquals(3, count($rows));
+    }
+
     public function testNot()
     {
         $connection = $this->getConnection();

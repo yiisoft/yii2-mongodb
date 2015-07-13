@@ -7,6 +7,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
 - Enh #27: Added support for saving extra fields in session collection for `yii\mongodb\Session` (klimov-paul)
 - Enh #35: Added support for cursor options setup at `yii\mongodb\Query` (klimov-paul)
+- Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)
 
 
 2.0.4 May 10, 2015
