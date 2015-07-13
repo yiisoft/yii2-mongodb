@@ -28,5 +28,6 @@ use following:
 Yii Model designed assuming single attribute is a scalar. Validation and attribute processing based on this suggestion.
 Still any attribute can be an array of any depth and complexity, however you should handle its validation on your own.
 
-Support for the embedded documents may appear in the future releases.
-In the meantime, you can use [yii2tech/embedded](https://github.com/yii2tech/embedded) extension for this feature.
+While there is no explicit support for embedded documents, there is also no explicit restrictions on it.
+You may create your own solution or use third-party extension like [yii2tech/embedded](https://github.com/yii2tech/embedded)
+for this feature.
