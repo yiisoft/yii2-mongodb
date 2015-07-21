@@ -1023,7 +1023,13 @@ class Collection extends Object
             } else {
                 $inValues = $values[$column];
             }
-            $result[$column][$operator] = array_values($inValues);
+
+            $inValues = array_values($inValues);
+            if (count($inValues) == 1) {
+                $result[$column] = $inValues[0];
+            } else {
+                $result[$column][$operator] = $inValues;
+            }
         }
 
         return $result;
