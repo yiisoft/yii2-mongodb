@@ -497,30 +497,6 @@ class Query extends Component implements QueryInterface
             $op = $defaultOperator;
         }
         
-        $op = $this->normalizeOperator($op);
-        
         return $this->andFilterWhere([$op, $name, $value]);
-    }
-    
-    /**
-     * Converts "\yii\db\*" quick condition operator into actual Mongo condition operator.
-     * @param string $key raw operator.
-     * @return string actual key.
-     */
-    protected function normalizeOperator($key)
-    {
-        static $map = [
-            '=' => '$eq',
-            '>' => '$gt',
-            '>=' => '$gte',
-            '<' => '$lt',
-            '<=' => '$lte',
-            '<>' => '$ne',
-        ];
-        if (array_key_exists($key, $map)) {
-            return $map[$key];
-        } else {
-            return $key;
-        }
     }
 }
