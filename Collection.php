@@ -843,12 +843,9 @@ class Collection extends Object
         } elseif (empty($condition)) {
             return [];
         }
-        if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
-            $operator = $condition[0];
-            if (strncmp($operator, '$', 1) === 0) {
-                $method = 'buildSimpleCondition';
-            } elseif (isset($builders[strtoupper($operator)])) {
-                $operator = strtoupper($operator);
+       if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
+            $operator = strtoupper($condition[0]);
+            if (isset($builders[$operator])) {
                 $method = $builders[$operator];
             } else {
                 $operator = $condition[0];
@@ -860,28 +857,6 @@ class Collection extends Object
             // hash format: 'column1' => 'value1', 'column2' => 'value2', ...
             return $this->buildHashCondition($condition);
         }
-    }
-    
-    /**
-     * Creates a condition on a column-value pair using an abritrary operator
-     * 
-     * @param string $operator The Mongo operator. Note that Mongo query operators must start with an $ (e.g. `$gt`, `$lt`, etc.)
-     * @param array $operands The column-value pair
-     * @return array The generated Mongo condition
-     * @throws InvalidParamException if $operator does not start with $ or when wrong number of operands have been given.
-     */
-    public function buildSimpleCondition($operator, $operands)
-    {
-        if (strncmp($operator, '$', 1) !== 0) {
-            throw new InvalidParamException('Invalid operator in query: ' . $operator);
-        }
-        if (!isset($operands[0], $operands[1])) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
-        }
-        
-        list($name, $value) = $operands;
-        
-        return [$name => [$operator => $value]];
     }
     
     /**
