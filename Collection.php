@@ -843,7 +843,7 @@ class Collection extends Object
         } elseif (empty($condition)) {
             return [];
         }
-       if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
+        if (isset($condition[0])) { // operator format: operator, operand 1, operand 2, ...
             $operator = strtoupper($condition[0]);
             if (isset($builders[$operator])) {
                 $method = $builders[$operator];
@@ -858,7 +858,7 @@ class Collection extends Object
             return $this->buildHashCondition($condition);
         }
     }
-    
+
     /**
      * Creates a condition based on column-value pairs.
      * @param array $condition the condition specification.
