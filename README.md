@@ -47,3 +47,7 @@ return [
     ],
 ];
 ```
+
+Usage
+-------------
+please visit docs page (https://github.com/yiisoft/yii2-mongodb/tree/master/docs/guide)
