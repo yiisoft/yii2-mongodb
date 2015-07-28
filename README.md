@@ -5,6 +5,8 @@ This extension provides the [MongoDB](http://www.mongodb.org/) integration for t
 
 For license information check the [LICENSE](LICENSE.md)-file.
 
+Documentation is at [docs/guide/README.md](docs/guide/README.md).
+
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-mongodb/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Total Downloads](https://poser.pugx.org/yiisoft/yii2-mongodb/downloads.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Build Status](https://travis-ci.org/yiisoft/yii2-mongodb.svg?branch=master)](https://travis-ci.org/yiisoft/yii2-mongodb)
