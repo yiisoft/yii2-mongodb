@@ -253,6 +253,24 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Return an explanation of the query, often useful for optimization and debugging
+     * @param Connection $db the Mongo connection used to execute the query.
+     * If this parameter is not given, the `mongodb` application component will be used.
+     * @return array Returns an explanation of the query.
+     * @throws Exception on failure.
+     */
+    public function explain($db = null)
+    {
+        $cursor = $this->buildCursor($db);
+        try {
+            $result = $cursor->explain();
+            return $result;
+        } catch (\Exception $e) {
+            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+        }
+    }
+
+    /**
      * Performs 'findAndModify' query and returns a single row of result.
      * @param array $update update criteria
      * @param array $options list of options in format: optionName => optionValue.

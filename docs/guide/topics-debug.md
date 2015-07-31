@@ -16,6 +16,7 @@ enabled, it is sufficient to just add the panels configuration):
             'panels' => [
                 'mongodb' => [
                     'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
+                    'db' => 'mongodb'
                 ],
             ],
         ],

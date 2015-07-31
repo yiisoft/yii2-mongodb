@@ -21,6 +21,17 @@ class MongoDbPanel extends DbPanel
     /**
      * @inheritdoc
      */
+    public function init()
+    {
+        $this->actions['db-explain'] = [
+            'class' => 'yii\\mongodb\\debug\\ExplainAction',
+            'panel' => $this,
+        ];
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getName()
     {
         return 'MongoDB';
@@ -47,5 +58,33 @@ class MongoDbPanel extends DbPanel
             'yii\mongodb\Query::*',
             'yii\mongodb\Database::*',
         ]);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function hasExplain()
+    {
+        return true;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    protected function getQueryType($timing)
+    {
+        $timing = ltrim($timing);
+        $timing = mb_substr($timing, 0, mb_strpos($timing, '('));
+        $matches = explode('.', $timing);
+
+        return count($matches) ? array_pop($matches) : '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public static function canBeExplained($type)
+    {
+        return $type == 'find';
     }
 } 
