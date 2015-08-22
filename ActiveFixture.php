@@ -61,6 +61,9 @@ class ActiveFixture extends BaseActiveFixture
         $this->resetCollection();
         $this->data = [];
         $data = $this->getData();
+        if (empty($data)) {
+            return;
+        }
         $this->getCollection()->batchInsert($data);
         foreach ($data as $alias => $row) {
             $this->data[$alias] = $row;
