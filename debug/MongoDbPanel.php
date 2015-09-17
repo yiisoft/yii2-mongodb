@@ -74,7 +74,7 @@ class MongoDbPanel extends DbPanel
     protected function getQueryType($timing)
     {
         $timing = ltrim($timing);
-        $timing = mb_substr($timing, 0, mb_strpos($timing, '('));
+        $timing = mb_substr($timing, 0, mb_strpos($timing, '('), 'utf8');
         $matches = explode('.', $timing);
 
         return count($matches) ? array_pop($matches) : '';
@@ -85,6 +85,6 @@ class MongoDbPanel extends DbPanel
      */
     public static function canBeExplained($type)
     {
-        return $type == 'find';
+        return $type === 'find';
     }
 } 
