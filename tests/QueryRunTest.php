@@ -89,6 +89,23 @@ class QueryRunTest extends TestCase
         $this->assertEquals('name5', $rows[1]['name']);
     }
 
+    public function testNotInCondition()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query;
+        $rows = $query->from('customer')
+            ->where(['not in', 'name', ['name1', 'name5']])
+            ->all($connection);
+        $this->assertEquals(8, count($rows));
+
+        $query = new Query;
+        $rows = $query->from('customer')
+            ->where(['not in', 'name', ['name1']])
+            ->all($connection);
+        $this->assertEquals(9, count($rows));
+    }
+
     public function testOrCondition()
     {
         $connection = $this->getConnection();
