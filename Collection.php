@@ -1025,7 +1025,7 @@ class Collection extends Object
             }
 
             $inValues = array_values($inValues);
-            if (count($inValues) === 1) {
+            if (count($inValues) === 1 && $operator === '$in') {
                 $result[$column] = $inValues[0];
             } else {
                 $result[$column][$operator] = $inValues;
