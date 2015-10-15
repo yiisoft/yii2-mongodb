@@ -221,4 +221,26 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         return $models;
     }
+
+    /**
+     * @param ActiveRecord|array $model
+     * @param array $attributes
+     * @return string
+     */
+    private function getModelKey($model, $attributes)
+    {
+        $key = [];
+        foreach ($attributes as $attribute) {
+            while ($pos = strpos($attribute, '.')) {
+                $model = $model[substr($attribute, 0, $pos)];
+                $attribute = substr($attribute, $pos + 1);
+            }
+            $key[] = $this->normalizeModelKey($model[$attribute]);
+        }
+        if (count($key) > 1) {
+            return serialize($key);
+        }
+        $key = reset($key);
+        return is_scalar($key) ? $key : serialize($key);
+    }
 }
