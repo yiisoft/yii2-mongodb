@@ -2,10 +2,8 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
-use yii\base\Exception;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
-use yii\mongodb\Session;
+
 use Yii;
 use yiiunit\extensions\mongodb\data\ar\Animal;
 use yiiunit\extensions\mongodb\data\ar\Cat;
@@ -23,7 +21,7 @@ class UpgradeTest extends TestCase
     /**
      * @group upgrade
      */
-    /*public function testConnection()
+    public function testConnection()
     {
         $conn = new \MongoDB\Client('mongodb://localhost:27017');
         $db = $conn->selectDatabase('yii2test');
@@ -40,13 +38,13 @@ class UpgradeTest extends TestCase
         $result = $collection->findAndModify([
             'type' => 'yiiunit\extensions\mongodb\data\ar\NotDog'],
             ['$set' => ['type' => 'yiiunit\extensions\mongodb\data\ar\Dog']]
-        );*/
+        );
 
         /*$result = $collection->find([], ['other']);
         foreach($result as $row) {
             $x  = $row;
-        }
-    }*/
+        }*/
+    }
 
     /**
      * @group upgrade
@@ -68,8 +66,6 @@ class UpgradeTest extends TestCase
         ]);
         $newAnimal->save();
         $newAnimal->delete();
-
-        $x = 2;
     }
 
     /**
