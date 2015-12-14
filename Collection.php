@@ -321,15 +321,16 @@ class Collection extends Object
      * In order to perform "find" queries use [[Query]] class.
      * @param array $condition query condition
      * @param array $fields fields to be selected
+     * @param array $options
      * @return \MongoDB\Driver\Cursor cursor for the search results
      * @see Query
      */
-    public function find($condition = [], $fields = [])
+    public function find($condition = [], $fields = [], $options = [])
     {
-        $options = [];
-        if ($fields !== null) {
-            $this->addQueryFilterOption($options, $fields);
+        if (count($fields) > 0) {
+            $this->addProjectionOption($options, $fields);
         }
+
         return $this->mongoCollection->find($this->buildCondition($condition), $options);
     }
 
@@ -337,15 +338,16 @@ class Collection extends Object
      * Returns a single document.
      * @param array $condition query condition
      * @param array $fields fields to be selected
+     * @param array $options query options
      * @return array|null the single document. Null is returned if the query results in nothing.
      * @see http://www.php.net/manual/en/mongocollection.findone.php
      */
-    public function findOne($condition = [], $fields = [])
+    public function findOne($condition = [], $fields = [], $options = [])
     {
-        $options = [];
-        if ($fields !== null) {
-            $this->addQueryFilterOption($options, $fields);
+        if (count($fields) > 0) {
+            $this->addProjectionOption($options, $fields);
         }
+
         return $this->mongoCollection->findOne($this->buildCondition($condition), $options);
     }
 
@@ -365,8 +367,8 @@ class Collection extends Object
         $token = $this->composeLogToken('findAndModify', [$condition, $update, $fields, $options]);
         Yii::info($token, __METHOD__);
         try {
-            if ($fields != null) {
-                $this->addQueryFilterOption($options, $fields);
+            if (count($fields) > 0) {
+                $this->addProjectionOption($options, $fields);
             }
 
             Yii::beginProfile($token, __METHOD__);
@@ -380,26 +382,7 @@ class Collection extends Object
         }
     }
 
-    /**
-     * @param \stdClass $result The result object to be filtered
-     * @param array $fields Fields to be returned
-     * @return \stdClass
-     */
-    protected function filterFields($result, $fields)
-    {
-        if ($result instanceof \stdClass && $fields !== null) {
-            $filtered = array_intersect_key((array)$result, array_flip($fields));
-
-            $result = new \stdClass();
-            foreach($filtered as $field => $value) {
-                $result->$field = $value;
-            }
-        }
-
-        return $result;
-    }
-
-    protected function addQueryFilterOption(&$options, $fields)
+    protected function addProjectionOption(&$options, $fields)
     {
         $filter = [];
         foreach($fields as $field) {

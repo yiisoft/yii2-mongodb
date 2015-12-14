@@ -2,21 +2,18 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use yii\base\Exception;
+use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yii\mongodb\Session;
 use Yii;
+use yiiunit\extensions\mongodb\data\ar\Animal;
 
 class HardsettingTest extends TestCase
 {
-    /** {@inheritdoc} */
-    protected $mongoDbConfig = [
-        'dsn' => 'mongodb://localhost:27017',
-        'defaultDatabaseName' => 'yii2test',
-        'options' => [],
-    ];
-
-    protected function tearDown()
+    protected function setUp()
     {
-        parent::tearDown();
+        parent::setUp();
+        ActiveRecord::$db = $this->getConnection();
     }
 
     // Tests:
@@ -24,9 +21,9 @@ class HardsettingTest extends TestCase
     /**
      * @group hardsetting
      */
-    public function testGne()
+    public function testConnection()
     {
-        $conn = new \MongoDB\Client();
+        /*$conn = new \MongoDB\Client('mongodb://localhost:27017');
         $db = $conn->selectDatabase('yii2test');
         $collection = $db->selectCollection('test_animals');
 
@@ -38,17 +35,47 @@ class HardsettingTest extends TestCase
         $connection = $this->getConnection();
         $collection = $connection->getCollection('test_animals');
 
-        /*$result = $collection->findAndModify([
+        $result = $collection->findAndModify([
             'type' => 'yiiunit\extensions\mongodb\data\ar\NotDog'],
             ['$set' => ['type' => 'yiiunit\extensions\mongodb\data\ar\Dog']]
         );*/
 
-        $result = $collection->find([], ['other']);
+        /*$result = $collection->find([], ['other']);
         foreach($result as $row) {
             $x  = $row;
-        }
+        }*/
+    }
 
+    /**
+     * @group hardsetting
+     */
+    public function testActiveRecord()
+    {
+        /*$connection = $this->getConnection();
+        $collection = $connection->getCollection('test_animals');*/
+
+        $query = Animal::find();
+        $animals = $query->one();
 
         $x = 2;
+    }
+
+    /**
+     * @group hardsetting
+     */
+    public function testCompatibility()
+    {
+        $conn = new \MongoDB\Client('mongodb://localhost:27017');
+        $db = $conn->selectDatabase('yii2test');
+        $collection = $db->selectCollection('test_animals');
+        $result = $collection->find()->toArray();
+
+        $conn = new \MongoClient();
+        $db = $conn->selectDB('yii2test');
+        $collection = $db->selectCollection('test_animals');
+
+        $cursor = $collection->find();
+        $result = [];
+        while($cursor->hasNext()) $result[] = $cursor->getNext();
     }
 }
