@@ -2,13 +2,15 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\BSON\ObjectID;
 use yii\base\Exception;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yii\mongodb\Session;
 use Yii;
 use yiiunit\extensions\mongodb\data\ar\Animal;
+use yiiunit\extensions\mongodb\data\ar\Cat;
 
-class HardsettingTest extends TestCase
+class UpgradeTest extends TestCase
 {
     protected function setUp()
     {
@@ -19,11 +21,11 @@ class HardsettingTest extends TestCase
     // Tests:
 
     /**
-     * @group hardsetting
+     * @group upgrade
      */
-    public function testConnection()
+    /*public function testConnection()
     {
-        /*$conn = new \MongoDB\Client('mongodb://localhost:27017');
+        $conn = new \MongoDB\Client('mongodb://localhost:27017');
         $db = $conn->selectDatabase('yii2test');
         $collection = $db->selectCollection('test_animals');
 
@@ -43,11 +45,11 @@ class HardsettingTest extends TestCase
         /*$result = $collection->find([], ['other']);
         foreach($result as $row) {
             $x  = $row;
-        }*/
-    }
+        }
+    }*/
 
     /**
-     * @group hardsetting
+     * @group upgrade
      */
     public function testActiveRecord()
     {
@@ -55,13 +57,23 @@ class HardsettingTest extends TestCase
         $collection = $connection->getCollection('test_animals');*/
 
         $query = Animal::find();
-        $animals = $query->one();
+        $animal = $query->one();
+        $animals = $query->all();
+
+        $cats = $query->where(['type' => "yiiunit\\extensions\\mongodb\\data\\ar\\Cat"])->all();
+        $first = $query->where(['_id' => '566e9d70ca4ab6980a0000b2'])->one();
+
+        $newAnimal = new Animal([
+            'type' => Cat::className()
+        ]);
+        $newAnimal->save();
+        $newAnimal->delete();
 
         $x = 2;
     }
 
     /**
-     * @group hardsetting
+     * @group upgrade
      */
     public function testCompatibility()
     {

@@ -10,6 +10,7 @@ namespace yii\mongodb;
 use yii\base\Component;
 use yii\db\QueryInterface;
 use yii\db\QueryTrait;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use Yii;
 
@@ -140,10 +141,10 @@ class Query extends Component implements QueryInterface
         $condition = $this->composeCondition();
         $fields = $this->composeSelectFields();
 
-        $options = [
+        $options = array_filter([
             'limit' => $this->limit,
             'skip' => $this->offset
-        ];
+        ]);
 
         if (!empty($this->orderBy)) {
             $options['sort'] = $this->composeSort();
@@ -188,10 +189,14 @@ class Query extends Component implements QueryInterface
     protected function fetchRowsInternal($cursor, $all, $indexBy)
     {
         if ($all) {
-            return $cursor->toArray();
+            $rows = [];
+            foreach($cursor->toArray() as $row) {
+                $rows[] = (array)$row;
+            }
+            return $rows;
         } else {
             foreach($cursor as $row) break;
-            return isset($row) && $row ? $row : false;
+            return (isset($row) && $row) ? (array)$row : false;
         }
     }
 

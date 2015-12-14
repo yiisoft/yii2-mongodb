@@ -11,7 +11,6 @@ use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
-use yii\helpers\ArrayHelper;
 
 /**
  * Collection represents the Mongo collection information.
@@ -404,11 +403,18 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->insertOne($data, $options));
+            $result = $this->mongoCollection->insertOne($data, $options);
+            $this->tryResultError($result);
+
             Yii::endProfile($token, __METHOD__);
 
-            return is_array($data) ? $data['_id'] : $data->_id;
+            if (is_array($data)) {
+                $data['_id'] = $result->getInsertedId();
+            } else {
+                $data->_id = $result->getInsertedId();
+            }
+
+            return $result->getInsertedId();
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -512,7 +518,6 @@ class Collection extends Object
     public function remove($condition = [], $options = [])
     {
         $condition = $this->buildCondition($condition);
-        $options = array_merge(['w' => 1, 'justOne' => false], $options);
         $token = $this->composeLogToken('remove', [$condition, $options]);
         Yii::info($token, __METHOD__);
         try {
@@ -831,14 +836,14 @@ class Collection extends Object
 
             return $result;
         } elseif (is_object($rawId)) {
-            if ($rawId instanceof \MongoId) {
+            if ($rawId instanceof \MongoDB\BSON\ObjectID) {
                 return $rawId;
             } else {
                 $rawId = (string) $rawId;
             }
         }
         try {
-            $mongoId = new \MongoId($rawId);
+            $mongoId = new \MongoDB\BSON\ObjectID($rawId);
         } catch (\MongoException $e) {
             // invalid id format
             $mongoId = $rawId;

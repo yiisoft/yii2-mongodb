@@ -321,6 +321,14 @@ abstract class ActiveRecord extends BaseActiveRecord
         // we do not check the return value of deleteAll() because it's possible
         // the record is already deleted in the database and thus the method will return 0
         $condition = $this->getOldPrimaryKey(true);
+
+        // Use string id for delete query
+        /*foreach($condition as $key => $value) {
+            if ($value instanceof \MongoDB\BSON\ObjectID) {
+                $condition[$key] = (string)$value;
+            }
+        }*/
+
         $lock = $this->optimisticLock();
         if ($lock !== null) {
             $condition[$lock] = $this->$lock;
