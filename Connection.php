@@ -109,7 +109,7 @@ class Connection extends Component
      */
     public $defaultDatabaseName;
     /**
-     * @var \MongoClient Mongo client instance.
+     * @var \MongoDB\Client Mongo client instance.
      */
     public $mongoClient;
 
@@ -169,7 +169,7 @@ class Connection extends Component
 
         return Yii::createObject([
             'class' => 'yii\mongodb\Database',
-            'mongoDb' => $this->mongoClient->selectDB($name)
+            'mongoDb' => $this->mongoClient->selectDatabase($name)
         ]);
     }
 
@@ -221,7 +221,7 @@ class Connection extends Component
      */
     public function getIsActive()
     {
-        return is_object($this->mongoClient) && $this->mongoClient->getConnections() != [];
+        return is_object($this->mongoClient) /*&& $this->mongoClient->getConnections() != []*/;
     }
 
     /**
@@ -244,7 +244,16 @@ class Connection extends Component
                 if ($this->defaultDatabaseName !== null) {
                     $options['db'] = $this->defaultDatabaseName;
                 }
-                $this->mongoClient = new \MongoClient($this->dsn, $options);
+
+                // MongoDB
+                //$this->mongoClient = new \MongoDB\Driver\Manager($this->dsn, $options);
+
+                // MongoDB Library
+                $this->mongoClient = new \MongoDB\Client($this->dsn, $options);
+
+                // Mongo
+                //$this->mongoClient = new \MongoClient($this->dsn, $options);
+
                 $this->initConnection();
                 Yii::endProfile($token, __METHOD__);
             } catch (\Exception $e) {

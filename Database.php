@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use yii\base\InvalidCallException;
 use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
@@ -23,7 +24,7 @@ use yii\helpers\Json;
 class Database extends Object
 {
     /**
-     * @var \MongoDB Mongo database instance.
+     * @var \MongoDB\Database Mongo database instance.
      */
     public $mongoDb;
 
@@ -95,10 +96,12 @@ class Database extends Object
      */
     protected function selectFileCollection($prefix)
     {
-        return Yii::createObject([
+        //TODO: implement this
+        throw new InvalidCallException('Not implemented yet.');
+        /*return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
             'mongoCollection' => $this->mongoDb->getGridFS($prefix)
-        ]);
+        ]);*/
     }
 
     /**
@@ -136,7 +139,9 @@ class Database extends Object
      */
     public function executeCommand($command, $options = [])
     {
-        $token = $this->getName() . '.$cmd(' . Json::encode($command) . ', ' . Json::encode($options) . ')';
+        //TODO: implement this
+        throw new InvalidCallException('Not implemented yet.');
+        /*$token = $this->getName() . '.$cmd(' . Json::encode($command) . ', ' . Json::encode($options) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -148,7 +153,7 @@ class Database extends Object
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        }*/
     }
 
     /**

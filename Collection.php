@@ -7,9 +7,11 @@
 
 namespace yii\mongodb;
 
+use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Collection represents the Mongo collection information.
@@ -68,7 +70,7 @@ use Yii;
 class Collection extends Object
 {
     /**
-     * @var \MongoCollection Mongo collection instance.
+     * @var \MongoDB\Collection Mongo collection instance.
      */
     public $mongoCollection;
 
@@ -78,7 +80,7 @@ class Collection extends Object
      */
     public function getName()
     {
-        return $this->mongoCollection->getName();
+        return $this->mongoCollection->getCollectionName();
     }
 
     /**
@@ -94,7 +96,9 @@ class Collection extends Object
      */
     public function getLastError()
     {
-        return $this->mongoCollection->db->lastError();
+        //TODO: implement this
+        throw new InvalidCallException('Not implemented yet.');
+        //return $this->mongoCollection->db->lastError();
     }
 
     /**
@@ -223,7 +227,9 @@ class Collection extends Object
             if (method_exists($this->mongoCollection, 'createIndex')) {
                 $result = $this->mongoCollection->createIndex($keys, $options);
             } else {
-                $result = $this->mongoCollection->ensureIndex($keys, $options);
+                //TODO: implement this
+                $result = true;
+                //$result = $this->mongoCollection->ensureIndex($keys, $options);
             }
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
@@ -261,7 +267,7 @@ class Collection extends Object
         $token = $this->composeLogToken('dropIndex', [$keys]);
         Yii::info($token, __METHOD__);
         try {
-            $result = $this->mongoCollection->deleteIndex($keys);
+            $result = $this->mongoCollection->dropIndex($keys);
             $this->tryResultError($result);
 
             return true;
@@ -300,7 +306,7 @@ class Collection extends Object
         $token = $this->composeLogToken('dropIndexes');
         Yii::info($token, __METHOD__);
         try {
-            $result = $this->mongoCollection->deleteIndexes();
+            $result = $this->mongoCollection->dropIndexes();
             $this->tryResultError($result);
 
             return $result['nIndexesWas'];
@@ -315,12 +321,16 @@ class Collection extends Object
      * In order to perform "find" queries use [[Query]] class.
      * @param array $condition query condition
      * @param array $fields fields to be selected
-     * @return \MongoCursor cursor for the search results
+     * @return \MongoDB\Driver\Cursor cursor for the search results
      * @see Query
      */
     public function find($condition = [], $fields = [])
     {
-        return $this->mongoCollection->find($this->buildCondition($condition), $fields);
+        $options = [];
+        if ($fields !== null) {
+            $this->addQueryFilterOption($options, $fields);
+        }
+        return $this->mongoCollection->find($this->buildCondition($condition), $options);
     }
 
     /**
@@ -332,7 +342,11 @@ class Collection extends Object
      */
     public function findOne($condition = [], $fields = [])
     {
-        return $this->mongoCollection->findOne($this->buildCondition($condition), $fields);
+        $options = [];
+        if ($fields !== null) {
+            $this->addQueryFilterOption($options, $fields);
+        }
+        return $this->mongoCollection->findOne($this->buildCondition($condition), $options);
     }
 
     /**
@@ -351,8 +365,12 @@ class Collection extends Object
         $token = $this->composeLogToken('findAndModify', [$condition, $update, $fields, $options]);
         Yii::info($token, __METHOD__);
         try {
+            if ($fields != null) {
+                $this->addQueryFilterOption($options, $fields);
+            }
+
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->findAndModify($condition, $update, $fields, $options);
+            $result = $this->mongoCollection->findOneAndUpdate($condition, $update, $options);
             Yii::endProfile($token, __METHOD__);
 
             return $result;
@@ -360,6 +378,34 @@ class Collection extends Object
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
+    }
+
+    /**
+     * @param \stdClass $result The result object to be filtered
+     * @param array $fields Fields to be returned
+     * @return \stdClass
+     */
+    protected function filterFields($result, $fields)
+    {
+        if ($result instanceof \stdClass && $fields !== null) {
+            $filtered = array_intersect_key((array)$result, array_flip($fields));
+
+            $result = new \stdClass();
+            foreach($filtered as $field => $value) {
+                $result->$field = $value;
+            }
+        }
+
+        return $result;
+    }
+
+    protected function addQueryFilterOption(&$options, $fields)
+    {
+        $filter = [];
+        foreach($fields as $field) {
+            $filter[$field] = true;
+        }
+        $options['projection'] = $filter;
     }
 
     /**
@@ -376,7 +422,7 @@ class Collection extends Object
         try {
             Yii::beginProfile($token, __METHOD__);
             $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->insert($data, $options));
+            $this->tryResultError($this->mongoCollection->insertOne($data, $options));
             Yii::endProfile($token, __METHOD__);
 
             return is_array($data) ? $data['_id'] : $data->_id;
@@ -400,7 +446,7 @@ class Collection extends Object
         try {
             Yii::beginProfile($token, __METHOD__);
             $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->batchInsert($rows, $options));
+            $this->tryResultError($this->mongoCollection->insertMany($rows, $options));
             Yii::endProfile($token, __METHOD__);
 
             return $rows;
@@ -434,7 +480,7 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->update($condition, $newData, $options);
+            $result = $this->mongoCollection->updateOne($condition, $newData, $options);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
             if (is_array($result) && array_key_exists('n', $result)) {
@@ -488,7 +534,7 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->remove($condition, $options);
+            $result = $this->mongoCollection->deleteOne($condition, $options);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
             if (is_array($result) && array_key_exists('n', $result)) {
@@ -571,6 +617,7 @@ class Collection extends Object
      */
     public function group($keys, $initial, $reduce, $options = [])
     {
+        //TODO: implement this
         if (!($reduce instanceof \MongoCode)) {
             $reduce = new \MongoCode((string) $reduce);
         }
