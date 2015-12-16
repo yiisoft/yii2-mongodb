@@ -142,8 +142,8 @@ class Query extends Component implements QueryInterface
         $fields = $this->composeSelectFields();
 
         $options = array_filter([
-            'limit' => $this->limit,
-            'skip' => $this->offset
+            'limit' => $this->limit > 0 ? $this->limit : null,
+            'skip' => $this->offset > 0 ? $this->offset : null
         ]);
 
         if (!empty($this->orderBy)) {
@@ -190,14 +190,35 @@ class Query extends Component implements QueryInterface
     {
         if ($all) {
             $rows = [];
-            foreach($cursor->toArray() as $row) {
-                $rows[] = (array)$row;
+            foreach($cursor as $row) {
+                $rows[] = $this->convertRowToArray($row);
             }
             return $rows;
         } else {
             foreach($cursor as $row) break;
-            return (isset($row) && $row) ? (array)$row : false;
+            return isset($row) ? $this->convertRowToArray($row) : false;
         }
+    }
+
+    /**
+     * Converts all instances of stdClass to array recursively
+     * @param \stdClass $row
+     * @return array
+     */
+    protected function convertRowToArray($row)
+    {
+        if ($row === null) {
+            return null;
+        }
+
+        //TODO: used in Collection as well, should be put in helper
+        $row = (array)$row;
+        foreach($row as $key => $value) {
+            if ($value instanceof \stdClass) {
+                $row[$key] = $this->convertRowToArray($value);
+            }
+        }
+        return $row;
     }
 
     /**
@@ -278,11 +299,11 @@ class Query extends Component implements QueryInterface
     public function count($q = '*', $db = null)
     {
         $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
+        $token = 'find.count(' . Json::encode($this->where) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $cursor->count();
+            $result = iterator_count($cursor);
             Yii::endProfile($token, __METHOD__);
 
             return $result;
@@ -379,7 +400,7 @@ class Query extends Component implements QueryInterface
         ];
         $result = $collection->aggregate($pipelines);
         if (array_key_exists(0, $result)) {
-            return $result[0]['total'];
+            return $result[0]->total;
         } else {
             return 0;
         }

@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\Operation\FindOneAndUpdate;
 use yii\mongodb\ActiveQuery;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
@@ -48,8 +49,7 @@ class ActiveRecordTest extends TestCase
                 'status' => $i,
             ];
         }
-        $collection->batchInsert($rows);
-        $this->testRows = $rows;
+        $this->testRows = $collection->batchInsert($rows);
     }
 
     // Tests :
@@ -129,7 +129,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof \MongoDB\BSON\ObjectID);
         $this->assertFalse($record->isNewRecord);
     }
 
@@ -281,7 +281,7 @@ class ActiveRecordTest extends TestCase
 
         $customer = Customer::find()
             ->where(['name' => 'not existing name'])
-            ->modify(['$set' => ['name' => $newName]], ['new' => false]);
+            ->modify(['$set' => ['name' => $newName]]);
         $this->assertNull($customer);
     }
 
@@ -295,7 +295,7 @@ class ActiveRecordTest extends TestCase
         $record = new Customer();
         $record->save(false);
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof \MongoDB\BSON\ObjectID);
         $this->assertFalse($record->isNewRecord);
     }
     

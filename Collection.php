@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\Operation\FindOneAndUpdate;
 use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
@@ -347,7 +348,8 @@ class Collection extends Object
             $this->addProjectionOption($options, $fields);
         }
 
-        return $this->mongoCollection->findOne($this->buildCondition($condition), $options);
+        $result = $this->mongoCollection->findOne($this->buildCondition($condition), $options);
+        return $this->convertRowToArray($result);
     }
 
     /**
@@ -371,21 +373,47 @@ class Collection extends Object
             }
 
             Yii::beginProfile($token, __METHOD__);
+            $options = array_merge(['returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER], $options);
             $result = $this->mongoCollection->findOneAndUpdate($condition, $update, $options);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return $this->convertRowToArray($result);
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
 
+    /**
+     * Converts all instances of stdClass to array recursively
+     * @param \stdClass $row
+     * @return array
+     */
+    protected function convertRowToArray($row)
+    {
+        if ($row === null) {
+            return null;
+        }
+
+        //TODO: used in Query as well, should be put in helper
+        $row = (array)$row;
+        foreach($row as $key => $value) {
+            if ($value instanceof \stdClass) {
+                $row[$key] = $this->convertRowToArray($value);
+            }
+        }
+        return $row;
+    }
+
+    /**
+     * @param array $options Reference to options array
+     * @param array $fields The fields that must be used to
+     */
     protected function addProjectionOption(&$options, $fields)
     {
         $filter = [];
-        foreach($fields as $field) {
-            $filter[$field] = true;
+        foreach($fields as $key => $field) {
+            $filter[$key] = true;
         }
         $options['projection'] = $filter;
     }
@@ -439,7 +467,11 @@ class Collection extends Object
             Yii::endProfile($token, __METHOD__);
 
             foreach($result->getInsertedIds() as $i => $insertedId) {
-                $rows[$i]['_id'] = $insertedId;
+                if (is_array($rows[$i])) {
+                    $rows[$i]['_id'] = $insertedId;
+                } else {
+                    $rows[$i]->_id = $insertedId;
+                }
             }
 
             return $rows;
@@ -462,7 +494,9 @@ class Collection extends Object
     public function update($condition, $newData, $options = [])
     {
         $condition = $this->buildCondition($condition);
-        $options = array_merge(['w' => 1, 'multiple' => true], $options);
+        //TODO: manage options with WriteConcern
+
+        $options = array_merge(['multiple' => 1], $options);
         if ($options['multiple']) {
             $keys = array_keys($newData);
             if (!empty($keys) && strncmp('$', $keys[0], 1) !== 0) {
@@ -476,11 +510,8 @@ class Collection extends Object
             $result = $this->mongoCollection->updateOne($condition, $newData, $options);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
-            if (is_array($result) && array_key_exists('n', $result)) {
-                return $result['n'];
-            } else {
-                return true;
-            }
+
+            return $result->getModifiedCount() + $result->getUpsertedCount();
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -526,14 +557,10 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->deleteOne($condition, $options);
+            $result = $this->mongoCollection->deleteMany($condition, $options);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
-            if (is_array($result) && array_key_exists('n', $result)) {
-                return $result['n'];
-            } else {
-                return true;
-            }
+            return $result->getDeletedCount();
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -584,7 +611,7 @@ class Collection extends Object
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return $result['result'];
+            return iterator_to_array($result);
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);

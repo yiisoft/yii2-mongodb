@@ -157,10 +157,27 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $cursor = $collection->find($condition, $fields);
         $result = [];
         foreach ($cursor as $data) {
-            $result[] = $data;
+            $result[] = $this->convertRowToArray($data);
         }
 
         return $result;
+    }
+
+    /**
+     * Converts all instances of stdClass to array recursively
+     * @param \stdClass $row
+     * @return array
+     */
+    protected function convertRowToArray($row)
+    {
+        //TODO: used in Collection and Query as well, should be put in helper
+        $row = (array)$row;
+        foreach($row as $key => $value) {
+            if ($value instanceof \stdClass) {
+                $row[$key] = $this->convertRowToArray($value);
+            }
+        }
+        return $row;
     }
 
     /**

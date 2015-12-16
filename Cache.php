@@ -82,12 +82,8 @@ class Cache extends \yii\caching\Cache
             ->where([
                 'id' => $key,
                 '$or' => [
-                    [
-                        'expire' => 0
-                    ],
-                    [
-                        'expire' => ['$gt' => time()]
-                    ],
+                    ['expire' => 0],
+                    ['expire' => ['$gt' => time()]],
                 ],
             ])
             ->one($this->db);
@@ -109,15 +105,17 @@ class Cache extends \yii\caching\Cache
      */
     protected function setValue($key, $value, $expire)
     {
-        $result = $this->db->getCollection($this->cacheCollection)
-            ->update(['id' => $key], [
-                'expire' => $expire > 0 ? $expire + time() : 0,
-                'data' => $value,
-            ]);
+        $collection = $this->db->getCollection($this->cacheCollection);
+
+        // Upsert (update/insert) value instead of just updating it
+        $options = ['upsert' => true];
+        $result = $collection->update(['id' => $key], [
+            'expire' => $expire > 0 ? $expire + time() : 0,
+            'data' => $value
+        ], $options);
 
         if ($result) {
             $this->gc();
-
             return true;
         } else {
             return $this->addValue($key, $value, $expire);
@@ -144,12 +142,12 @@ class Cache extends \yii\caching\Cache
         }
 
         try {
-            $this->db->getCollection($this->cacheCollection)
-                ->insert([
-                    'id' => $key,
-                    'expire' => $expire,
-                    'data' => $value,
-                ]);
+            $collection = $this->db->getCollection($this->cacheCollection);
+            $collection->insert([
+                'id' => $key,
+                'expire' => $expire,
+                'data' => $value,
+            ]);
 
             return true;
         } catch (\Exception $e) {
