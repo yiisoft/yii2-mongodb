@@ -434,9 +434,13 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->insertMany($rows, $options));
+            $result = $this->mongoCollection->insertMany($rows, $options);
+            $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
+
+            foreach($result->getInsertedIds() as $i => $insertedId) {
+                $rows[$i]['_id'] = $insertedId;
+            }
 
             return $rows;
         } catch (\Exception $e) {
