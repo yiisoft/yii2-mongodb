@@ -435,13 +435,6 @@ class Collection extends Object
             $this->tryResultError($result);
 
             Yii::endProfile($token, __METHOD__);
-
-            if (is_array($data)) {
-                $data['_id'] = $result->getInsertedId();
-            } else {
-                $data->_id = $result->getInsertedId();
-            }
-
             return $result->getInsertedId();
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
@@ -494,7 +487,6 @@ class Collection extends Object
     public function update($condition, $newData, $options = [])
     {
         $condition = $this->buildCondition($condition);
-        //TODO: manage options with WriteConcern
 
         $options = array_merge(['multiple' => 1], $options);
         if ($options['multiple']) {
@@ -522,7 +514,7 @@ class Collection extends Object
      * Update the existing database data, otherwise insert this data
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoId updated/new record id instance.
+     * @return \MongoDB\BSON\ObjectID updated/new record id instance.
      * @throws Exception on failure.
      */
     public function save($data, $options = [])
@@ -531,11 +523,28 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->save($data, $options));
-            Yii::endProfile($token, __METHOD__);
 
-            return is_array($data) ? $data['_id'] : $data->_id;
+            if (!empty($data['_id'])) {
+                $id = $data['_id'];
+                unset($data['_id']);
+
+                // Ensure proper update formatting
+                $keys = array_keys($data);
+                $hasOperation = !empty($keys) && strncmp('$', $keys[0], 1) === 0;
+                $update = $hasOperation ? $data : ['$set' => $data];
+
+                $filter = ['_id' => $id];
+                $options['upsert'] = true;
+
+                $result = $this->mongoCollection->updateOne($filter, $update, $options);
+                $id = $result->getUpsertedId() ?: $id;
+            } else {
+                $result = $this->mongoCollection->insertOne($data, $options);
+                $id = $result->getInsertedId();
+            }
+
+            Yii::endProfile($token, __METHOD__);
+            return $id;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -637,6 +646,8 @@ class Collection extends Object
     public function group($keys, $initial, $reduce, $options = [])
     {
         //TODO: implement this
+        return null;
+
         if (!($reduce instanceof \MongoCode)) {
             $reduce = new \MongoCode((string) $reduce);
         }
