@@ -7,11 +7,11 @@
 
 namespace yii\mongodb;
 
+use Yii;
 use yii\base\Component;
 use yii\db\QueryInterface;
 use yii\db\QueryTrait;
 use yii\helpers\Json;
-use Yii;
 
 /**
  * Query represents Mongo "find" operation.
@@ -102,12 +102,12 @@ class Query extends Component implements QueryInterface
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
-        if (!empty($this->orderBy)) {
+        $cursor = $this->getCollection($db)->find($this->composeCondition() + ["limit" => $this->limit, "skip" => $this->offset, "sort" => $this->composeSort()], $this->composeSelectFields());
+        /*if (!empty($this->orderBy)) {
             $cursor->sort($this->composeSort());
-        }
-        $cursor->limit($this->limit);
-        $cursor->skip($this->offset);
+        }*/
+        //$cursor->limit($this->limit);
+        //$cursor->skip($this->offset);
 
         return $cursor;
     }
@@ -123,7 +123,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'find(' . Json::encode($cursor->info()) . ')';
+        $token = 'find(' . Json::encode($cursor->getId()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -133,7 +133,7 @@ class Query extends Component implements QueryInterface
             return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            throw new Exception($e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -146,13 +146,10 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRowsInternal($cursor, $all, $indexBy)
     {
-        $result = [];
         if ($all) {
-            foreach ($cursor as $row) {
-                $result[] = $row;
-            }
+            $result = $cursor->toArray();
         } else {
-            if ($row = $cursor->getNext()) {
+            if (!empty($cursor->toArray()) && $row = $cursor->toArray()[0]/*getNext()*/) {
                 $result = $row;
             } else {
                 $result = false;
@@ -250,7 +247,7 @@ class Query extends Component implements QueryInterface
             return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            throw new Exception($e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -409,8 +406,10 @@ class Query extends Component implements QueryInterface
     private function composeSort()
     {
         $sort = [];
-        foreach ($this->orderBy as $fieldName => $sortOrder) {
-            $sort[$fieldName] = $sortOrder === SORT_DESC ? \MongoCollection::DESCENDING : \MongoCollection::ASCENDING;
+        if (is_array($this->orderBy)) {
+            foreach ($this->orderBy as $fieldName => $sortOrder) {
+                $sort[$fieldName] = $sortOrder === SORT_DESC ? -1: 1;//DESC/ASC
+            }
         }
         return $sort;
     }
