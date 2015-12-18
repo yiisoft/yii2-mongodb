@@ -237,7 +237,7 @@ class Query extends Component implements QueryInterface
     public function count($q = '*', $db = null)
     {
         $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
+        $token = 'find.count(' . Json::encode($cursor->getId()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
