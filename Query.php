@@ -102,13 +102,17 @@ class Query extends Component implements QueryInterface
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition() + ["limit" => $this->limit, "skip" => $this->offset, "sort" => $this->composeSort()], $this->composeSelectFields());
-        /*if (!empty($this->orderBy)) {
-            $cursor->sort($this->composeSort());
-        }*/
-        //$cursor->limit($this->limit);
-        //$cursor->skip($this->offset);
-
+        $condition = $this->composeCondition();
+        if (!empty($this->orderBy)) {
+            $condition["sort"] = $this->composeSort();
+        }
+        if ($this->limit != -1) {
+            $condition["limit"] =$this->limit;
+        }
+        if ($this->offset != -1) {
+            $condition["skip"] = $this->offset;
+        }
+        $cursor = $cursor = $this->getCollection($db)->find($this->composeSelectFields(),$condition);
         return $cursor;
     }
 
@@ -149,7 +153,7 @@ class Query extends Component implements QueryInterface
         if ($all) {
             $result = $cursor->toArray();
         } else {
-            if (!empty($cursor->toArray()) && $row = $cursor->toArray()[0]/*getNext()*/) {
+            if ($row = $cursor->next()) {
                 $result = $row;
             } else {
                 $result = false;
