@@ -376,10 +376,10 @@ class Collection extends Object
         try {
             Yii::beginProfile($token, __METHOD__);
             $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->insert($data, $options));
+            $result = $this->mongoCollection->insertOne($data, $options);
+            $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
-
-            return is_array($data) ? $data['_id'] : $data->_id;
+            return $result->getInsertedId();
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);

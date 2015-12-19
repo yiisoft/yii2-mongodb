@@ -112,6 +112,7 @@ class MigrateController extends BaseMigrateController
      */
     protected function createMigration($class)
     {
+        echo $class;
         $file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
         require_once($file);
 

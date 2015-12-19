@@ -138,17 +138,17 @@ class Query extends Component implements QueryInterface
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
+        $condition = $this->composeCondition();
         if (!empty($this->orderBy)) {
-            $cursor->sort($this->composeSort());
+            $condition["sort"] = $this->composeSort();
         }
-        $cursor->limit($this->limit);
-        $cursor->skip($this->offset);
-
+        if ($this->limit != -1) {
+            $condition["limit"] =$this->limit;
+        }
         foreach ($this->options as $key => $value) {
-            $cursor->addOption($key, $value);
+            $condition[$key] = $value;
         }
-
+        $cursor = $cursor = $this->getCollection($db)->find($this->composeSelectFields(),$condition);
         return $cursor;
     }
 
@@ -163,7 +163,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'find(' . Json::encode($cursor->info()) . ')';
+        $token = 'find(' . Json::encode($cursor->getId()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -173,7 +173,7 @@ class Query extends Component implements QueryInterface
             return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            throw new Exception($e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -186,13 +186,10 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRowsInternal($cursor, $all, $indexBy)
     {
-        $result = [];
         if ($all) {
-            foreach ($cursor as $row) {
-                $result[] = $row;
-            }
+            $result = $cursor->toArray();
         } else {
-            if ($row = $cursor->getNext()) {
+            if ($row = $cursor->next()) {
                 $result = $row;
             } else {
                 $result = false;
@@ -280,17 +277,17 @@ class Query extends Component implements QueryInterface
     public function count($q = '*', $db = null)
     {
         $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
+        $token = 'find.count(' . Json::encode($cursor->getId()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $cursor->count();
+            $result = count($cursor->toArray());
             Yii::endProfile($token, __METHOD__);
 
             return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+            throw new Exception($e->getMessage(), (int)$e->getCode(), $e);
         }
     }
 
@@ -449,17 +446,10 @@ class Query extends Component implements QueryInterface
     private function composeSort()
     {
         $sort = [];
-        foreach ($this->orderBy as $fieldName => $sortOrder) {
-            switch ($sortOrder) {
-                case SORT_ASC:
-                    $sort[$fieldName] = \MongoCollection::ASCENDING;
-                    break;
-                case SORT_DESC:
-                    $sort[$fieldName] = \MongoCollection::DESCENDING;
-                    break;
-                default:
-                    $sort[$fieldName] = $sortOrder;
-            }
+        if (is_array($this->orderBy)) {
+            foreach ($this->orderBy as $fieldName => $sortOrder) {
+                $sort[$fieldName] = $sortOrder === SORT_DESC ? -1: 1;//DESC/ASC
+            }                  
         }
         return $sort;
     }
