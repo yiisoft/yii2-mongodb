@@ -7,11 +7,11 @@
 
 namespace yii\mongodb;
 
-use Yii;
 use yii\base\Component;
 use yii\db\QueryInterface;
 use yii\db\QueryTrait;
 use yii\helpers\Json;
+use Yii;
 
 /**
  * Query represents Mongo "find" operation.
@@ -53,6 +53,12 @@ class Query extends Component implements QueryInterface
      * @see from()
      */
     public $from;
+    /**
+     * @var array cursor options in format: optionKey => optionValue
+     * @see \MongoCursor::addOption()
+     * @see options()
+     */
+    public $options = [];
 
 
     /**
@@ -72,7 +78,7 @@ class Query extends Component implements QueryInterface
     /**
      * Sets the list of fields of the results to return.
      * @param array $fields fields of the results to return.
-     * @return static the query object itself.
+     * @return $this the query object itself.
      */
     public function select(array $fields)
     {
@@ -86,11 +92,41 @@ class Query extends Component implements QueryInterface
      * @param string|array the collection to be selected from. If string considered as the name of the collection
      * inside the default database. If array - first element considered as the name of the database,
      * second - as name of collection inside that database
-     * @return static the query object itself.
+     * @return $this the query object itself.
      */
     public function from($collection)
     {
         $this->from = $collection;
+
+        return $this;
+    }
+
+    /**
+     * Sets the cursor options.
+     * @param array $options cursor options in format: optionName => optionValue
+     * @return $this the query object itself
+     * @see addOptions()
+     */
+    public function options($options)
+    {
+        $this->options = $options;
+
+        return $this;
+    }
+
+    /**
+     * Adds additional cursor options.
+     * @param array $options cursor options in format: optionName => optionValue
+     * @return $this the query object itself
+     * @see options()
+     */
+    public function addOptions($options)
+    {
+        if (is_array($this->options)) {
+            $this->options = array_merge($this->options, $options);
+        } else {
+            $this->options = $options;
+        }
 
         return $this;
     }
@@ -109,8 +145,8 @@ class Query extends Component implements QueryInterface
         if ($this->limit != -1) {
             $condition["limit"] =$this->limit;
         }
-        if ($this->offset != -1) {
-            $condition["skip"] = $this->offset;
+        foreach ($this->options as $key => $value) {
+            $condition[$key] = $value;
         }
         $cursor = $cursor = $this->getCollection($db)->find($this->composeSelectFields(),$condition);
         return $cursor;
@@ -413,7 +449,7 @@ class Query extends Component implements QueryInterface
         if (is_array($this->orderBy)) {
             foreach ($this->orderBy as $fieldName => $sortOrder) {
                 $sort[$fieldName] = $sortOrder === SORT_DESC ? -1: 1;//DESC/ASC
-            }
+            }                  
         }
         return $sort;
     }

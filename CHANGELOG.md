@@ -1,8 +1,18 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.0.4 under development
+2.0.5 under development
 -----------------------
+
+- Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
+- Enh #27: Added support for saving extra fields in session collection for `yii\mongodb\Session` (klimov-paul)
+- Enh #35: Added support for cursor options setup at `yii\mongodb\Query` (klimov-paul)
+- Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)
+- Enh #37: Now `yii\mongodb\Collection::buildInCondition` is not added '$in' for array contains one element (webdevsega)
+
+
+2.0.4 May 10, 2015
+------------------
 
 - Bug #7010: Fixed `yii\mongodb\Query::one()` fails on PHP MongoDB extension version 1.6.x (im-kulikov, klimov-paul)
 - Enh #5802: Added `yii\mongodb\validators\MongoIdValidator` and `yii\mongodb\validators\MongoDateValidator` validators (klimov-paul)

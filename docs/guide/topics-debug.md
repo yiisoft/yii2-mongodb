@@ -16,6 +16,7 @@ enabled, it is sufficient to just add the panels configuration):
             'panels' => [
                 'mongodb' => [
                     'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
+                    // 'db' => 'db', // MongoDB component ID, defaults to `db`. Uncomment and change this line, if you registered MongoDB component with a different ID.
                 ],
             ],
         ],

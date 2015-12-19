@@ -137,4 +137,24 @@ class SessionTest extends TestCase
         $rows = $this->findAll($collection);
         $this->assertCount(1, $rows, 'Wrong records count!');
     }
+
+    /**
+     * @depends testWriteSession
+     */
+    public function testWriteCustomField()
+    {
+        $session = $this->createSession();
+        $session->writeCallback = function ($session) {
+            return [
+                'user_id' => 15
+            ];
+        };
+
+        $session->writeSession('test', 'session data');
+
+        $rows = $this->findAll($session->db->getCollection($session->sessionCollection));
+
+        $this->assertEquals('session data', $rows[0]['data']);
+        $this->assertEquals(15, $rows[0]['user_id']);
+    }
 }
