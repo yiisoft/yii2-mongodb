@@ -64,7 +64,9 @@ class MongoDateValidator extends DateValidator
                 $mongoDateAttributeValue = $model->{$this->mongoDateAttribute};
                 // ensure "dirty attributes" support :
                 if (!($mongoDateAttributeValue instanceof \MongoDB\BSON\UTCDatetime) || $mongoDateAttributeValue->toDateTime()->format('U') !== $timestamp) {
-                    $model->{$this->mongoDateAttribute} = new \MongoDB\BSON\UTCDatetime($timestamp);
+                    // Must be 64bit integer
+                    $milliseconds = (string)$timestamp . '000';
+                    $model->{$this->mongoDateAttribute} = new \MongoDB\BSON\UTCDatetime($milliseconds);
                 }
             }
         }

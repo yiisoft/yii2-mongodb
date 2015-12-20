@@ -130,7 +130,7 @@ class Database extends Object
      * you need to create collection with the specific options.
      * @param string $name name of the collection
      * @param array $options collection options in format: "name" => "value"
-     * @return \MongoCollection new Mongo collection instance.
+     * @return \MongoDB\Collection new Mongo collection instance.
      * @throws Exception on failure.
      */
     public function createCollection($name, $options = [])
@@ -142,7 +142,7 @@ class Database extends Object
             $result = $this->mongoDb->createCollection($name, $options);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return $result->ok ? $this->selectCollection($name) : null;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);

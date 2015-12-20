@@ -68,6 +68,6 @@ class DatabaseTest extends TestCase
         $database = $connection = $this->getConnection()->getDatabase();
         $collection = $database->createCollection('customer');
         // Should be \MongoDB\Collection
-        $this->assertTrue($collection instanceof \yii\mongodb\library\Collection);
+        $this->assertTrue($collection instanceof \yii\mongodb\Collection);
     }
 }
