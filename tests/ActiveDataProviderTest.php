@@ -78,7 +78,7 @@ class ActiveDataProviderTest extends TestCase
         $this->assertEquals(10, count($models));
         $this->assertTrue($models[0] instanceof Customer);
         $keys = $provider->getKeys();
-        $this->assertTrue($keys[0] instanceof \MongoId);
+        $this->assertTrue($keys[0] instanceof \MongoDB\BSON\ObjectID);
 
         $provider = new ActiveDataProvider([
             'query' => Customer::find(),

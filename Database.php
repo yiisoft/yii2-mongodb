@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use yii\base\InvalidCallException;
 use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
@@ -23,9 +24,19 @@ use yii\helpers\Json;
 class Database extends Object
 {
     /**
-     * @var \MongoDB Mongo database instance.
+     * @var \MongoDB\Driver\Manager Mongo manager instance.
+     */
+    public $mongoManager;
+
+    /**
+     * @var \MongoDB\Database Mongo database instance.
      */
     public $mongoDb;
+
+    /**
+     * @var string Database name
+     */
+    public $dbName;
 
     /**
      * @var Collection[] list of collections.
@@ -42,7 +53,7 @@ class Database extends Object
      */
     public function getName()
     {
-        return $this->mongoDb->__toString();
+        return $this->dbName;
     }
 
     /**
@@ -84,6 +95,9 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
+            'dbName' => $this->dbName,
+            'collectionName' => $name,
+            'mongoManager' => $this->mongoManager,
             'mongoCollection' => $this->mongoDb->selectCollection($name)
         ]);
     }
@@ -95,9 +109,13 @@ class Database extends Object
      */
     protected function selectFileCollection($prefix)
     {
+        //TODO: implement file collection
         return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
-            'mongoCollection' => $this->mongoDb->getGridFS($prefix)
+            'dbName' => $this->dbName,
+            'collectionPrefix' => $prefix,
+            'mongoManager' => $this->mongoManager,
+            'mongoCollection' => $this->mongoDb->selectCollection($prefix)
         ]);
     }
 
@@ -108,7 +126,7 @@ class Database extends Object
      * you need to create collection with the specific options.
      * @param string $name name of the collection
      * @param array $options collection options in format: "name" => "value"
-     * @return \MongoCollection new Mongo collection instance.
+     * @return \MongoDB\Collection new Mongo collection instance.
      * @throws Exception on failure.
      */
     public function createCollection($name, $options = [])
@@ -120,7 +138,7 @@ class Database extends Object
             $result = $this->mongoDb->createCollection($name, $options);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return $result->ok ? $this->selectCollection($name) : null;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -140,11 +158,12 @@ class Database extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoDb->command($command, $options);
+            $command = new \MongoDB\Driver\Command($command);
+            $result = $this->mongoManager->executeCommand($this->dbName, $command);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return MongoHelper::cursorFirst($result);
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);

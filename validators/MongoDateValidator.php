@@ -35,9 +35,9 @@ use yii\validators\DateValidator;
 class MongoDateValidator extends DateValidator
 {
     /**
-     * @var string the name of the attribute to receive the parsing result as [[\MongoDate]] instance.
+     * @var string the name of the attribute to receive the parsing result as [[\MongoDB\BSON\UTCDatetime]] instance.
      * When this property is not null and the validation is successful, the named attribute will
-     * receive the parsing result as [[\MongoDate]] instance.
+     * receive the parsing result as [[\MongoDB\BSON\UTCDatetime]] instance.
      *
      * This can be the same attribute as the one being validated. If this is the case,
      * the original value will be overwritten with the value after successful validation.
@@ -63,8 +63,10 @@ class MongoDateValidator extends DateValidator
                 $timestamp = $model->{$this->timestampAttribute};
                 $mongoDateAttributeValue = $model->{$this->mongoDateAttribute};
                 // ensure "dirty attributes" support :
-                if (!($mongoDateAttributeValue instanceof \MongoDate) || $mongoDateAttributeValue->sec !== $timestamp) {
-                    $model->{$this->mongoDateAttribute} = new \MongoDate($timestamp);
+                if (!($mongoDateAttributeValue instanceof \MongoDB\BSON\UTCDatetime) || $mongoDateAttributeValue->toDateTime()->format('U') !== $timestamp) {
+                    // Must be 64bit integer
+                    $milliseconds = (string)$timestamp . '000';
+                    $model->{$this->mongoDateAttribute} = new \MongoDB\BSON\UTCDatetime($milliseconds);
                 }
             }
         }
@@ -75,8 +77,10 @@ class MongoDateValidator extends DateValidator
      */
     protected function parseDateValue($value)
     {
-        if ($value instanceof \MongoDate) {
-            return $value->sec;
+        if ($value instanceof \MongoDB\BSON\UTCDatetime) {
+            /** @var \DateTime $datetime */
+            $datetime = $value->toDateTime();
+            return $datetime->format('U');
         }
         return parent::parseDateValue($value);
     }

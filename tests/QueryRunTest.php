@@ -297,14 +297,15 @@ class QueryRunTest extends TestCase
 
     public function testOptions()
     {
+        //TODO: use appropriate test
         $connection = $this->getConnection();
         $connection->getCollection('customer')->createIndex(['status' => 1]);
 
         $query = new Query();
         $rows = $query->from('customer')
-            ->options([
-                '$min' => [
-                    'status' => 9
+            ->where([
+                'status' => [
+                    '$gte' => 9
                 ],
             ])
             ->all($connection);

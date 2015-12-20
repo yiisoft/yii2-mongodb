@@ -10,6 +10,7 @@ namespace yii\mongodb;
 use yii\base\Component;
 use yii\db\QueryInterface;
 use yii\db\QueryTrait;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use Yii;
 
@@ -55,7 +56,6 @@ class Query extends Component implements QueryInterface
     public $from;
     /**
      * @var array cursor options in format: optionKey => optionValue
-     * @see \MongoCursor::addOption()
      * @see options()
      */
     public $options = [];
@@ -83,7 +83,6 @@ class Query extends Component implements QueryInterface
     public function select(array $fields)
     {
         $this->select = $fields;
-
         return $this;
     }
 
@@ -97,7 +96,6 @@ class Query extends Component implements QueryInterface
     public function from($collection)
     {
         $this->from = $collection;
-
         return $this;
     }
 
@@ -134,27 +132,30 @@ class Query extends Component implements QueryInterface
     /**
      * Builds the Mongo cursor for this query.
      * @param Connection $db the database connection used to execute the query.
-     * @return \MongoCursor mongo cursor instance.
+     * @return \MongoDB\Driver\Cursor mongo cursor instance.
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
+        $condition = $this->composeCondition();
+        $fields = $this->composeSelectFields();
+
+        $options = array_filter([
+            'limit' => $this->limit > 0 ? $this->limit : null,
+            'skip' => $this->offset > 0 ? $this->offset : null
+        ]);
+
         if (!empty($this->orderBy)) {
-            $cursor->sort($this->composeSort());
-        }
-        $cursor->limit($this->limit);
-        $cursor->skip($this->offset);
-
-        foreach ($this->options as $key => $value) {
-            $cursor->addOption($key, $value);
+            $options['sort'] = $this->composeSort();
         }
 
+        $options = array_merge($this->options, $options);
+        $cursor = $this->getCollection($db)->find($condition, $fields, $options);
         return $cursor;
     }
 
     /**
      * Fetches rows from the given Mongo cursor.
-     * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
+     * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy the column name or PHP callback,
      * by which the query results should be indexed by.
@@ -163,7 +164,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'find(' . Json::encode($cursor->info()) . ')';
+        $token = 'find(' . Json::encode($cursor->getId()) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -178,7 +179,7 @@ class Query extends Component implements QueryInterface
     }
 
     /**
-     * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
+     * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy value to index by.
      * @return array|boolean result.
@@ -186,20 +187,16 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRowsInternal($cursor, $all, $indexBy)
     {
-        $result = [];
         if ($all) {
-            foreach ($cursor as $row) {
-                $result[] = $row;
+            $rows = [];
+            foreach($cursor as $row) {
+                $rows[] = MongoHelper::resultToArray($row);
             }
+            return $rows;
         } else {
-            if ($row = $cursor->getNext()) {
-                $result = $row;
-            } else {
-                $result = false;
-            }
+            foreach($cursor as $row) break;
+            return isset($row) ? MongoHelper::resultToArray($row) : false;
         }
-
-        return $result;
     }
 
     /**
@@ -280,11 +277,11 @@ class Query extends Component implements QueryInterface
     public function count($q = '*', $db = null)
     {
         $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
+        $token = 'find.count(' . Json::encode($this->where) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $cursor->count();
+            $result = iterator_count($cursor);
             Yii::endProfile($token, __METHOD__);
 
             return $result;
@@ -381,7 +378,7 @@ class Query extends Component implements QueryInterface
         ];
         $result = $collection->aggregate($pipelines);
         if (array_key_exists(0, $result)) {
-            return $result[0]['total'];
+            return $result[0]->total;
         } else {
             return 0;
         }
@@ -452,10 +449,10 @@ class Query extends Component implements QueryInterface
         foreach ($this->orderBy as $fieldName => $sortOrder) {
             switch ($sortOrder) {
                 case SORT_ASC:
-                    $sort[$fieldName] = \MongoCollection::ASCENDING;
+                    $sort[$fieldName] = 1;
                     break;
                 case SORT_DESC:
-                    $sort[$fieldName] = \MongoCollection::DESCENDING;
+                    $sort[$fieldName] = -1;
                     break;
                 default:
                     $sort[$fieldName] = $sortOrder;

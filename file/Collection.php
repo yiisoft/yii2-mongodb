@@ -25,15 +25,24 @@ use Yii;
 class Collection extends \yii\mongodb\Collection
 {
     /**
-     * @var \MongoGridFS Mongo GridFS collection instance.
+     * @var \MongoDB\Driver\Manager Mongo manager instance.
+     */
+    public $mongoManager;
+
+    /**
+     * @var \MongoDB\Collection Mongo GridFS collection instance.
      */
     public $mongoCollection;
 
+    /** @var string Name of the collection database */
+    public $dbName;
+
+    /** @var string Name of the collection */
+    public $collectionPrefix;
     /**
      * @var \yii\mongodb\Collection file chunks Mongo collection.
      */
     private $_chunkCollection;
-
 
     /**
      * Returns the Mongo collection for the file chunks.
