@@ -11,7 +11,6 @@ use yii\base\InvalidCallException;
 use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
-use yii\mongodb\library\Collection;
 
 /**
  * Database represents the Mongo database information.
@@ -95,7 +94,7 @@ class Database extends Object
     protected function selectCollection($name)
     {
         // Wrapper of original library collection
-        $collection = new Collection($this->mongoManager, $this->dbName, $name);
+        $collection = new \yii\mongodb\library\Collection($this->mongoManager, $this->dbName, $name);
 
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
@@ -113,12 +112,15 @@ class Database extends Object
      */
     protected function selectFileCollection($prefix)
     {
-        //TODO: implement this
-        throw new InvalidCallException('Not implemented yet.');
-        /*return Yii::createObject([
+        $collection = new \yii\mongodb\library\Collection($this->mongoManager, $this->dbName, $prefix);
+
+        return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
-            'mongoCollection' => $this->mongoDb->getGridFS($prefix)
-        ]);*/
+            'dbName' => $this->dbName,
+            'collectionPrefix' => $prefix,
+            'mongoManager' => $this->mongoManager,
+            'mongoCollection' => $collection
+        ]);
     }
 
     /**

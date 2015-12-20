@@ -148,6 +148,7 @@ class Query extends Component implements QueryInterface
             $options['sort'] = $this->composeSort();
         }
 
+        $options = array_merge($this->options, $options);
         $cursor = $this->getCollection($db)->find($condition, $fields, $options);
         return $cursor;
     }

@@ -346,7 +346,7 @@ class Collection extends Object
     public function find($condition = [], $fields = [], $options = [])
     {
         if (count($fields) > 0) {
-            $this->addProjectionOption($options, $fields);
+            $options['projection'] = $this->normalizeIndexKeys($fields);
         }
 
         $condition = $this->buildCondition($condition);
@@ -364,7 +364,7 @@ class Collection extends Object
     public function findOne($condition = [], $fields = [], $options = [])
     {
         if (count($fields) > 0) {
-            $this->addProjectionOption($options, $fields);
+            $options['projection'] = $this->normalizeIndexKeys($fields);
         }
 
         $condition = $this->buildCondition($condition);
@@ -389,7 +389,7 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             if (count($fields) > 0) {
-                $this->addProjectionOption($options, $fields);
+                $options['projection'] = $this->normalizeIndexKeys($fields);
             }
 
             Yii::beginProfile($token, __METHOD__);
@@ -401,19 +401,6 @@ class Collection extends Object
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
-    }
-
-    /**
-     * @param array $options Reference to options array
-     * @param array $fields The fields that must be used to
-     */
-    protected function addProjectionOption(&$options, $fields)
-    {
-        $filter = [];
-        foreach($fields as $key => $field) {
-            $filter[$key] = true;
-        }
-        $options['projection'] = $filter;
     }
 
     /**
@@ -752,7 +739,7 @@ class Collection extends Object
         $condition['$text'] = ['$search' => $search];
 
         if (count($fields) > 0) {
-            $this->addProjectionOption($options, $fields);
+            $options['projection'] = $this->normalizeIndexKeys($fields);
         }
 
         $token = $this->composeLogToken('text', [$search, $condition, $fields]);

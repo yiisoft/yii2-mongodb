@@ -51,7 +51,7 @@ class ConnectionTest extends TestCase
 
         $database = $connection->getDatabase($connection->defaultDatabaseName);
         $this->assertTrue($database instanceof Database);
-        $this->assertTrue($database->mongoDb instanceof \MongoDB);
+        $this->assertTrue($database->mongoDb instanceof \MongoDB\Database);
 
         $database2 = $connection->getDatabase($connection->defaultDatabaseName);
         $this->assertTrue($database === $database2);

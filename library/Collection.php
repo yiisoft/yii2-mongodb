@@ -57,6 +57,7 @@ class Collection
 
     public function findAndModify($condition, $update, $options)
     {
+        //TODO: shouldn't be using this, wait for FindOneAndUpdate to be fixed (cannot specify overwrite update)
         $operation = new FindAndModify(
             $this->dbName,
             $this->collectionName,

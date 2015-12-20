@@ -11,6 +11,7 @@ class MongoHelper
      */
     public static function resultToArray($row)
     {
+        //TODO: Change this by using \MongoDB\Driver\Cursor::setTypeMap
         if ($row instanceof \stdClass) {
             $row = (array)$row;
         }
