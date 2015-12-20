@@ -233,21 +233,14 @@ class Collection extends Object
         $columns = (array)$columns;
         $keys = $this->normalizeIndexKeys($columns);
         $token = $this->composeLogToken('createIndex', [$keys, $options]);
-        $options = array_merge(['w' => 1], $options);
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            if (method_exists($this->mongoCollection, 'createIndex')) {
-                $result = $this->mongoCollection->createIndex($keys, $options);
-            } else {
-                //TODO: implement this
-                $result = true;
-                //$result = $this->mongoCollection->ensureIndex($keys, $options);
-            }
+            $result = $this->mongoCollection->createIndex($keys, $options);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return true;
+            return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -256,7 +249,7 @@ class Collection extends Object
 
     /**
      * Drop indexes for specified column(s).
-     * @param string|array $columns column name or list of column names.
+     * @param string|array $columns index name or list of column names.
      * If array is given, each element in the array has as key the field name, and as
      * value either 1 for ascending sort, or -1 for descending sort.
      * Use value 'text' to specify text index.
@@ -275,12 +268,23 @@ class Collection extends Object
      */
     public function dropIndex($columns)
     {
-        $columns = (array)$columns;
-        $keys = $this->normalizeIndexKeys($columns);
-        $token = $this->composeLogToken('dropIndex', [$keys]);
+        if (is_array($columns)) {
+            $key = $this->normalizeIndexKeys((array)$columns);
+            $indexes = $this->mongoCollection->listIndexes();
+            foreach($indexes as $index) {
+                if ($index->getKey() == $key) {
+                    $key = $index->getName();
+                    break;
+                }
+            }
+        } else {
+            $key = $columns;
+        }
+
+        $token = $this->composeLogToken('dropIndex', [$key]);
         Yii::info($token, __METHOD__);
         try {
-            $result = $this->mongoCollection->dropIndex($keys);
+            $result = $this->mongoCollection->dropIndex($key);
             $this->tryResultError($result);
 
             return true;
@@ -300,7 +304,7 @@ class Collection extends Object
         $keys = [];
         foreach ($columns as $key => $value) {
             if (is_numeric($key)) {
-                $keys[$value] = \MongoCollection::ASCENDING;
+                $keys[$value] = 1;
             } else {
                 $keys[$key] = $value;
             }
@@ -322,7 +326,7 @@ class Collection extends Object
             $result = $this->mongoCollection->dropIndexes();
             $this->tryResultError($result);
 
-            return $result['nIndexesWas'];
+            return $result->nIndexesWas;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -344,7 +348,8 @@ class Collection extends Object
             $this->addProjectionOption($options, $fields);
         }
 
-        return $this->mongoCollection->find($this->buildCondition($condition), $options);
+        $condition = $this->buildCondition($condition);
+        return $this->mongoCollection->find($condition, $options);
     }
 
     /**
@@ -361,8 +366,9 @@ class Collection extends Object
             $this->addProjectionOption($options, $fields);
         }
 
-        $result = $this->mongoCollection->findOne($this->buildCondition($condition), $options);
-        return $this->convertRowToArray($result);
+        $condition = $this->buildCondition($condition);
+        $result = $this->mongoCollection->findOne($condition, $options);
+        return MongoHelper::resultToArray($result);
     }
 
     /**
@@ -389,31 +395,11 @@ class Collection extends Object
             $result = $this->mongoCollection->findAndModify($condition, $update, $options);
             Yii::endProfile($token, __METHOD__);
 
-            return $this->convertRowToArray($result);
+            return MongoHelper::resultToArray($result);
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
-    }
-
-    /**
-     * Converts all instances of stdClass to array recursively
-     * @param \stdClass $row
-     * @return array
-     */
-    protected function convertRowToArray($row)
-    {
-        if ($row instanceof \stdClass) {
-            $row = (array)$row;
-        }
-
-        if (is_array($row)) {
-            foreach($row as $key => $value) {
-                $row[$key] = $this->convertRowToArray($value);
-            }
-        }
-
-        return $row;
     }
 
     /**
@@ -669,7 +655,7 @@ class Collection extends Object
             $this->tryResultError($result);
 
             Yii::endProfile($token, __METHOD__);
-            return isset($result->retval) ? $this->convertRowToArray($result->retval) : [];
+            return isset($result->retval) ? MongoHelper::resultToArray($result->retval) : [];
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -715,39 +701,31 @@ class Collection extends Object
      */
     public function mapReduce($map, $reduce, $out, $condition = [], $options = [])
     {
-        if (!($map instanceof \MongoCode)) {
-            $map = new \MongoCode((string) $map);
-        }
-        if (!($reduce instanceof \MongoCode)) {
-            $reduce = new \MongoCode((string) $reduce);
-        }
         $command = [
             'mapReduce' => $this->getName(),
             'map' => $map,
             'reduce' => $reduce,
             'out' => $out
         ];
+
         if (!empty($condition)) {
             $command['query'] = $this->buildCondition($condition);
         }
-        if (array_key_exists('finalize', $options)) {
-            if (!($options['finalize'] instanceof \MongoCode)) {
-                $options['finalize'] = new \MongoCode((string) $options['finalize']);
-            }
-        }
-        if (!empty($options)) {
-            $command = array_merge($command, $options);
-        }
+
+        $command = new \MongoDB\Driver\Command(array_merge($command, $options));
+
         $token = $this->composeLogToken('mapReduce', [$map, $reduce, $out]);
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $command = array_merge(['mapReduce' => $this->getName()], $command);
-            $result = $this->mongoCollection->db->command($command);
+
+            $result = $this->mongoManager->executeCommand($this->dbName, $command);
             $this->tryResultError($result);
+
             Yii::endProfile($token, __METHOD__);
 
-            return array_key_exists('results', $result) ? $result['results'] : $result['result'];
+            $row = MongoHelper::cursorFirst($result);
+            return isset($row['result']) ? $row['result'] : $row['results'];
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -764,33 +742,29 @@ class Collection extends Object
      *  - language - the language that determines the list of stop words for the search
      *    and the rules for the stemmer and tokenizer. If not specified, the search uses the default
      *    language of the index.
-     * @return array the highest scoring documents, in descending order by score.
+     * @return \MongoDB\Driver\Cursor the highest scoring documents, in descending order by score.
      * @throws Exception on failure.
      */
     public function fullTextSearch($search, $condition = [], $fields = [], $options = [])
     {
-        $command = [
-            'search' => $search
-        ];
-        if (!empty($condition)) {
-            $command['filter'] = $this->buildCondition($condition);
+        $condition = $this->buildCondition($condition);
+        $condition['$text'] = ['$search' => $search];
+
+        if (count($fields) > 0) {
+            $this->addProjectionOption($options, $fields);
         }
-        if (!empty($fields)) {
-            $command['project'] = $fields;
-        }
-        if (!empty($options)) {
-            $command = array_merge($command, $options);
-        }
-        $token = $this->composeLogToken('text', $command);
+
+        $token = $this->composeLogToken('text', [$search, $condition, $fields]);
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $command = array_merge(['text' => $this->getName()], $command);
-            $result = $this->mongoCollection->db->command($command);
+
+            $result = $this->mongoCollection->find($condition, $options);
+
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return $result['results'];
+            return $result;
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -879,7 +853,7 @@ class Collection extends Object
         }
         try {
             $mongoId = new \MongoDB\BSON\ObjectID($rawId);
-        } catch (\MongoException $e) {
+        } catch (\MongoDB\Driver\Exception\Exception $e) {
             // invalid id format
             $mongoId = $rawId;
         }

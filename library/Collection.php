@@ -4,6 +4,7 @@ namespace yii\mongodb\library;
 
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Operation\FindAndModify;
+use Prophecy\Exception\Doubler\MethodNotFoundException;
 
 class Collection
 {
@@ -76,6 +77,10 @@ class Collection
      */
     public function __call($name, $arguments)
     {
-        return call_user_func_array([$this->original, $name], $arguments);
+        try {
+            return call_user_func_array([$this->original, $name], $arguments);
+        } catch (\Exception $e) {
+            throw new MethodNotFoundException($e->getMessage(), '\MongoDB\Collection', $name, $arguments);
+        }
     }
 }

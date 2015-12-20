@@ -156,21 +156,20 @@ class Database extends Object
      */
     public function executeCommand($command, $options = [])
     {
-        //TODO: implement this
-        throw new InvalidCallException('Not implemented yet.');
-        /*$token = $this->getName() . '.$cmd(' . Json::encode($command) . ', ' . Json::encode($options) . ')';
+        $token = $this->getName() . '.$cmd(' . Json::encode($command) . ', ' . Json::encode($options) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoDb->command($command, $options);
+            $command = new \MongoDB\Driver\Command($command);
+            $result = $this->mongoManager->executeCommand($this->dbName, $command);
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return MongoHelper::cursorFirst($result);
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }*/
+        }
     }
 
     /**
