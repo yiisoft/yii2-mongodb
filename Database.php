@@ -93,15 +93,12 @@ class Database extends Object
      */
     protected function selectCollection($name)
     {
-        // Wrapper of original library collection
-        $collection = new \yii\mongodb\library\Collection($this->mongoManager, $this->dbName, $name);
-
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
             'dbName' => $this->dbName,
             'collectionName' => $name,
             'mongoManager' => $this->mongoManager,
-            'mongoCollection' => $collection
+            'mongoCollection' => $this->mongoDb->selectCollection($name)
         ]);
     }
 
@@ -112,14 +109,13 @@ class Database extends Object
      */
     protected function selectFileCollection($prefix)
     {
-        $collection = new \yii\mongodb\library\Collection($this->mongoManager, $this->dbName, $prefix);
-
+        //TODO: implement file collection
         return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
             'dbName' => $this->dbName,
             'collectionPrefix' => $prefix,
             'mongoManager' => $this->mongoManager,
-            'mongoCollection' => $collection
+            'mongoCollection' => $this->mongoDb->selectCollection($prefix)
         ]);
     }
 

@@ -393,7 +393,18 @@ class Collection extends Object
             }
 
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->findAndModify($condition, $update, $options);
+
+            //TODO: shouldn't be using this, waiting for FindOneAndUpdate to be fixed (cannot specify overwrite update)
+            $operation = new FindAndModify(
+                $this->dbName,
+                $this->collectionName,
+                ['query' => $condition, 'update' => $update] + $options
+            );
+
+            $readPreference = !empty($options['readPreference']) ? $options['readPreference'] : $this->mongoManager->getReadPreference();
+            $server = $this->mongoManager->selectServer($readPreference);
+            $result = $operation->execute($server);
+
             Yii::endProfile($token, __METHOD__);
 
             return MongoHelper::resultToArray($result);
@@ -639,7 +650,13 @@ class Collection extends Object
         try {
             Yii::beginProfile($token, __METHOD__);
 
-            $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
+            $operation = new Group($this->dbName, $this->collectionName, $keys, $initial, $reduce, $options);
+
+            $readPreference = !empty($options['readPreference']) ? $options['readPreference'] : $this->mongoManager->getReadPreference();
+            $server = $this->mongoManager->selectServer($readPreference);
+
+            $result =  $operation->execute($server);
+
             $this->tryResultError($result);
 
             Yii::endProfile($token, __METHOD__);

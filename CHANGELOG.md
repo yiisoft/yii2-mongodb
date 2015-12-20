@@ -9,6 +9,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #35: Added support for cursor options setup at `yii\mongodb\Query` (klimov-paul)
 - Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)
 - Enh #37: Now `yii\mongodb\Collection::buildInCondition` is not added '$in' for array contains one element (webdevsega)
+- Ehh #56: The mongodb extension now uses the new MongoDB driver, GridFS not yet supported (hardsetting)
 
 
 2.0.4 May 10, 2015
