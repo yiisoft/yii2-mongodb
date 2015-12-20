@@ -11,6 +11,7 @@ use yii\base\InvalidCallException;
 use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
+use yii\mongodb\library\Collection;
 
 /**
  * Database represents the Mongo database information.
@@ -24,9 +25,19 @@ use yii\helpers\Json;
 class Database extends Object
 {
     /**
+     * @var \MongoDB\Driver\Manager Mongo manager instance.
+     */
+    public $mongoManager;
+
+    /**
      * @var \MongoDB\Database Mongo database instance.
      */
     public $mongoDb;
+
+    /**
+     * @var string Database name
+     */
+    public $dbName;
 
     /**
      * @var Collection[] list of collections.
@@ -43,7 +54,7 @@ class Database extends Object
      */
     public function getName()
     {
-        return $this->mongoDb->__toString();
+        return $this->dbName;
     }
 
     /**
@@ -83,9 +94,15 @@ class Database extends Object
      */
     protected function selectCollection($name)
     {
+        // Wrapper of original library collection
+        $collection = new Collection($this->mongoManager, $this->dbName, $name);
+
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
-            'mongoCollection' => $this->mongoDb->selectCollection($name)
+            'dbName' => $this->dbName,
+            'collectionName' => $name,
+            'mongoManager' => $this->mongoManager,
+            'mongoCollection' => $collection
         ]);
     }
 

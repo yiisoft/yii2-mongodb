@@ -7,11 +7,14 @@
 
 namespace yii\mongodb;
 
+use MongoDB\Operation\FindAndModify;
 use MongoDB\Operation\FindOneAndUpdate;
 use yii\base\InvalidCallException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
+
+use yii\mongodb\library\Group;
 
 /**
  * Collection represents the Mongo collection information.
@@ -70,17 +73,27 @@ use Yii;
 class Collection extends Object
 {
     /**
-     * @var \MongoDB\Collection Mongo collection instance.
+     * @var \MongoDB\Driver\Manager Mongo manager instance.
+     */
+    public $mongoManager;
+
+    /**
+     * @var \MongoDB\Collection|\yii\mongodb\library\Collection Mongo collection instance.
      */
     public $mongoCollection;
 
+    /** @var string Name of the collection database */
+    public $dbName;
+
+    /** @var string Name of the collection */
+    public $collectionName;
 
     /**
      * @return string name of this collection.
      */
     public function getName()
     {
-        return $this->mongoCollection->getCollectionName();
+        return $this->collectionName;
     }
 
     /**
@@ -88,7 +101,7 @@ class Collection extends Object
      */
     public function getFullName()
     {
-        return $this->mongoCollection->__toString();
+        return $this->dbName . '.' . $this->collectionName;
     }
 
     /**
@@ -373,8 +386,7 @@ class Collection extends Object
             }
 
             Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['returnDocument' => FindOneAndUpdate::RETURN_DOCUMENT_AFTER], $options);
-            $result = $this->mongoCollection->findOneAndUpdate($condition, $update, $options);
+            $result = $this->mongoCollection->findAndModify($condition, $update, $options);
             Yii::endProfile($token, __METHOD__);
 
             return $this->convertRowToArray($result);
@@ -391,17 +403,16 @@ class Collection extends Object
      */
     protected function convertRowToArray($row)
     {
-        if ($row === null) {
-            return null;
+        if ($row instanceof \stdClass) {
+            $row = (array)$row;
         }
 
-        //TODO: used in Query as well, should be put in helper
-        $row = (array)$row;
-        foreach($row as $key => $value) {
-            if ($value instanceof \stdClass) {
+        if (is_array($row)) {
+            foreach($row as $key => $value) {
                 $row[$key] = $this->convertRowToArray($value);
             }
         }
+
         return $row;
     }
 
@@ -645,38 +656,20 @@ class Collection extends Object
      */
     public function group($keys, $initial, $reduce, $options = [])
     {
-        //TODO: implement this
-        return null;
-
-        if (!($reduce instanceof \MongoCode)) {
-            $reduce = new \MongoCode((string) $reduce);
-        }
         if (array_key_exists('condition', $options)) {
             $options['condition'] = $this->buildCondition($options['condition']);
         }
-        if (array_key_exists('finalize', $options)) {
-            if (!($options['finalize'] instanceof \MongoCode)) {
-                $options['finalize'] = new \MongoCode((string) $options['finalize']);
-            }
-        }
+
         $token = $this->composeLogToken('group', [$keys, $initial, $reduce, $options]);
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            // Avoid possible E_DEPRECATED for $options:
-            if (empty($options)) {
-                $result = $this->mongoCollection->group($keys, $initial, $reduce);
-            } else {
-                $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
-            }
+
+            $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
             $this->tryResultError($result);
 
             Yii::endProfile($token, __METHOD__);
-            if (array_key_exists('retval', $result)) {
-                return $result['retval'];
-            } else {
-                return [];
-            }
+            return isset($result->retval) ? $this->convertRowToArray($result->retval) : [];
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
