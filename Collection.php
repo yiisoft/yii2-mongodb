@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\Regex;
 use MongoDB\Operation\FindAndModify;
 use MongoDB\Operation\FindOneAndUpdate;
 use yii\base\InvalidCallException;
@@ -1093,8 +1094,10 @@ class Collection extends Object
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
         list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex($value);
+
+        if (!($value instanceof \MongoDB\BSON\Regex)) {
+            preg_match('~\/(.+)\/(.*)~', $value, $matches);
+            $value = new \MongoDB\BSON\Regex($matches[1], $matches[2]);
         }
 
         return [$column => $value];
@@ -1114,8 +1117,8 @@ class Collection extends Object
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
         list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex('/' . preg_quote($value) . '/i');
+        if (!$value instanceof \MongoDB\BSON\Regex) {
+            $value = new \MongoDB\BSON\Regex(preg_quote($value), 'i');
         }
 
         return [$column => $value];

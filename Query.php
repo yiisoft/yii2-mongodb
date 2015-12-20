@@ -107,7 +107,6 @@ class Query extends Component implements QueryInterface
      */
     public function options($options)
     {
-        //TODO: do we really need this?
         $this->options = $options;
 
         return $this;
@@ -121,7 +120,6 @@ class Query extends Component implements QueryInterface
      */
     public function addOptions($options)
     {
-        //TODO: do we really need this?
         if (is_array($this->options)) {
             $this->options = array_merge($this->options, $options);
         } else {
@@ -191,34 +189,13 @@ class Query extends Component implements QueryInterface
         if ($all) {
             $rows = [];
             foreach($cursor as $row) {
-                $rows[] = $this->convertRowToArray($row);
+                $rows[] = MongoHelper::resultToArray($row);
             }
             return $rows;
         } else {
             foreach($cursor as $row) break;
-            return isset($row) ? $this->convertRowToArray($row) : false;
+            return isset($row) ? MongoHelper::resultToArray($row) : false;
         }
-    }
-
-    /**
-     * Converts all instances of stdClass to array recursively
-     * @param \stdClass $row
-     * @return array
-     */
-    protected function convertRowToArray($row)
-    {
-        if ($row === null) {
-            return null;
-        }
-
-        //TODO: used in Collection as well, should be put in helper
-        $row = (array)$row;
-        foreach($row as $key => $value) {
-            if ($value instanceof \stdClass) {
-                $row[$key] = $this->convertRowToArray($value);
-            }
-        }
-        return $row;
     }
 
     /**
@@ -471,10 +448,10 @@ class Query extends Component implements QueryInterface
         foreach ($this->orderBy as $fieldName => $sortOrder) {
             switch ($sortOrder) {
                 case SORT_ASC:
-                    $sort[$fieldName] = \MongoCollection::ASCENDING;
+                    $sort[$fieldName] = 1;
                     break;
                 case SORT_DESC:
-                    $sort[$fieldName] = \MongoCollection::DESCENDING;
+                    $sort[$fieldName] = -1;
                     break;
                 default:
                     $sort[$fieldName] = $sortOrder;
