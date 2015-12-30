@@ -276,4 +276,14 @@ class Connection extends Component
     {
         $this->trigger(self::EVENT_AFTER_OPEN);
     }
+    
+    /**
+     * Returns the name of the DB driver.
+     * by an end user.
+     * @return string name of the DB driver
+     */
+    public function getDriverName()
+    {
+        return 'mongodb';
+    }
 }
