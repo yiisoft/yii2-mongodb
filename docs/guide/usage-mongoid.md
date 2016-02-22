@@ -1,7 +1,9 @@
 MongoId specifics
 =================
 
-Remember: MongoDB document id ("_id" field) is not scalar, but an instance of [[\MongoId]] class.
+## Getting scalar from document ID
+
+Remember: MongoDB document id (`_id` field) is not scalar, but an instance of [[\MongoId]] class.
 To get actual Mongo ID string your should typecast [[\MongoId]] instance to string:
 
 ```php
@@ -19,6 +21,12 @@ In these cases, ensure you have converted [[\MongoId]] into the string:
 /* @var $this yii\web\View */
 echo $this->createUrl(['item/update', 'id' => (string) $row['_id']]);
 ```
+
+Same applies to implementing user identity which is stored in MongoDB. When implementing
+[[\yii\web\IdentityInterface::getId()]] you should typecast [[\MongoId]] class to scalar
+in order for authentication to work.
+
+## Getting document ID from scalar
 
 While building condition, values for the key '_id' will be automatically cast to [[\MongoId]] instance,
 even if they are plain strings. So it is not necessary for you to perform back cast of string '_id'
