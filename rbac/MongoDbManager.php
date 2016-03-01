@@ -1,4 +1,9 @@
 <?php
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
 namespace yii\mongodb\rbac;
 
@@ -15,6 +20,17 @@ use yii\rbac\Item;
 use yii\rbac\Permission;
 use yii\rbac\Role;
 
+/**
+ * MongoDbManager represents an authorization manager that stores authorization information in MongoDB.
+ *
+ * The database connection is specified by [[db]]. Migrations is not needed, because MongoDB creates collections
+ * automatically and schema does not matter.
+ *
+ * You may change the names of the collections used to store the authorization and rule data by setting
+ * [[itemCollection]], [[itemChildCollection]], [[assignmentCollection]] and [[ruleCollection]].
+ *
+ * @author Dmitry Khlystov <dkhlystov@gmail.com>
+ */
 class MongoDbManager extends BaseManager
 {
 
