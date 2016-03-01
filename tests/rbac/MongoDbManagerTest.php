@@ -10,13 +10,6 @@ use yii\mongodb\rbac\MongoDbManager;
 class MongoDbManagerTest extends ManagerTestCase
 {
 
-    private static $collections = [
-        'auth_item',
-        'auth_item_child',
-        'auth_assignment',
-        'auth_rule',
-    ];
-
     protected function setUp()
     {
         parent::setUp();
