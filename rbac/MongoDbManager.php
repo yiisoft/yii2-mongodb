@@ -26,21 +26,21 @@ class MongoDbManager extends BaseManager
      */
     public $db = 'mongodb';
     /**
-     * @var string the name of the table storing authorization items. Defaults to "auth_item".
+     * @var string the name of the collection storing authorization items. Defaults to "auth_item".
      */
-    public $itemTable = 'auth_item';
+    public $itemCollection = 'auth_item';
     /**
-     * @var string the name of the table storing authorization item hierarchy. Defaults to "auth_item_child".
+     * @var string the name of the collection storing authorization item hierarchy. Defaults to "auth_item_child".
      */
-    public $itemChildTable = 'auth_item_child';
+    public $itemChildCollection = 'auth_item_child';
     /**
-     * @var string the name of the table storing authorization item assignments. Defaults to "auth_assignment".
+     * @var string the name of the collection storing authorization item assignments. Defaults to "auth_assignment".
      */
-    public $assignmentTable = 'auth_assignment';
+    public $assignmentCollection = 'auth_assignment';
     /**
-     * @var string the name of the table storing rules. Defaults to "auth_rule".
+     * @var string the name of the collection storing rules. Defaults to "auth_rule".
      */
-    public $ruleTable = 'auth_rule';
+    public $ruleCollection = 'auth_rule';
     /**
      * @var Cache|array|string the cache used to improve RBAC performance. This can be one of the following:
      *
@@ -94,8 +94,8 @@ class MongoDbManager extends BaseManager
             $this->cache = Instance::ensure($this->cache, Cache::className());
         }
 
-        $this->db->getCollection($this->itemTable)->createIndex(['name' => 1], ['unique' => true]);
-        $this->db->getCollection($this->ruleTable)->createIndex(['name' => 1], ['unique' => true]);
+        $this->db->getCollection($this->itemCollection)->createIndex(['name' => 1], ['unique' => true]);
+        $this->db->getCollection($this->ruleCollection)->createIndex(['name' => 1], ['unique' => true]);
     }
 
     /**
@@ -184,7 +184,7 @@ class MongoDbManager extends BaseManager
 
         $query = new Query;
         $parents = $query->select(['parent'])
-            ->from($this->itemChildTable)
+            ->from($this->itemChildCollection)
             ->where(['child' => $itemName])
             ->all($this->db);
         foreach ($parents as $parent) {
@@ -209,7 +209,7 @@ class MongoDbManager extends BaseManager
             return $this->items[$name];
         }
 
-        $row = (new Query)->from($this->itemTable)
+        $row = (new Query)->from($this->itemCollection)
             ->where(['name' => $name])
             ->one($this->db);
 
@@ -236,7 +236,7 @@ class MongoDbManager extends BaseManager
         if ($item->updatedAt === null) {
             $item->updatedAt = $time;
         }
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->insert([
                 'name' => $item->name,
                 'type' => $item->type,
@@ -257,12 +257,12 @@ class MongoDbManager extends BaseManager
      */
     protected function removeItem($item)
     {
-        $this->db->getCollection($this->itemChildTable)
+        $this->db->getCollection($this->itemChildCollection)
             ->remove(['or', ['parent' => $item->name], ['child' => $item->name]]);
-        $this->db->getCollection($this->assignmentTable)
+        $this->db->getCollection($this->assignmentCollection)
             ->remove(['item_name' => $item->name]);
 
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->remove(['name' => $item->name]);
 
         $this->invalidateCache();
@@ -276,17 +276,17 @@ class MongoDbManager extends BaseManager
     protected function updateItem($name, $item)
     {
         if ($item->name !== $name) {
-            $this->db->getCollection($this->itemChildTable)
+            $this->db->getCollection($this->itemChildCollection)
                 ->update(['parent' => $name], ['parent' => $item->name]);
-            $this->db->getCollection($this->itemChildTable)
+            $this->db->getCollection($this->itemChildCollection)
                 ->update(['child' => $name], ['child' => $item->name]);
-            $this->db->getCollection($this->assignmentTable)
+            $this->db->getCollection($this->assignmentCollection)
                 ->update(['item_name' => $name], ['item_name' => $item->name]);
         }
 
         $item->updatedAt = time();
 
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->update([
                 'name' => $name,
             ], [
@@ -314,7 +314,7 @@ class MongoDbManager extends BaseManager
         if ($rule->updatedAt === null) {
             $rule->updatedAt = $time;
         }
-        $this->db->getCollection($this->ruleTable)
+        $this->db->getCollection($this->ruleCollection)
             ->insert([
                 'name' => $rule->name,
                 'data' => serialize($rule),
@@ -333,13 +333,13 @@ class MongoDbManager extends BaseManager
     protected function updateRule($name, $rule)
     {
         if ($rule->name !== $name) {
-            $this->db->getCollection($this->itemTable)
+            $this->db->getCollection($this->itemCollection)
                 ->update(['rule_name' => $name], ['rule_name' => $rule->name]);
         }
 
         $rule->updatedAt = time();
 
-        $this->db->getCollection($this->ruleTable)
+        $this->db->getCollection($this->ruleCollection)
             ->update([
                 'name' => $name,
             ], [
@@ -358,10 +358,10 @@ class MongoDbManager extends BaseManager
      */
     protected function removeRule($rule)
     {
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->update(['rule_name' => $rule->name], ['rule_name' => null]);
 
-        $this->db->getCollection($this->ruleTable)
+        $this->db->getCollection($this->ruleCollection)
             ->remove(['name' => $rule->name]);
 
         $this->invalidateCache();
@@ -375,7 +375,7 @@ class MongoDbManager extends BaseManager
     protected function getItems($type)
     {
         $query = (new Query)
-            ->from($this->itemTable)
+            ->from($this->itemCollection)
             ->where(['type' => $type]);
 
         $items = [];
@@ -422,7 +422,7 @@ class MongoDbManager extends BaseManager
         // Get Item name
         $itemName = [];
         $query = (new Query())->select(['item_name'])
-            ->from($this->assignmentTable)
+            ->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId]);
         foreach ($query->all($this->db) as $row) {
             $itemName[] = $row['item_name'];
@@ -430,7 +430,7 @@ class MongoDbManager extends BaseManager
         
         // Get Roles
         $roles = [];
-        $query = (new Query)->from($this->itemTable)
+        $query = (new Query)->from($this->itemCollection)
             ->where(['name' => $itemName, 'type' => Item::TYPE_ROLE]);
         foreach ($query->all($this->db) as $row) {
             $roles[$row['name']] = $this->populateItem($row);
@@ -449,7 +449,7 @@ class MongoDbManager extends BaseManager
         if (empty($result)) {
             return [];
         }
-        $query = (new Query)->from($this->itemTable)->where([
+        $query = (new Query)->from($this->itemCollection)->where([
             'type' => Item::TYPE_PERMISSION,
             'name' => array_keys($result),
         ]);
@@ -487,7 +487,7 @@ class MongoDbManager extends BaseManager
         // Get Item name
         $itemName = [];
         $query = (new Query())->select(['item_name'])
-            ->from($this->assignmentTable)
+            ->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId]);
         foreach ($query->all($this->db) as $row) {
             $itemName[] = $row['item_name'];
@@ -495,7 +495,7 @@ class MongoDbManager extends BaseManager
         
         // Get Permissions
         $permissions = [];
-        $query = (new Query)->from($this->itemTable)
+        $query = (new Query)->from($this->itemCollection)
             ->where(['name' => $itemName, 'type' => Item::TYPE_PERMISSION]);
         foreach ($query->all($this->db) as $row) {
             $permissions[$row['name']] = $this->populateItem($row);
@@ -513,7 +513,7 @@ class MongoDbManager extends BaseManager
     protected function getInheritedPermissionsByUser($userId)
     {
         $query = (new Query)->select(['item_name'])
-            ->from($this->assignmentTable)
+            ->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId]);
 
         $childrenList = $this->getChildrenList();
@@ -526,7 +526,7 @@ class MongoDbManager extends BaseManager
             return [];
         }
 
-        $query = (new Query)->from($this->itemTable)->where([
+        $query = (new Query)->from($this->itemCollection)->where([
             'type' => Item::TYPE_PERMISSION,
             'name' => array_keys($result),
         ]);
@@ -544,7 +544,7 @@ class MongoDbManager extends BaseManager
      */
     protected function getChildrenList()
     {
-        $query = (new Query)->from($this->itemChildTable);
+        $query = (new Query)->from($this->itemChildCollection);
         $parents = [];
         foreach ($query->all($this->db) as $row) {
             $parents[$row['parent']][] = $row['child'];
@@ -578,7 +578,7 @@ class MongoDbManager extends BaseManager
         }
 
         $row = (new Query)->select(['data'])
-            ->from($this->ruleTable)
+            ->from($this->ruleCollection)
             ->where(['name' => $name])
             ->one($this->db);
         return $row === false ? null : unserialize($row['data']);
@@ -593,7 +593,7 @@ class MongoDbManager extends BaseManager
             return $this->rules;
         }
 
-        $query = (new Query)->from($this->ruleTable);
+        $query = (new Query)->from($this->ruleCollection);
 
         $rules = [];
         foreach ($query->all($this->db) as $row) {
@@ -612,7 +612,7 @@ class MongoDbManager extends BaseManager
             return null;
         }
 
-        $row = (new Query)->from($this->assignmentTable)
+        $row = (new Query)->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId, 'item_name' => $roleName])
             ->one($this->db);
 
@@ -637,7 +637,7 @@ class MongoDbManager extends BaseManager
         }
 
         $query = (new Query)
-            ->from($this->assignmentTable)
+            ->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId]);
 
         $assignments = [];
@@ -677,7 +677,7 @@ class MongoDbManager extends BaseManager
             throw new InvalidCallException("Cannot add '{$child->name}' as a child of '{$parent->name}'. A loop has been detected.");
         }
 
-        $this->db->getCollection($this->itemChildTable)
+        $this->db->getCollection($this->itemChildCollection)
             ->insert(['parent' => $parent->name, 'child' => $child->name]);
 
         $this->invalidateCache();
@@ -690,7 +690,7 @@ class MongoDbManager extends BaseManager
      */
     public function removeChild($parent, $child)
     {
-        $result = $this->db->getCollection($this->itemChildTable)
+        $result = $this->db->getCollection($this->itemChildCollection)
             ->remove(['parent' => $parent->name, 'child' => $child->name]) === true;
 
         $this->invalidateCache();
@@ -703,7 +703,7 @@ class MongoDbManager extends BaseManager
      */
     public function removeChildren($parent)
     {
-        $result = $this->db->getCollection($this->itemChildTable)
+        $result = $this->db->getCollection($this->itemChildCollection)
             ->remove(['parent' => $parent->name]) === true;
 
         $this->invalidateCache();
@@ -717,7 +717,7 @@ class MongoDbManager extends BaseManager
     public function hasChild($parent, $child)
     {
         return (new Query)
-            ->from($this->itemChildTable)
+            ->from($this->itemChildCollection)
             ->where(['parent' => $parent->name, 'child' => $child->name])
             ->one($this->db) !== false;
     }
@@ -730,7 +730,7 @@ class MongoDbManager extends BaseManager
         $names = [];
         $query = (new Query)
             ->select(['child'])
-            ->from($this->itemChildTable)
+            ->from($this->itemChildCollection)
             ->where(['parent'=>$name]);
         foreach ($query->all($this->db) as $row) {
             $names[] = $row['child'];
@@ -738,7 +738,7 @@ class MongoDbManager extends BaseManager
 
         $query = (new Query)
             ->select(['name', 'type', 'description', 'rule_name', 'data', 'created_at', 'updated_at'])
-            ->from($this->itemTable)
+            ->from($this->itemCollection)
             ->where(['name'=>$names]);
 
         $children = [];
@@ -779,7 +779,7 @@ class MongoDbManager extends BaseManager
             'createdAt' => time(),
         ]);
 
-        $this->db->getCollection($this->assignmentTable)
+        $this->db->getCollection($this->assignmentCollection)
             ->insert([
                 'user_id' => $assignment->userId,
                 'item_name' => $assignment->roleName,
@@ -798,7 +798,7 @@ class MongoDbManager extends BaseManager
             return false;
         }
 
-        return $this->db->getCollection($this->assignmentTable)
+        return $this->db->getCollection($this->assignmentCollection)
             ->remove(['user_id' => (string) $userId, 'item_name' => $role->name]) === true;
     }
 
@@ -811,7 +811,7 @@ class MongoDbManager extends BaseManager
             return false;
         }
 
-        return $this->db->getCollection($this->assignmentTable)
+        return $this->db->getCollection($this->assignmentCollection)
             ->remove(['user_id' => (string) $userId]) === true;
     }
 
@@ -821,9 +821,9 @@ class MongoDbManager extends BaseManager
     public function removeAll()
     {
         $this->removeAllAssignments();
-        $this->db->getCollection($this->itemChildTable)->remove();
-        $this->db->getCollection($this->itemTable)->remove();
-        $this->db->getCollection($this->ruleTable)->remove();
+        $this->db->getCollection($this->itemChildCollection)->remove();
+        $this->db->getCollection($this->itemCollection)->remove();
+        $this->db->getCollection($this->ruleCollection)->remove();
         $this->invalidateCache();
     }
 
@@ -852,7 +852,7 @@ class MongoDbManager extends BaseManager
         $names = [];
         $query = (new Query)
             ->select(['name'])
-            ->from($this->itemTable)
+            ->from($this->itemCollection)
             ->where(['type' => $type]);
         foreach ($query->all($this->db) as $row) {
             $names[] = $row['name'];
@@ -863,12 +863,12 @@ class MongoDbManager extends BaseManager
         }
 
         $key = $type == Item::TYPE_PERMISSION ? 'child' : 'parent';
-        $this->db->getCollection($this->itemChildTable)
+        $this->db->getCollection($this->itemChildCollection)
             ->remove([$key => $names]);
-        $this->db->getCollection($this->assignmentTable)
+        $this->db->getCollection($this->assignmentCollection)
             ->remove(['item_name' => $names]);
 
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->remove(['type' => $type]);
 
         $this->invalidateCache();
@@ -879,10 +879,10 @@ class MongoDbManager extends BaseManager
      */
     public function removeAllRules()
     {
-        $this->db->getCollection($this->itemTable)
+        $this->db->getCollection($this->itemCollection)
             ->update([], ['ruleName' => null]);
 
-        $this->db->getCollection($this->ruleTable)->drop();
+        $this->db->getCollection($this->ruleCollection)->drop();
 
         $this->invalidateCache();
     }
@@ -892,7 +892,7 @@ class MongoDbManager extends BaseManager
      */
     public function removeAllAssignments()
     {
-        $this->db->getCollection($this->assignmentTable)->remove();
+        $this->db->getCollection($this->assignmentCollection)->remove();
     }
 
     public function invalidateCache()
@@ -917,19 +917,19 @@ class MongoDbManager extends BaseManager
             return;
         }
 
-        $query = (new Query)->from($this->itemTable);
+        $query = (new Query)->from($this->itemCollection);
         $this->items = [];
         foreach ($query->all($this->db) as $row) {
             $this->items[$row['name']] = $this->populateItem($row);
         }
 
-        $query = (new Query)->from($this->ruleTable);
+        $query = (new Query)->from($this->ruleCollection);
         $this->rules = [];
         foreach ($query->all($this->db) as $row) {
             $this->rules[$row['name']] = unserialize($row['data']);
         }
 
-        $query = (new Query)->from($this->itemChildTable);
+        $query = (new Query)->from($this->itemChildCollection);
         $this->parents = [];
         foreach ($query->all($this->db) as $row) {
             if (isset($this->items[$row['child']])) {
@@ -954,7 +954,7 @@ class MongoDbManager extends BaseManager
         }
 
         $query = (new Query)->select(['user_id'])
-            ->from($this->assignmentTable)
+            ->from($this->assignmentCollection)
             ->where(['item_name' => $roleName]);
 
         $ids = [];
