@@ -821,9 +821,9 @@ class MongoDbManager extends BaseManager
     public function removeAll()
     {
         $this->removeAllAssignments();
-        $this->db->getCollection($this->itemChildTable)->drop();
-        $this->db->getCollection($this->itemTable)->drop();
-        $this->db->getCollection($this->ruleTable)->drop();
+        $this->db->getCollection($this->itemChildTable)->remove();
+        $this->db->getCollection($this->itemTable)->remove();
+        $this->db->getCollection($this->ruleTable)->remove();
         $this->invalidateCache();
     }
 
@@ -892,7 +892,7 @@ class MongoDbManager extends BaseManager
      */
     public function removeAllAssignments()
     {
-        $this->db->getCollection($this->assignmentTable)->drop();
+        $this->db->getCollection($this->assignmentTable)->remove();
     }
 
     public function invalidateCache()
