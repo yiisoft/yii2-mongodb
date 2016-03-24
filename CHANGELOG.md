@@ -10,6 +10,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)
 - Enh #37: Now `yii\mongodb\Collection::buildInCondition` is not added '$in' for array contains one element (webdevsega)
 - Enh #69: Fixed log target to display exceptions like DbTarget in Yii core, also avoids problems with Exceptions that contain closures (cebe)
+- Bug #73: Fixed ActiveRecord composite key relations (lennartvdd)
 
 
 2.0.4 May 10, 2015
