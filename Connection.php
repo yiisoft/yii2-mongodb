@@ -90,7 +90,7 @@ class Connection extends Component
     public $dsn;
     /**
      * @var array connection options.
-     * for example:
+     * For example:
      *
      * ~~~
      * [
@@ -102,6 +102,12 @@ class Connection extends Component
      * @see http://www.php.net/manual/en/mongoclient.construct.php
      */
     public $options = [];
+    /**
+     * @var array options for the MongoDB driver.
+     *
+     * @see http://www.php.net/manual/en/mongoclient.construct.php
+     */
+    public $driverOptions = [];
     /**
      * @var string name of the Mongo database to use by default.
      * If this field left blank, connection instance will attempt to determine it from
@@ -244,7 +250,7 @@ class Connection extends Component
                 if ($this->defaultDatabaseName !== null) {
                     $options['db'] = $this->defaultDatabaseName;
                 }
-                $this->mongoClient = new \MongoClient($this->dsn, $options);
+                $this->mongoClient = new \MongoClient($this->dsn, $options, $this->driverOptions);
                 $this->initConnection();
                 Yii::endProfile($token, __METHOD__);
             } catch (\Exception $e) {
