@@ -60,4 +60,32 @@ class ActiveFixtureTest extends TestCase
         $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
         $this->assertCount(2, $rows);
     }
+
+    /**
+     * @depends testLoadCollection
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/pull/40
+     */
+    public function testLoadEmptyData()
+    {
+        /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
+        $fixture = $this->getMock(
+            ActiveFixture::className(),
+            ['getData'],
+            [
+                [
+                    'db' => $this->getConnection(),
+                    'collectionName' => Customer::collectionName()
+                ]
+            ]
+        );
+        $fixture->expects($this->any())->method('getData')->will($this->returnValue([
+            // empty
+        ]));
+
+        $fixture->load(); // should be no error
+
+        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $this->assertEmpty($rows);
+    }
 }

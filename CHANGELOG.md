@@ -4,6 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.0.5 under development
 -----------------------
 
+- Bug #40: Fixed `yii\mongodb\ActiveFixture` throws exception on empty fixture data (darkunz)
 - Bug #73: Fixed `yii\mongodb\Collection::buildInCondition()` unable to process composite 'IN' condition (klimov-paul)
 - Bug #75: Fixed `yii\mongodb\Collection::distinct()` always returns `false` on empty condition for MongoDB 2.8 (boxoft)
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
