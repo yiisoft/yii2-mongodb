@@ -389,8 +389,9 @@ class CollectionTest extends TestCase
      */
     public function testFullTextSearch()
     {
-        if (version_compare('2.4', $this->getServerVersion(), '>')) {
-            $this->markTestSkipped("Mongo Server 2.4 required.");
+        $serverVersion = $this->getServerVersion();
+        if (version_compare('2.4', $serverVersion, '<') || version_compare('3.0', $serverVersion, '>=')) {
+            $this->markTestSkipped("Mongo Server >=2.4 and <3.0 required.");
         }
 
         $collection = $this->getConnection()->getCollection('customer');
