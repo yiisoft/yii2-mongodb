@@ -516,7 +516,12 @@ class Collection extends Object
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->distinct($column, $condition);
+            // See https://bugs.php.net/bug.php?id=68858
+            if (empty($condition)) {
+                $result = $this->mongoCollection->distinct($column);
+            } else {
+                $result = $this->mongoCollection->distinct($column, $condition);
+            }
             Yii::endProfile($token, __METHOD__);
 
             return $result;

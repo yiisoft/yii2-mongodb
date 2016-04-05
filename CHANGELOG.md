@@ -4,6 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.0.5 under development
 -----------------------
 
+- Bug #75: Fixed `yii\mongodb\Collection::distinct()` always returns `false` on empty condition for MongoDB 2.8 (@boxoft)
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
 - Enh #27: Added support for saving extra fields in session collection for `yii\mongodb\Session` (klimov-paul)
 - Enh #35: Added support for cursor options setup at `yii\mongodb\Query` (klimov-paul)
