@@ -1013,11 +1013,11 @@ class Collection extends Object
         if (!is_array($column)) {
             $columns = [$column];
             $values = [$column => $values];
-        } elseif (count($column) < 2) {
-            $columns = $column;
-            $values = [$column[0] => $values];
+        } elseif (count($column) > 1) {
+            return $this->buildCompositeInCondition($operator, $column, $values);
         } else {
-            $columns = $column;
+        	$columns = $column;
+            $values = [$column[0] => $values];
         }
 
         $operator = $this->normalizeConditionKeyword($operator);
@@ -1037,6 +1037,32 @@ class Collection extends Object
             }
         }
 
+        return $result;
+    }
+
+    public function buildCompositeInCondition($operator, $columns, $values)
+    {
+    	$vss = [];
+        foreach ($values as $value) {
+            foreach ($columns as $column) {
+				if ($column == '_id') {
+	                $v = $this->ensureMongoId($value[$column]);
+	            } else {
+            		$v = $value[$column];
+	            }
+                $vss[$column][] = $v;
+            }
+        }
+
+        $result = [];
+        $operator = $this->normalizeConditionKeyword($operator);
+        foreach($vss as $column => $values) {
+        	if(count($values) === 1 && $operator === '$in') {
+        		$result[$column] = $values[0];
+        	} else {
+        	 	$result[$column][$operator] = $values;
+        	}
+        }
         return $result;
     }
 
