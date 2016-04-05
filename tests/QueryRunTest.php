@@ -106,6 +106,29 @@ class QueryRunTest extends TestCase
         $this->assertEquals(9, count($rows));
     }
 
+    /**
+     * @depends testInCondition
+     */
+    public function testCompositeInCondition()
+    {
+        $connection = $this->getConnection();
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where([
+                'in',
+                ['status', 'name'],
+                [
+                    ['status' => 1, 'name' => 'name1'],
+                    ['status' => 3, 'name' => 'name3'],
+                    ['status' => 5, 'name' => 'name7'],
+                ]
+            ])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
+        $this->assertEquals('name1', $rows[0]['name']);
+        $this->assertEquals('name3', $rows[1]['name']);
+    }
+
     public function testOrCondition()
     {
         $connection = $this->getConnection();

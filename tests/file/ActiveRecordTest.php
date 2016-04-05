@@ -23,6 +23,7 @@ class ActiveRecordTest extends TestCase
     {
         parent::setUp();
         ActiveRecord::$db = $this->getConnection();
+        $this->dropFileCollection(CustomerFile::collectionName());
         $this->setUpTestRows();
         $filePath = $this->getTestFilePath();
         if (!file_exists($filePath)) {

@@ -1009,18 +1009,18 @@ class Collection extends Object
         list($column, $values) = $operands;
 
         $values = (array) $values;
+        $operator = $this->normalizeConditionKeyword($operator);
 
         if (!is_array($column)) {
             $columns = [$column];
             $values = [$column => $values];
-        } elseif (count($column) < 2) {
-            $columns = $column;
-            $values = [$column[0] => $values];
+        } elseif (count($column) > 1) {
+            return $this->buildCompositeInCondition($operator, $column, $values);
         } else {
             $columns = $column;
+            $values = [$column[0] => $values];
         }
 
-        $operator = $this->normalizeConditionKeyword($operator);
         $result = [];
         foreach ($columns as $column) {
             if ($column == '_id') {
@@ -1034,6 +1034,38 @@ class Collection extends Object
                 $result[$column] = $inValues[0];
             } else {
                 $result[$column][$operator] = $inValues;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param string $operator MongoDB the operator to use (`$in` OR `$nin`)
+     * @param array $columns list of compare columns
+     * @param array $values compare values in format: columnName => [values]
+     * @return array the generated Mongo condition.
+     */
+    private function buildCompositeInCondition($operator, $columns, $values)
+    {
+        $result = [];
+
+        $inValues = [];
+        foreach ($values as $columnValues) {
+            foreach ($columnValues as $column => $value) {
+                if ($column == '_id') {
+                    $value = $this->ensureMongoId($value);
+                }
+                $inValues[$column][] = $value;
+            }
+        }
+
+        foreach ($columns as $column) {
+            $columnInValues = array_values($inValues[$column]);
+            if (count($columnInValues) === 1 && $operator === '$in') {
+                $result[$column] = $columnInValues[0];
+            } else {
+                $result[$column][$operator] = $columnInValues;
             }
         }
 
