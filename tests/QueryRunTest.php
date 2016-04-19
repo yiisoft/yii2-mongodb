@@ -337,13 +337,14 @@ class QueryRunTest extends TestCase
 
     /**
      * @see https://github.com/yiisoft/yii2/issues/4879
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/101
      *
      * @depends testInCondition
      */
     public function testInConditionIgnoreKeys()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             /*->where([
                 'name' => [
@@ -359,6 +360,16 @@ class QueryRunTest extends TestCase
         $this->assertEquals(2, count($rows));
         $this->assertEquals('name1', $rows[0]['name']);
         $this->assertEquals('name5', $rows[1]['name']);
+
+        // @see https://github.com/yiisoft/yii2-mongodb/issues/101
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['_id' => [
+                10 => $rows[0]['_id'],
+                15 => $rows[1]['_id']
+            ]])
+            ->all($connection);
+        $this->assertEquals(2, count($rows));
     }
 
     /**

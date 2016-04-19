@@ -7,6 +7,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #40: Fixed `yii\mongodb\ActiveFixture` throws exception on empty fixture data (darkunz)
 - Bug #73: Fixed `yii\mongodb\Collection::buildInCondition()` unable to process composite 'IN' condition (klimov-paul)
 - Bug #75: Fixed `yii\mongodb\Collection::distinct()` always returns `false` on empty condition for MongoDB 2.8 (boxoft)
+- Bug #101: Fixed `yii\mongodb\Collection::buildCondition()` does not compose 'IN' condition for the values with broken index sequence (klimov-paul)
 - Bug: Avoid serializing PHP 7 errors (zuozp8, cebe)
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
 - Enh #27: Added support for saving extra fields in session collection for `yii\mongodb\Session` (klimov-paul)

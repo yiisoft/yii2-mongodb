@@ -10,6 +10,7 @@ namespace yii\mongodb;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 /**
  * Collection represents the Mongo collection information.
@@ -878,7 +879,7 @@ class Collection extends Object
                 $result[$name] = $value;
             } else {
                 if (is_array($value)) {
-                    if (array_key_exists(0, $value)) {
+                    if (ArrayHelper::isIndexed($value)) {
                         // Quick IN condition:
                         $result = array_merge($result, $this->buildInCondition('IN', [$name, $value]));
                     } else {
