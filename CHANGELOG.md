@@ -16,6 +16,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #37: Now `yii\mongodb\Collection::buildInCondition` is not added '$in' for array contains one element (webdevsega)
 - Enh #41: Added `yii\mongodb\Connection::driverOptions` allowing setup of the options for the MongoDB driver (klimov-paul)
 - Enh #69: Fixed log target to display exceptions like DbTarget in Yii core, also avoids problems with Exceptions that contain closures (cebe)
+- Enh #102: `MongoDbTarget` now uses `batchInsert()` while exporting log messages (klimov-paul)
 
 
 2.0.4 May 10, 2015

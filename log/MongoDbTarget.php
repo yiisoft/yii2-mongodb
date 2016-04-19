@@ -54,7 +54,7 @@ class MongoDbTarget extends Target
      */
     public function export()
     {
-        $collection = $this->db->getCollection($this->logCollection);
+        $rows = [];
         foreach ($this->messages as $message) {
             list($text, $level, $category, $timestamp) = $message;
             if (!is_string($text)) {
@@ -65,13 +65,15 @@ class MongoDbTarget extends Target
                     $text = VarDumper::export($text);
                 }
             }
-            $collection->insert([
+            $rows[] = [
                 'level' => $level,
                 'category' => $category,
                 'log_time' => $timestamp,
                 'prefix' => $this->getMessagePrefix($message),
                 'message' => $text,
-            ]);
+            ];
         }
+
+        $this->db->getCollection($this->logCollection)->batchInsert($rows);
     }
 }
