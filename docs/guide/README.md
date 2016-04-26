@@ -22,6 +22,7 @@ Additional topics
 
 * [Using the Cache component](topics-cache.md)
 * [Using the Session component](topics-session.md)
+* [Using the I18N Message Source](topics-i18n-message-source.md)
 * [Using Gii generator](topics-gii.md)
 * [Using the MongoDB DebugPanel](topics-debug.md)
 * [Using Migrations](topics-migrations.md)
