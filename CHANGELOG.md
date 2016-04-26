@@ -15,6 +15,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)
 - Enh #37: Now `yii\mongodb\Collection::buildInCondition` is not added '$in' for array contains one element (webdevsega)
 - Enh #41: Added `yii\mongodb\Connection::driverOptions` allowing setup of the options for the MongoDB driver (klimov-paul)
+- Enh #57: Added i18n support via `yii\mongodb\i18n\MongoDbMessageSource` (klimov-paul)
 - Enh #69: Fixed log target to display exceptions like DbTarget in Yii core, also avoids problems with Exceptions that contain closures (cebe)
 - Enh #102: `MongoDbTarget` now uses `batchInsert()` while exporting log messages (klimov-paul)
 
