@@ -139,6 +139,35 @@ class CollectionTest extends TestCase
     }
 
     /**
+     * @depends testBatchInsert
+     * @depends testRemove
+     */
+    public function testRemoveComplexCondition()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+        $collection->batchInsert([
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+            ],
+            [
+                'name' => 'customer 2',
+                'status' => 2,
+            ],
+            [
+                'name' => 'customer 3',
+                'status' => 3,
+            ],
+        ]);
+
+        $count = $collection->remove(['status' => [1, 3]]);
+        $this->assertEquals(2, $count);
+
+        $rows = $this->findAll($collection);
+        $this->assertEquals(1, count($rows));
+    }
+
+    /**
      * @depends testFindAll
      */
     public function testUpdate()
