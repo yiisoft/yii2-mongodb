@@ -28,18 +28,18 @@ use yii\helpers\ArrayHelper;
  *
  * In order to enable this command you should adjust the configuration of your console application:
  *
- * ~~~
+ * ```php
  * return [
  *     // ...
  *     'controllerMap' => [
  *         'mongodb-migrate' => 'yii\mongodb\console\controllers\MigrateController'
  *     ],
  * ];
- * ~~~
+ * ```
  *
  * Below are some common usages of this command:
  *
- * ~~~
+ * ```php
  * # creates a new migration named 'create_user_collection'
  * yii mongodb-migrate/create create_user_collection
  *
@@ -48,7 +48,7 @@ use yii\helpers\ArrayHelper;
  *
  * # reverts the last applied migration
  * yii mongodb-migrate/down
- * ~~~
+ * ```
  *
  * @author Klimov Paul <klimov@zfort.com>
  * @since 2.0

@@ -22,37 +22,37 @@ use Yii;
  * The following example shows how to create a Connection instance and establish
  * the DB connection:
  *
- * ~~~
+ * ```php
  * $connection = new \yii\mongodb\Connection([
  *     'dsn' => $dsn,
  * ]);
  * $connection->open();
- * ~~~
+ * ```
  *
  * After the Mongo connection is established, one can access Mongo databases and collections:
  *
- * ~~~
+ * ```php
  * $database = $connection->getDatabase('my_mongo_db');
  * $collection = $database->getCollection('customer');
  * $collection->insert(['name' => 'John Smith', 'status' => 1]);
- * ~~~
+ * ```
  *
  * You can work with several different databases at the same server using this class.
  * However, while it is unlikely your application will actually need it, the Connection class
  * provides ability to use [[defaultDatabaseName]] as well as a shortcut method [[getCollection()]]
  * to retrieve a particular collection instance:
  *
- * ~~~
+ * ```php
  * // get collection 'customer' from default database:
  * $collection = $connection->getCollection('customer');
  * // get collection 'customer' from database 'mydatabase':
  * $collection = $connection->getCollection(['mydatabase', 'customer']);
- * ~~~
+ * ```
  *
  * Connection is often used as an application component and configured in the application
  * configuration like the following:
  *
- * ~~~
+ * ```php
  * [
  *      'components' => [
  *          'mongodb' => [
@@ -61,7 +61,7 @@ use Yii;
  *          ],
  *      ],
  * ]
- * ~~~
+ * ```
  *
  * @property Database $database Database instance. This property is read-only.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
@@ -92,12 +92,12 @@ class Connection extends Component
      * @var array connection options.
      * For example:
      *
-     * ~~~
+     * ```php
      * [
      *     'socketTimeoutMS' => 1000, // how long a send or receive on a socket can take before timing out
      *     'journal' => true // block write operations until the journal be flushed the to disk
      * ]
-     * ~~~
+     * ```
      *
      * @see http://www.php.net/manual/en/mongoclient.construct.php
      */

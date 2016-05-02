@@ -21,19 +21,19 @@ use yii\web\UploadedFile;
  *
  * For example:
  *
- * ~~~
+ * ```php
  * $record = new ImageFile();
  * $record->file = '/path/to/some/file.jpg';
  * $record->save();
- * ~~~
+ * ```
  *
  * You can also specify file content via [[newFileContent]] attribute:
  *
- * ~~~
+ * ```php
  * $record = new ImageFile();
  * $record->newFileContent = 'New file content';
  * $record->save();
- * ~~~
+ * ```
  *
  * Note: [[newFileContent]] always takes precedence over [[file]].
  *
@@ -69,7 +69,8 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
      * Note: all attributes defined in base Active Record class should be always present
      * in returned array.
      * For example:
-     * ~~~
+     *
+     * ```php
      * public function attributes()
      * {
      *     return array_merge(
@@ -77,7 +78,8 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
      *         ['tags', 'status']
      *     );
      * }
-     * ~~~
+     * ```
+     *
      * @return array list of attribute names.
      */
     public function attributes()

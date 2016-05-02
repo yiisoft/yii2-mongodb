@@ -26,9 +26,9 @@ use yii\db\ActiveRelationTrait;
  *
  * These options can be configured using methods of the same name. For example:
  *
- * ~~~
+ * ```php
  * $images = ImageFile::find()->with('tags')->asArray()->all();
- * ~~~
+ * ```
  *
  * @property Collection $collection Collection instance. This property is read-only.
  *

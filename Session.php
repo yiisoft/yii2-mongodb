@@ -23,13 +23,13 @@ use yii\web\MultiFieldSession;
  * The following example shows how you can configure the application to use Session:
  * Add the following to your application config under `components`:
  *
- * ~~~
+ * ```php
  * 'session' => [
  *     'class' => 'yii\mongodb\Session',
  *     // 'db' => 'mymongodb',
  *     // 'sessionCollection' => 'my_session',
  * ]
- * ~~~
+ * ```
  *
  * Session extends [[MultiFieldSession]], thus it allows saving extra fields into the [[sessionCollection]].
  * Refer to [[MultiFieldSession]] for more details.

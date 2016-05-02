@@ -21,7 +21,7 @@ use Yii;
  *
  * For example,
  *
- * ~~~
+ * ```php
  * $query = new Query;
  * // compose the query
  * $query->select(['name', 'status'])
@@ -29,7 +29,7 @@ use Yii;
  *     ->limit(10);
  * // execute the query
  * $rows = $query->all();
- * ~~~
+ * ```
  *
  * @property Collection $collection Collection instance. This property is read-only.
  *

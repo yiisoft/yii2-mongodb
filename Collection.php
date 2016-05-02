@@ -20,10 +20,10 @@ use yii\helpers\ArrayHelper;
  * Collection provides the basic interface for the Mongo queries, mostly: insert, update, delete operations.
  * For example:
  *
- * ~~~
+ * ```php
  * $collection = Yii::$app->mongodb->getCollection('customer');
  * $collection->insert(['name' => 'John Smith', 'status' => 1]);
- * ~~~
+ * ```
  *
  * To perform "find" queries, please use [[Query]] instead.
  *
@@ -31,7 +31,8 @@ use yii\helpers\ArrayHelper;
  * However Collection class provides the ability of "translating" common condition format used "yii\db\*"
  * into Mongo condition.
  * For example:
- * ~~~
+ *
+ * ```php
  * $condition = [
  *     [
  *         'OR',
@@ -52,7 +53,7 @@ use yii\helpers\ArrayHelper;
  *         ]
  *     ]
  * ]
- * ~~~
+ * ```
  *
  * Note: condition values for the key '_id' will be automatically cast to [[\MongoId]] instance,
  * even if they are plain strings. However, if you have other columns, containing [[\MongoId]], you
@@ -202,12 +203,14 @@ class Collection extends Object
      * You can specify field using native numeric key with the field name as a value,
      * in this case ascending sort will be used.
      * For example:
-     * ~~~
+     *
+     * ```php
      * [
      *     'name',
      *     'status' => -1,
      * ]
-     * ~~~
+     * ```
+     *
      * @param array $options list of options in format: optionName => optionValue.
      * @throws Exception on failure.
      * @return boolean whether the operation successful.
@@ -245,13 +248,15 @@ class Collection extends Object
      * You can specify field using native numeric key with the field name as a value,
      * in this case ascending sort will be used.
      * For example:
-     * ~~~
+     *
+     * ```php
      * [
      *     'name',
      *     'status' => -1,
      *     'description' => 'text',
      * ]
-     * ~~~
+     * ```
+     *
      * @throws Exception on failure.
      * @return boolean whether the operation successful.
      */
@@ -618,7 +623,7 @@ class Collection extends Object
      * write it inside the another Mongo collection specified by "out" parameter.
      * For example:
      *
-     * ~~~
+     * ```php
      * $customerCollection = Yii::$app->mongo->getCollection('customer');
      * $resultCollectionName = $customerCollection->mapReduce(
      *     'function () {emit(this.status, this.amount)}',
@@ -628,7 +633,7 @@ class Collection extends Object
      * );
      * $query = new Query();
      * $results = $query->from($resultCollectionName)->all();
-     * ~~~
+     * ```
      *
      * @param \MongoCode|string $map function, which emits map data from collection.
      * Argument will be automatically cast to [[\MongoCode]].

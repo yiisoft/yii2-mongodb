@@ -37,9 +37,9 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Updates all documents in the collection using the provided attribute values and conditions.
      * For example, to change the status to be 1 for all customers whose status is 2:
      *
-     * ~~~
+     * ```php
      * Customer::updateAll(['status' => 1], ['status' => 2]);
-     * ~~~
+     * ```
      *
      * @param array $attributes attribute values (name-value pairs) to be saved into the collection
      * @param array $condition description of the objects to update.
@@ -56,9 +56,9 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Updates all documents in the collection using the provided counter changes and conditions.
      * For example, to increment all customers' age by 1,
      *
-     * ~~~
+     * ```php
      * Customer::updateAllCounters(['age' => 1]);
-     * ~~~
+     * ```
      *
      * @param array $counters the counters to be updated (attribute name => increment value).
      * Use negative values if you want to decrement the counters.
@@ -78,9 +78,9 @@ abstract class ActiveRecord extends BaseActiveRecord
      *
      * For example, to delete all customers whose status is 3:
      *
-     * ~~~
+     * ```php
      * Customer::deleteAll(['status' => 3]);
-     * ~~~
+     * ```
      *
      * @param array $condition description of the objects to delete.
      * Please refer to [[Query::where()]] on how to specify this parameter.
@@ -186,12 +186,12 @@ abstract class ActiveRecord extends BaseActiveRecord
      *
      * For example, to insert a customer record:
      *
-     * ~~~
-     * $customer = new Customer;
+     * ```php
+     * $customer = new Customer();
      * $customer->name = $name;
      * $customer->email = $email;
      * $customer->insert();
-     * ~~~
+     * ```
      *
      * @param boolean $runValidation whether to perform validation before saving the record.
      * If the validation fails, the record will not be inserted into the collection.

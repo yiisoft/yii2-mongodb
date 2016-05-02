@@ -14,7 +14,7 @@ use yii\validators\DateValidator;
  *
  * Usage example:
  *
- * ~~~
+ * ```php
  * class Customer extends yii\mongodb\ActiveRecord
  * {
  *     ...
@@ -25,7 +25,7 @@ use yii\validators\DateValidator;
  *         ];
  *     }
  * }
- * ~~~
+ * ```
  *
  * @see DateValidator
  *
@@ -43,6 +43,7 @@ class MongoDateValidator extends DateValidator
      * the original value will be overwritten with the value after successful validation.
      */
     public $mongoDateAttribute;
+
 
     /**
      * @inheritdoc

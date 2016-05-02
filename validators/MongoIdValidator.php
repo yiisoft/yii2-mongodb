@@ -17,7 +17,7 @@ use Yii;
  *
  * Usage example:
  *
- * ~~~
+ * ```php
  * class Customer extends yii\mongodb\ActiveRecord
  * {
  *     ...
@@ -28,7 +28,7 @@ use Yii;
  *         ];
  *     }
  * }
- * ~~~
+ * ```
  *
  * This validator may also serve as a filter, allowing conversion of Mongo ID value either to the plain string
  * or to [[\MongoId]] instance. You can enable this feature via [[forceFormat]].
@@ -47,6 +47,7 @@ class MongoIdValidator extends Validator
      * If not set - no conversion will be performed, leaving attribute value intact.
      */
     public $forceFormat;
+
 
     /**
      * @inheritdoc

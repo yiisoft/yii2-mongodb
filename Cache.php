@@ -22,13 +22,13 @@ use yii\di\Instance;
  *
  * The following example shows how you can configure the application to use Cache:
  *
- * ~~~
+ * ```php
  * 'cache' => [
  *     'class' => 'yii\mongodb\Cache',
  *     // 'db' => 'mymongodb',
  *     // 'cacheCollection' => 'my_cache',
  * ]
- * ~~~
+ * ```
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
