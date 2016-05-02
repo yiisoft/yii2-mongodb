@@ -22,6 +22,7 @@ Yii 2 MongoDb エクステンション
 
 * [キャッシュコンポーネントを使用する](topics-cache.md)
 * [セッションコンポーネントを使用する](topics-session.md)
+* [I18N メッセージソースを使用する](topics-i18n-message-source.md)
 * [Gii ジェネレータを使用する](topics-gii.md)
 * [MongoDB DebugPanel を使用する](topics-debug.md)
 * [マイグレーションを使用する](topics-migrations.md)
