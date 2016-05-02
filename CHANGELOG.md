@@ -17,6 +17,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #41: Added `yii\mongodb\Connection::driverOptions` allowing setup of the options for the MongoDB driver (klimov-paul)
 - Enh #57: Added i18n support via `yii\mongodb\i18n\MongoDbMessageSource` (klimov-paul)
 - Enh #69: Fixed log target to display exceptions like DbTarget in Yii core, also avoids problems with Exceptions that contain closures (cebe)
+- Enh #74: Added explain method to `MongoDbPanel` debug panel (webdevsega)
 - Enh #102: `MongoDbTarget` now uses `batchInsert()` while exporting log messages (klimov-paul)
 
 

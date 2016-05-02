@@ -1,28 +1,36 @@
 <?php
+/**
+ * @link http://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license http://www.yiiframework.com/license/
+ */
 
 namespace yii\mongodb\debug;
 
 use yii\base\Action;
-use yii\base\InvalidParamException;
-use yii\debug\panels\DbPanel;
-use yii\helpers\ArrayHelper;
 use yii\helpers\Json;
 use yii\web\HttpException;
 
 /**
  * ExplainAction provides EXPLAIN information for MongoDB queries
+ *
+ * @author Sergey Smirnov <webdevsega@yandex.ru>
+ * @since 2.0.5
  */
 class ExplainAction extends Action
 {
     /**
-     * @var DbPanel
+     * @var MongoDbPanel related debug toolbar panel
      */
     public $panel;
 
+
     /**
-     * Runs the action
-     *
-     * @return string result content
+     * Runs the explain action
+     * @param integer $seq
+     * @param string $tag
+     * @return string explain result content
+     * @throws HttpException if requested log not found
      */
     public function run($seq, $tag)
     {
@@ -37,12 +45,12 @@ class ExplainAction extends Action
         $query = $timings[$seq]['info'];
         preg_match('/^.+\((.*)\)$/', $query, $matches);
         if (!isset($matches[1])) {
-            return;
+            return '';
         }
 
         $cursor = $this->getCursorFromQueryLog($matches[1]);
         if (!$cursor) {
-            return;
+            return '';
         }
         $result = $cursor->explain();
 

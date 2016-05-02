@@ -21,6 +21,12 @@ class MongoDbPanel extends DbPanel
     /**
      * @inheritdoc
      */
+    public $db = 'mongodb';
+
+
+    /**
+     * @inheritdoc
+     */
     public function init()
     {
         $this->actions['db-explain'] = [
