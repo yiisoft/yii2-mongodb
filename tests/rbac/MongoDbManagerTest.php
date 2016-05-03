@@ -434,16 +434,16 @@ class MongoDbManagerTest extends TestCase
         // using rule class name
         $auth->removeAll();
         $role = $auth->createRole('Reader');
-        $role->ruleName = 'yiiunit\framework\rbac\ActionRule';
+        $role->ruleName = 'yiiunit\extensions\mongodb\data\rbac\ActionRule';
         $auth->add($role);
         $auth->assign($role, $userId);
         $this->assertTrue($auth->checkAccess($userId, 'Reader', ['action' => 'read']));
         $this->assertFalse($auth->checkAccess($userId, 'Reader', ['action' => 'write']));
 
         // using DI
-        \Yii::$container->set('write_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'write']);
-        \Yii::$container->set('delete_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'delete']);
-        \Yii::$container->set('all_rule', ['class' => 'yiiunit\framework\rbac\ActionRule', 'action' => 'all']);
+        \Yii::$container->set('write_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'write']);
+        \Yii::$container->set('delete_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'delete']);
+        \Yii::$container->set('all_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'all']);
 
         $role = $auth->createRole('Writer');
         $role->ruleName = 'write_rule';

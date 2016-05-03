@@ -7,6 +7,9 @@
 
 namespace yii\mongodb\rbac;
 
+use Yii;
+use yii\base\InvalidCallException;
+use yii\base\InvalidParamException;
 use yii\caching\Cache;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
@@ -15,8 +18,6 @@ use yii\mongodb\Query;
 use yii\rbac\Assignment;
 use yii\rbac\BaseManager;
 use yii\rbac\Item;
-use yii\rbac\Permission;
-use yii\rbac\Role;
 use yii\rbac\Rule;
 
 /**
@@ -108,6 +109,86 @@ class MongoDbManager extends BaseManager
         } else {
             return $this->checkAccessRecursive($userId, $permissionName, $params, $assignments);
         }
+    }
+
+    /**
+     * Performs access check for the specified user based on the data loaded from cache.
+     * This method is internally called by [[checkAccess()]] when [[cache]] is enabled.
+     * @param string|integer $user the user ID. This should can be either an integer or a string representing
+     * the unique identifier of a user. See [[\yii\web\User::id]].
+     * @param string $itemName the name of the operation that need access check
+     * @param array $params name-value pairs that would be passed to rules associated
+     * with the tasks and roles assigned to the user. A param with name 'user' is added to this array,
+     * which holds the value of `$userId`.
+     * @param Assignment[] $assignments the assignments to the specified user
+     * @return boolean whether the operations can be performed by the user.
+     */
+    protected function checkAccessFromCache($user, $itemName, $params, $assignments)
+    {
+        if (!isset($this->items[$itemName])) {
+            return false;
+        }
+
+        $item = $this->items[$itemName];
+
+        Yii::trace($item instanceof Role ? "Checking role: $itemName" : "Checking permission: $itemName", __METHOD__);
+
+        if (!$this->executeRule($user, $item, $params)) {
+            return false;
+        }
+
+        if (isset($assignments[$itemName]) || in_array($itemName, $this->defaultRoles)) {
+            return true;
+        }
+
+        if (!empty($item->parents)) {
+            foreach ($this->parents as $parent) {
+                if ($this->checkAccessFromCache($user, $parent, $params, $assignments)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Performs access check for the specified user.
+     * This method is internally called by [[checkAccess()]].
+     * @param string|integer $user the user ID. This should can be either an integer or a string representing
+     * the unique identifier of a user. See [[\yii\web\User::id]].
+     * @param string $itemName the name of the operation that need access check
+     * @param array $params name-value pairs that would be passed to rules associated
+     * with the tasks and roles assigned to the user. A param with name 'user' is added to this array,
+     * which holds the value of `$userId`.
+     * @param Assignment[] $assignments the assignments to the specified user
+     * @return boolean whether the operations can be performed by the user.
+     */
+    protected function checkAccessRecursive($user, $itemName, $params, $assignments)
+    {
+        if (($item = $this->getItem($itemName)) === null) {
+            return false;
+        }
+
+        Yii::trace($item instanceof Role ? "Checking role: $itemName" : "Checking permission: $itemName", __METHOD__);
+
+        if (!$this->executeRule($user, $item, $params)) {
+            return false;
+        }
+
+        if (isset($assignments[$itemName]) || in_array($itemName, $this->defaultRoles)) {
+            return true;
+        }
+
+        if (!empty($item->parents)) {
+            foreach ($item->parents as $parent) {
+                if ($this->checkAccessRecursive($user, $parent, $params, $assignments)) {
+                    return true;
+                }
+            }
+        }
+
+        return false;
     }
 
     /**
@@ -210,12 +291,30 @@ class MongoDbManager extends BaseManager
      */
     protected function removeItem($item)
     {
-        // TODO: handle parent/child
         $this->db->getCollection($this->assignmentCollection)
             ->remove(['item_name' => $item->name]);
 
         $this->db->getCollection($this->itemCollection)
             ->remove(['name' => $item->name]);
+
+        $this->db->getCollection($this->itemCollection)
+            ->update(
+                [
+                    'parents' => [
+                        '$in' => [$item->name]
+                    ],
+                ],
+                [
+                    '$pull' => [
+                        'parents' => [
+                            '$in' => [$item->name],
+                        ]
+                    ]
+                ],
+                [
+                    'multi' => true
+                ]
+            );
 
         $this->invalidateCache();
 
@@ -244,9 +343,30 @@ class MongoDbManager extends BaseManager
     protected function updateItem($name, $item)
     {
         if ($item->name !== $name) {
-            // TODO: update parent/child info
             $this->db->getCollection($this->assignmentCollection)
                 ->update(['item_name' => $name], ['item_name' => $item->name]);
+
+            $this->db->getCollection($this->itemCollection)
+                ->update(
+                    [
+                        'parents' => [
+                            '$in' => [$item->name]
+                        ],
+                    ],
+                    [
+                        '$pull' => [
+                            'parents' => [
+                                '$in' => [$item->name],
+                            ]
+                        ],
+                        '$push' => [
+                            'parents' => $name
+                        ]
+                    ],
+                    [
+                        'multi' => true
+                    ]
+                );
         }
 
         $item->updatedAt = time();
@@ -322,34 +442,84 @@ class MongoDbManager extends BaseManager
         $query = (new Query)
             ->from($this->itemCollection)
             ->where(['name' => $itemNames])
-            ->andWhere(['user_id' => (string) $userId])
             ->andWhere(['type' => Item::TYPE_ROLE]);
 
         $roles = [];
         foreach ($query->all($this->db) as $row) {
             $roles[$row['name']] = $this->populateItem($row);
         }
+
         return $roles;
     }
 
     /**
-     * Returns all permissions that the specified role represents.
-     * @param string $roleName the role name
-     * @return Permission[] all permissions that the role represents. The array is indexed by the permission names.
+     * @inheritdoc
      */
     public function getPermissionsByRole($roleName)
     {
-        // TODO: Implement getPermissionsByRole() method.
+        $childrenList = $this->getChildrenList();
+        $result = [];
+        $this->getChildrenRecursive($roleName, $childrenList, $result);
+        if (empty($result)) {
+            return [];
+        }
+
+        $query = (new Query)
+            ->from($this->itemCollection)
+            ->where([
+                'type' => Item::TYPE_PERMISSION,
+                'name' => array_keys($result),
+            ]);
+        $permissions = [];
+        foreach ($query->all($this->db) as $row) {
+            $permissions[$row['name']] = $this->populateItem($row);
+        }
+        return $permissions;
     }
 
     /**
-     * Returns all permissions that the user has.
-     * @param string|integer $userId the user ID (see [[\yii\web\User::id]])
-     * @return Permission[] all permissions that the user has. The array is indexed by the permission names.
+     * @inheritdoc
      */
     public function getPermissionsByUser($userId)
     {
-        // TODO: Implement getPermissionsByUser() method.
+        if (empty($userId)) {
+            return [];
+        }
+
+        $this->getAssignments($userId);
+
+        $rows = (new Query)
+            ->select(['item_name'])
+            ->from($this->assignmentCollection)
+            ->where(['user_id' => (string) $userId])
+            ->all($this->db);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $names = ArrayHelper::getColumn($rows, 'item_name');
+
+        $childrenList = $this->getChildrenList();
+        $result = [];
+        foreach ($names as $roleName) {
+            $this->getChildrenRecursive($roleName, $childrenList, $result);
+        }
+
+        $names = array_merge($names, array_keys($result));
+
+        $query = (new Query)
+            ->from($this->itemCollection)
+            ->where([
+                'type' => Item::TYPE_PERMISSION,
+                'name' => $names,
+            ]);
+
+        $permissions = [];
+        foreach ($query->all($this->db) as $row) {
+            $permissions[$row['name']] = $this->populateItem($row);
+        }
+        return $permissions;
     }
 
     /**
@@ -388,72 +558,139 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * Checks the possibility of adding a child to parent
-     * @param Item $parent the parent item
-     * @param Item $child the child item to be added to the hierarchy
-     * @return boolean possibility of adding
-     *
-     * @since 2.0.8
+     * @inheritdoc
      */
     public function canAddChild($parent, $child)
     {
-        // TODO: Implement canAddChild() method.
+        return !$this->detectLoop($parent, $child);
     }
 
     /**
-     * Adds an item as a child of another item.
-     * @param Item $parent
-     * @param Item $child
-     * @return boolean whether the child successfully added
-     * @throws \yii\base\Exception if the parent-child relationship already exists or if a loop has been detected.
+     * @inheritdoc
      */
     public function addChild($parent, $child)
     {
-        // TODO: Implement addChild() method.
+        if ($parent->name === $child->name) {
+            throw new InvalidParamException("Cannot add '{$parent->name}' as a child of itself.");
+        }
+
+        if ($parent instanceof Permission && $child instanceof Role) {
+            throw new InvalidParamException('Cannot add a role as a child of a permission.');
+        }
+
+        if ($this->detectLoop($parent, $child)) {
+            throw new InvalidCallException("Cannot add '{$child->name}' as a child of '{$parent->name}'. A loop has been detected.");
+        }
+
+        $result = $this->db->getCollection($this->itemCollection)
+            ->update(
+                [
+                    'name' => $child->name,
+                ],
+                [
+                    '$push' => [
+                        'parents' => $parent->name
+                    ]
+                ],
+                [
+                    'multi' => false
+                ]
+            ) > 0;
+
+        $this->invalidateCache();
+
+        return $result;
     }
 
     /**
-     * Removes a child from its parent.
-     * Note, the child item is not deleted. Only the parent-child relationship is removed.
-     * @param Item $parent
-     * @param Item $child
-     * @return boolean whether the removal is successful
+     * @inheritdoc
      */
     public function removeChild($parent, $child)
     {
-        // TODO: Implement removeChild() method.
+        $result = $this->db->getCollection($this->itemCollection)
+            ->update(
+                [
+                    'name' => $child->name,
+                ],
+                [
+                    '$pull' => [
+                        'parents' => [
+                            '$in' => [$parent->name]
+                        ]
+                    ]
+                ],
+                [
+                    'multi' => false
+                ]
+            ) > 0;
+
+        $this->invalidateCache();
+
+        return $result;
     }
 
     /**
-     * Removed all children form their parent.
-     * Note, the children items are not deleted. Only the parent-child relationships are removed.
-     * @param Item $parent
-     * @return boolean whether the removal is successful
+     * @inheritdoc
      */
     public function removeChildren($parent)
     {
-        // TODO: Implement removeChildren() method.
+        $result = $this->db->getCollection($this->itemCollection)
+            ->update(
+                [],
+                [
+                    '$pull' => [
+                        'parents' => [
+                            '$in' => [$parent->name]
+                        ]
+                    ]
+                ],
+                [
+                    'multi' => true
+                ]
+            ) > 0;
+
+        $this->invalidateCache();
+
+        return $result;
     }
 
     /**
-     * Returns a value indicating whether the child already exists for the parent.
-     * @param Item $parent
-     * @param Item $child
-     * @return boolean whether `$child` is already a child of `$parent`
+     * @inheritdoc
      */
     public function hasChild($parent, $child)
     {
-        // TODO: Implement hasChild() method.
+        return (new Query)
+            ->from($this->itemCollection)
+            ->where([
+                'name' => $child->name
+            ])
+            ->andWhere([
+                'parents' => [
+                    '$in' => [$parent->name]
+                ]
+            ])
+            ->one($this->db) !== false;
     }
 
     /**
-     * Returns the child permissions and/or roles.
-     * @param string $name the parent name
-     * @return Item[] the child permissions and/or roles
+     * @inheritdoc
      */
     public function getChildren($name)
     {
-        // TODO: Implement getChildren() method.
+        $query = (new Query)
+            ->from($this->itemCollection)
+            ->where([
+                'parents' => [
+                    '$in' => [$name]
+                ]
+            ]);
+
+        $children = [];
+        foreach ($query->all($this->db) as $row) {
+            $children[$row['name']] = $this->populateItem($row);
+        }
+
+        return $children;
     }
 
     /**
@@ -462,7 +699,7 @@ class MongoDbManager extends BaseManager
     public function assign($role, $userId)
     {
         $assignment = new Assignment([
-            'userId' => $userId,
+            'userId' => (string)$userId,
             'roleName' => $role->name,
             'createdAt' => time(),
         ]);
@@ -651,6 +888,7 @@ class MongoDbManager extends BaseManager
             'data' => $data,
             'createdAt' => $row['created_at'],
             'updatedAt' => $row['updated_at'],
+            'parents' => isset($row['parents']) ? $row['parents'] : null,
         ]);
     }
 
@@ -670,14 +908,114 @@ class MongoDbManager extends BaseManager
         }
 
         $names = ArrayHelper::getColumn($rows, 'name');
-        // TODO: handle parent/child
-        //$key = $type == Item::TYPE_PERMISSION ? 'child' : 'parent';
+
         $this->db->getCollection($this->assignmentCollection)
             ->remove(['item_name' => $names]);
 
         $this->db->getCollection($this->itemCollection)
             ->remove(['type' => $type]);
 
+        $this->db->getCollection($this->itemCollection)
+            ->update(
+                [],
+                [
+                    '$pull' => [
+                        'parents' => [
+                            '$in' => $names,
+                        ]
+                    ],
+                ],
+                [
+                    'multi' => true
+                ]
+            );
+
         $this->invalidateCache();
+    }
+
+    /**
+     * Loads data from cache
+     */
+    public function loadFromCache()
+    {
+        if ($this->items !== null || !$this->cache instanceof Cache) {
+            return;
+        }
+
+        $data = $this->cache->get($this->cacheKey);
+        if (is_array($data) && isset($data[0], $data[1])) {
+            list ($this->items, $this->rules) = $data;
+            return;
+        }
+
+        $query = (new Query)->from($this->itemCollection);
+        $this->items = [];
+        foreach ($query->all($this->db) as $row) {
+            $this->items[$row['name']] = $this->populateItem($row);
+        }
+
+        $query = (new Query)->from($this->ruleCollection);
+        $this->rules = [];
+        foreach ($query->all($this->db) as $row) {
+            $this->rules[$row['name']] = unserialize($row['data']);
+        }
+
+        $this->cache->set($this->cacheKey, [$this->items, $this->rules]);
+    }
+
+    /**
+     * Returns the children for every parent.
+     * @return array the children list. Each array key is a parent item name,
+     * and the corresponding array value is a list of child item names.
+     */
+    protected function getChildrenList()
+    {
+        $query = (new Query)
+            ->select(['name', 'parents'])
+            ->from($this->itemCollection);
+        $children = [];
+        foreach ($query->all($this->db) as $row) {
+            if (!empty($row['parents'])) {
+                foreach ($row['parents'] as $name) {
+                    $children[$name][] = $row['name'];
+                }
+            }
+        }
+        return $children;
+    }
+
+    /**
+     * Recursively finds all children and grand children of the specified item.
+     * @param string $name the name of the item whose children are to be looked for.
+     * @param array $childrenList the child list built via [[getChildrenList()]]
+     * @param array $result the children and grand children (in array keys)
+     */
+    protected function getChildrenRecursive($name, $childrenList, &$result)
+    {
+        if (isset($childrenList[$name])) {
+            foreach ($childrenList[$name] as $child) {
+                $result[$child] = true;
+                $this->getChildrenRecursive($child, $childrenList, $result);
+            }
+        }
+    }
+
+    /**
+     * Checks whether there is a loop in the authorization item hierarchy.
+     * @param Item $parent the parent item
+     * @param Item $child the child item to be added to the hierarchy
+     * @return boolean whether a loop exists
+     */
+    protected function detectLoop($parent, $child)
+    {
+        if ($child->name === $parent->name) {
+            return true;
+        }
+        foreach ($this->getChildren($child->name) as $grandchild) {
+            if ($this->detectLoop($parent, $grandchild)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
