@@ -23,6 +23,14 @@ use yii\rbac\Rule;
 /**
  * MongoDbManager represents an authorization manager that stores authorization information in MongoDB.
  *
+ * Manager uses 3 collections for the RBAC data storage:
+ *
+ * - [[itemCollection]] - stores item data and item parents list
+ * - [[assignmentCollection]] - stores assignments info
+ * - [[ruleCollection]] - stores rule data
+ *
+ * These collection are better to be pre-created with search fields indexed.
+ *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0.5
  */
@@ -78,10 +86,6 @@ class MongoDbManager extends BaseManager
      * @var Rule[] all auth rules (name => Rule)
      */
     protected $rules;
-    /**
-     * @var array auth item parent-child relationships (childName => list of parents)
-     */
-    protected $parents;
 
 
     /**
@@ -142,7 +146,7 @@ class MongoDbManager extends BaseManager
         }
 
         if (!empty($item->parents)) {
-            foreach ($this->parents as $parent) {
+            foreach ($item->parents as $parent) {
                 if ($this->checkAccessFromCache($user, $parent, $params, $assignments)) {
                     return true;
                 }
