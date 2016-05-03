@@ -19,6 +19,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #57: Added i18n support via `yii\mongodb\i18n\MongoDbMessageSource` (klimov-paul)
 - Enh #69: Fixed log target to display exceptions like DbTarget in Yii core, also avoids problems with Exceptions that contain closures (cebe)
 - Enh #74: Added explain method to `MongoDbPanel` debug panel (webdevsega)
+- Enh #87: Added RBAC support via `yii\mongodb\rbac\MongoDbManager` (klimov-paul)
 - Enh #102: `MongoDbTarget` now uses `batchInsert()` while exporting log messages (klimov-paul)
 
 
