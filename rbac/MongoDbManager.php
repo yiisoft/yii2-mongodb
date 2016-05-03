@@ -363,6 +363,20 @@ class MongoDbManager extends BaseManager
                                 '$in' => [$item->name],
                             ]
                         ],
+                    ],
+                    [
+                        'multi' => true
+                    ]
+                );
+
+            $this->db->getCollection($this->itemCollection)
+                ->update(
+                    [
+                        'parents' => [
+                            '$in' => [$item->name]
+                        ],
+                    ],
+                    [
                         '$push' => [
                             'parents' => $name
                         ]
