@@ -10,6 +10,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #101: Fixed `yii\mongodb\Collection::buildCondition()` does not compose 'IN' condition for the values with broken index sequence (klimov-paul)
 - Bug: Avoid serializing PHP 7 errors (zuozp8, cebe)
 - Enh #23: Added support for complex sort specification at `yii\mongodb\Query` (raoptimus)
+- Enh #24: `yii\mongodb\Query` now contains a `andFilterCompare()` method that allows filtering using operators in the query value (lennartvdd)
 - Enh #27: Added support for saving extra fields in session collection for `yii\mongodb\Session` (klimov-paul)
 - Enh #35: Added support for cursor options setup at `yii\mongodb\Query` (klimov-paul)
 - Enh #36: Added support for compare operators (like '>', '<' and so on) at `yii\mongodb\Query` (klimov-paul)

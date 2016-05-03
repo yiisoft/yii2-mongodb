@@ -132,6 +132,43 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Helper method for easy querying on values containing some common operators.
+     *
+     * The comparison operator is intelligently determined based on the first few characters in the given value and
+     * internally translated to a MongoDB operator.
+     * In particular, it recognizes the following operators if they appear as the leading characters in the given value:
+     * <: the column must be less than the given value ($lt).
+     * >: the column must be greater than the given value ($gt).
+     * <=: the column must be less than or equal to the given value ($lte).
+     * >=: the column must be greater than or equal to the given value ($gte).
+     * <>: the column must not be the same as the given value ($ne). Note that when $partialMatch is true, this would mean the value must not be a substring of the column.
+     * =: the column must be equal to the given value ($eq).
+     * none of the above: use the $defaultOperator
+     *
+     * Note that when the value is empty, no comparison expression will be added to the search condition.
+     *
+     * @param string $name column name
+     * @param string $value column value
+     * @param string $defaultOperator Defaults to =, performing an exact match.
+     * For example: use 'LIKE' or 'REGEX' for partial cq regex matching
+     * @see yii\mongodb\Collection::buildCondition()
+     * @return $this the query object itself.
+     * @since 2.0.5
+     */
+    public function andFilterCompare($name, $value, $defaultOperator = '=')
+    {
+        $matches = [];
+        if (preg_match('/^(<>|>=|>|<=|<|=)/', $value, $matches)) {
+            $op = $matches[1];
+            $value = substr($value, strlen($op));
+        } else {
+            $op = $defaultOperator;
+        }
+
+        return $this->andFilterWhere([$op, $name, $value]);
+    }
+
+    /**
      * Builds the Mongo cursor for this query.
      * @param Connection $db the database connection used to execute the query.
      * @return \MongoCursor mongo cursor instance.
@@ -462,41 +499,5 @@ class Query extends Component implements QueryInterface
             }
         }
         return $sort;
-    }
-    
-    /**
-     * Helper method for easy querying on values containing some common operators.
-     *
-     * The comparison operator is intelligently determined based on the first few characters in the given value and 
-     * internally translated to a MongoDB operator.
-     * In particular, it recognizes the following operators if they appear as the leading characters in the given value:
-     * <: the column must be less than the given value ($lt).
-     * >: the column must be greater than the given value ($gt).
-     * <=: the column must be less than or equal to the given value ($lte).
-     * >=: the column must be greater than or equal to the given value ($gte).
-     * <>: the column must not be the same as the given value ($ne). Note that when $partialMatch is true, this would mean the value must not be a substring of the column.
-     * =: the column must be equal to the given value ($eq).
-     * none of the above: use the $defaultOperator
-     *
-     * Note that when the value is empty, no comparison expression will be added to the search condition.
-     *
-     * @param string $name column name
-     * @param scalar $value column value
-     * @param string $defaultOperator Defaults to =, performing an exact match.
-     * For example: use 'LIKE' or 'REGEX' for partial cq regex matching 
-     * @see yii\mongodb\Collection::buildCondition() 
-     * @return static The Query object itself
-    */
-    public function andFilterCompare($name, $value, $defaultOperator = '=')
-    {        
-        $matches=[];
-        if (preg_match("/^(<>|>=|>|<=|<|=)/", $value, $matches)) {
-            $op = $matches[1];
-            $value = substr($value, strlen($op));
-        } else {
-            $op = $defaultOperator;
-        }
-        
-        return $this->andFilterWhere([$op, $name, $value]);
     }
 }
