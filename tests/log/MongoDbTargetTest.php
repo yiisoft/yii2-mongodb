@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\extensions\mongodb\log;
 
 use yii\log\Logger;
 use yii\mongodb\log\MongoDbTarget;

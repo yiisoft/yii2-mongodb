@@ -1,4 +1,5 @@
 <?php
+
 namespace yiiunit\extensions\mongodb\console\controllers;
 
 use yii\mongodb\console\controllers\MigrateController;
