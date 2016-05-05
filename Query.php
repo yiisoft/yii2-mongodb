@@ -153,6 +153,7 @@ class Query extends Component implements QueryInterface
      * For example: use 'LIKE' or 'REGEX' for partial cq regex matching
      * @see yii\mongodb\Collection::buildCondition()
      * @return $this the query object itself.
+     * @throws Exception
      * @since 2.0.5
      */
     public function andFilterCompare($name, $value, $defaultOperator = '=')
@@ -164,7 +165,9 @@ class Query extends Component implements QueryInterface
         } else {
             $op = $defaultOperator;
         }
-
+        if(isset($result['$err'])){
+            throw new Exception($result['$err'], $result['code']);
+        }
         return $this->andFilterWhere([$op, $name, $value]);
     }
 
