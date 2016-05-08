@@ -219,6 +219,7 @@ class Query extends Component implements QueryInterface
      * @param boolean $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy value to index by.
      * @return array|boolean result.
+     * @throws Exception
      * @see Query::fetchRows()
      */
     protected function fetchRowsInternal($cursor, $all, $indexBy)
@@ -235,7 +236,9 @@ class Query extends Component implements QueryInterface
                 $result = false;
             }
         }
-
+        if(isset($result['$err'])){
+            throw new Exception($result['$err'], $result['code']);
+        }
         return $result;
     }
 
