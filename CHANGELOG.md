@@ -1,8 +1,8 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.0.5 under development
------------------------
+2.0.5 May 9, 2016
+-----------------
 
 - Bug #40: Fixed `yii\mongodb\ActiveFixture` throws exception on empty fixture data (darkunz)
 - Bug #73: Fixed `yii\mongodb\Collection::buildInCondition()` unable to process composite 'IN' condition (klimov-paul)
