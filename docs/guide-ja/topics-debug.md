@@ -16,8 +16,8 @@ Yii 2 MongoDB エクステンションは、Yii のデバッグモジュール�
             'panels' => [
                 'mongodb' => [
                     'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
-                     // 'db' => 'db', // MongoDB のコンポーネント ID。デフォルトは `db`。
-                                      // MongoDB のコンポーネントを別の ID で登録した場合は、コメントを外して書き換えること。
+                     // 'db' => 'mongodb', // MongoDB のコンポーネント ID。デフォルトは `db`。
+                                           // MongoDB のコンポーネントを別の ID で登録した場合は、コメントを外して書き換えること。
                 ],
             ],
         ],
