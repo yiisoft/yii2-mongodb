@@ -11,6 +11,8 @@ use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 use Yii;
 
+use MongoDB\BSON\ObjectID;
+
 /**
  * MongoIdValidator verifies if the attribute is a valid Mongo ID.
  * Attribute will be considered as valid, if it is an instance of [[\MongoId]] or a its string value.
@@ -102,11 +104,11 @@ class MongoIdValidator extends Validator
      */
     private function parseMongoId($value)
     {
-        if ($value instanceof \MongoId) {
+        if ($value instanceof ObjectID) {
             return $value;
         }
         try {
-            return new \MongoId($value);
+            return new ObjectID($value);
         } catch (\Exception $e) {
             return null;
         }

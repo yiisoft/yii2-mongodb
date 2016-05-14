@@ -22,7 +22,7 @@ use Yii;
  * This is the model class for collection "<?= $collectionName ?>".
  *
 <?php foreach ($attributes as $attribute): ?>
- * @property <?= $attribute == '_id' ? '\MongoId|string' : 'mixed' ?> <?= "\${$attribute}\n" ?>
+ * @property <?= $attribute == '_id' ? '\MongoDB\BSON\ObjectID|string' : 'mixed' ?> <?= "\${$attribute}\n" ?>
 <?php endforeach; ?>
  */
 class <?= $className ?> extends <?= '\\' . ltrim($generator->baseClass, '\\') . "\n" ?>

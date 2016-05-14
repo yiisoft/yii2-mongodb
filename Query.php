@@ -175,17 +175,18 @@ class Query extends Component implements QueryInterface
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
-        if (!empty($this->orderBy)) {
-            $cursor->sort($this->composeSort());
-        }
-        $cursor->limit($this->limit);
-        $cursor->skip($this->offset);
-
-        foreach ($this->options as $key => $value) {
-            $cursor->addOption($key, $value);
-        }
-
+        $cursor = $this->getCollection($db)->find(
+            $this->composeCondition(), 
+            array_merge(
+                [
+                    'projection' => $this->composeSelectFields(),
+                    'sort' => $this->composeSort(),
+                    'limit' => $this->limit,
+                    'skip' => $this->offset
+                ],
+                $this->options
+            )
+        );
         return $cursor;
     }
 
@@ -200,7 +201,19 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'find(' . Json::encode($cursor->info()) . ')';
+        $token = 'find(' . Json::encode(
+            array_merge(
+                [
+                    'ns' => (String)$this->from,
+                    'where' => $this->composeCondition(),
+                    'projection' => $this->composeSelectFields(),
+                    'sort' => $this->composeSort(),
+                    'limit' => $this->limit,
+                    'skip' => $this->offset
+                ],
+                $this->options
+            )    
+        ) . ')';
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -229,9 +242,10 @@ class Query extends Component implements QueryInterface
                 $result[] = $row;
             }
         } else {
-            if ($row = $cursor->getNext()) {
+            foreach ($cursor as $row) {
                 $result = $row;
-            } else {
+            }
+            if(!$result){
                 $result = false;
             }
         }
@@ -316,19 +330,9 @@ class Query extends Component implements QueryInterface
      */
     public function count($q = '*', $db = null)
     {
-        $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $cursor->count();
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        $collection = $this->getCollection($db);
+        $condition = $this->composeCondition();
+        return $collection->count($condition, $this->options);
     }
 
     /**
@@ -486,16 +490,18 @@ class Query extends Component implements QueryInterface
     private function composeSort()
     {
         $sort = [];
-        foreach ($this->orderBy as $fieldName => $sortOrder) {
-            switch ($sortOrder) {
-                case SORT_ASC:
-                    $sort[$fieldName] = \MongoCollection::ASCENDING;
-                    break;
-                case SORT_DESC:
-                    $sort[$fieldName] = \MongoCollection::DESCENDING;
-                    break;
-                default:
-                    $sort[$fieldName] = $sortOrder;
+        if(is_array($this->orderBy)){
+            foreach ($this->orderBy as $fieldName => $sortOrder) {
+                switch ($sortOrder) {
+                    case SORT_ASC:
+                        $sort[$fieldName] = 1;
+                        break;
+                    case SORT_DESC:
+                        $sort[$fieldName] = -1;
+                        break;
+                    default:
+                        $sort[$fieldName] = $sortOrder;
+                }
             }
         }
         return $sort;

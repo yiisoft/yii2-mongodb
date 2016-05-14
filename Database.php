@@ -11,6 +11,9 @@ use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
 
+use MongoDB\Database;
+use MongoDB\Driver\Cursor;
+
 /**
  * Database represents the Mongo database information.
  *
@@ -29,8 +32,9 @@ class Database extends Object
 
     /**
      * @var Collection[] list of collections.
+     * Another design choice here to make this public
      */
-    private $_collections = [];
+    public $collections = [];
     /**
      * @var file\Collection[] list of GridFS collections.
      */
@@ -51,13 +55,13 @@ class Database extends Object
      * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
      * @return Collection Mongo collection instance.
      */
-    public function getCollection($name, $refresh = false)
+    public function getCollection($name, $options = [], $refresh = false)
     {
-        if ($refresh || !array_key_exists($name, $this->_collections)) {
-            $this->_collections[$name] = $this->selectCollection($name);
+        if ($refresh || !array_key_exists($name, $this->collections)) {
+            $this->collections[$name] = $this->selectCollection($name, $options);
         }
 
-        return $this->_collections[$name];
+        return $this->collections[$name];
     }
 
     /**
@@ -80,11 +84,15 @@ class Database extends Object
      * @param string $name collection name.
      * @return Collection collection instance.
      */
-    protected function selectCollection($name)
+    protected function selectCollection($name, $options  = [])
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
-            'mongoCollection' => $this->mongoDb->selectCollection($name)
+            'mongoCollection' => $this->mongoDb->selectCollection(
+                $name,
+                $options
+            ),
+            'mongoDatabase' => $this
         ]);
     }
 
@@ -97,7 +105,8 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
-            'mongoCollection' => $this->mongoDb->getGridFS($prefix)
+            'mongoCollection' => $this->mongoDb->getGridFS($prefix),
+            'mongoDatabase' => $this
         ]);
     }
 
@@ -144,7 +153,7 @@ class Database extends Object
             $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
 
-            return $result;
+            return current($result->toArray());
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
@@ -158,7 +167,10 @@ class Database extends Object
      */
     protected function tryResultError($result)
     {
-        if (is_array($result)) {
+        if ($result instanceof Cursor) {
+            
+            $result = $result->toArray()[0];
+            
             if (!empty($result['errmsg'])) {
                 $errorMessage = $result['errmsg'];
             } elseif (!empty($result['err'])) {

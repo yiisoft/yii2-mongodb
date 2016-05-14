@@ -11,6 +11,8 @@ use yii\base\Action;
 use yii\helpers\Json;
 use yii\web\HttpException;
 
+use MongoDB\BSON\ObjectID;
+
 /**
  * ExplainAction provides EXPLAIN information for MongoDB queries
  *
@@ -97,7 +99,7 @@ class ExplainAction extends Action
     {
         if (is_array($query)) {
             if (count($query) === 1 && isset($query['$id'])) {
-                return new \MongoId($query['$id']);
+                return new ObjectID($query['$id']);
             } else {
                 $result = [];
                 foreach ($query as $key => $value) {
