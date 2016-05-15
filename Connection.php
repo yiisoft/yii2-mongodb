@@ -12,6 +12,7 @@ use yii\base\InvalidConfigException;
 use Yii;
 
 use MongoDB\Client;
+use MongoDB\Driver\WriteConcern;
 
 /**
  * Connection represents a connection to a MongoDb server.
@@ -144,7 +145,7 @@ class Connection extends Component
                 $this->options, 
                 $this->driverOptions
             );
-                
+
             // Since databases won't trigger a call to the 
             // server let's just init our DB array right now... init
             if(!is_array($this->dbs) || empty($this->dbs)){
@@ -207,7 +208,15 @@ class Connection extends Component
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\Database',
-            'mongoDb' => $this->client->selectDatabase($name, $options)
+            'mongoDb' => $this->client->selectDatabase(
+                $name, 
+                array_merge(
+                    [
+                        'writeConcern' => new WriteConcern(1)
+                    ],
+                    $options
+                )
+            )
         ]);
     }
     

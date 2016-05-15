@@ -567,7 +567,6 @@ class Collection extends Object
             }else{
                 $result = $this->mongoCollection->deleteMany($condition, $options);
             }
-            $this->tryResultError($result);
             Yii::endProfile($token, __METHOD__);
             if($result->isAcknowledged()){
                 return $result->getDeletedCount();
