@@ -18,7 +18,8 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": ">=2.0.5"
+        "yiisoft/yii2": ">=2.0.5",
+        "mongodb/mongodb": "^1.0.0"
     },
     "autoload": {
         "psr-4": { "yii\\mongodb\\": "" }
