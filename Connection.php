@@ -143,7 +143,17 @@ class Connection extends Component
             $this->client = new Client(
                 $this->dsn, 
                 $this->options, 
-                $this->driverOptions
+                array_merge(
+                    $this->driverOptions, 
+                    [
+                        'typeMap' => 
+                        [
+                            'root' => 'array',
+                            'document' => 'array',
+                            'array' => 'array'
+                        ]
+                    ]
+                )
             );
 
             // Since databases won't trigger a call to the 
