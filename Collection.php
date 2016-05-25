@@ -134,7 +134,7 @@ class Collection extends Object
      * @param mixed $data raw data.
      * @return string encoded data string.
      */
-    protected function encodeLogData($data)
+    public function encodeLogData($data)
     {
         return json_encode($this->processLogData($data));
     }

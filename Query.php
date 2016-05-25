@@ -201,11 +201,12 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
+        $collection = $this->getCollection();
         $token = 'find(' . Json::encode(
             array_merge(
                 [
                     'ns' => (String)$this->from,
-                    'where' => $this->composeCondition(),
+                    'where' => $collection->encodeLogData($this->composeCondition()),
                     'projection' => $this->composeSelectFields(),
                     'sort' => $this->composeSort(),
                     'limit' => $this->limit,
