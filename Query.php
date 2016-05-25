@@ -202,19 +202,35 @@ class Query extends Component implements QueryInterface
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
         $collection = $this->getCollection();
-        $token = 'find(' . Json::encode(
-            array_merge(
-                [
-                    'ns' => (String)$this->from,
-                    'where' => $collection->encodeLogData($this->composeCondition()),
-                    'projection' => $this->composeSelectFields(),
-                    'sort' => $this->composeSort(),
-                    'limit' => $this->limit,
-                    'skip' => $this->offset
-                ],
-                $this->options
-            )    
-        ) . ')';
+        try{
+            $token = 'find(' . Json::encode(
+                array_merge(
+                    [
+                        'ns' => (String)$this->from,
+                        'where' => $collection->encodeLogData($this->composeCondition()),
+                        'projection' => $this->composeSelectFields(),
+                        'sort' => $this->composeSort(),
+                        'limit' => $this->limit,
+                        'skip' => $this->offset
+                    ],
+                    $this->options
+                )    
+            ) . ')';
+        }catch(\Exception $e){
+            Yii::warning('JSON encode failed with: ' . 
+                var_export(array_merge(
+                    [
+                        'ns' => (String)$this->from,
+                        'where' => $collection->encodeLogData($this->composeCondition()),
+                        'projection' => $this->composeSelectFields(),
+                        'sort' => $this->composeSort(),
+                        'limit' => $this->limit,
+                        'skip' => $this->offset
+                    ],
+                    $this->options
+                ), true)
+            );
+        }
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
