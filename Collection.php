@@ -533,13 +533,28 @@ class Collection extends Object
         try {
             Yii::beginProfile($token, __METHOD__);
             $options = array_merge($options, ['upsert' => true]);
+            
+            $condition = [];
+            if(isset($data['_id'])){
+                $condition['_id'] = $data['_id'];
+                unset($data['_id']);
+            }
+            
             $result = $this->mongoCollection->replaceOne(
-                ['_id' => $data['_id']], 
+                $condition, 
                 $data, 
                 $options
             );
             Yii::endProfile($token, __METHOD__);
-            return is_array($data) ? $data['_id'] : $data->_id;
+            if($result->isAcknowledged()){
+                if($result->getUpsertedCount() > 0){
+                    return $result->getUpsertedId();
+                }else{
+                    return $condition['_id'];
+                }
+            }else{
+                return true;
+            }
         } catch (\Exception $e) {
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
