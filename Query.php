@@ -204,11 +204,11 @@ class Query extends Component implements QueryInterface
         $collection = $this->getCollection();
         $token = '';
         try{
-            $token = 'find(' . Json::encode(
+            $token = 'find(' . $collection->encodeLogData(
                 array_merge(
                     [
                         'ns' => (String)$this->from,
-                        'where' => $collection->encodeLogData($this->composeCondition()),
+                        'where' => $this->composeCondition(),
                         'projection' => $this->composeSelectFields(),
                         'sort' => $this->composeSort(),
                         'limit' => $this->limit,
