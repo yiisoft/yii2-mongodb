@@ -534,7 +534,7 @@ class Collection extends Object
             Yii::beginProfile($token, __METHOD__);
             $options = array_merge($options, ['upsert' => true]);
             $result = $this->mongoCollection->replaceOne(
-                ['_id' => $data['id']], 
+                ['_id' => $data['_id']], 
                 $data, 
                 $options
             );
