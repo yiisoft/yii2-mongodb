@@ -11,7 +11,7 @@ use yii\base\Object;
 use Yii;
 use yii\helpers\Json;
 
-use MongoDB\Database;
+use MongoDB\Database as MongoDatabase;
 use MongoDB\Driver\Cursor;
 
 /**
