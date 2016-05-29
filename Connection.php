@@ -11,6 +11,9 @@ use yii\base\Component;
 use yii\base\InvalidConfigException;
 use Yii;
 
+use MongoDB\Client;
+use MongoDB\Driver\WriteConcern;
+
 /**
  * Connection represents a connection to a MongoDb server.
  *
@@ -109,21 +112,74 @@ class Connection extends Component
      */
     public $driverOptions = [];
     /**
-     * @var string name of the Mongo database to use by default.
-     * If this field left blank, connection instance will attempt to determine it from
-     * [[options]] and [[dsn]] automatically, if needed.
+     * Design choice to make this fully public and accessible
      */
-    public $defaultDatabaseName;
+    public $dbs = [];
+    
+    public $activeDb;
     /**
      * @var \MongoClient Mongo client instance.
      */
-    public $mongoClient;
+    public $client;
+    
+    public function init()
+    {
+        // Since the driver connects lazily itself now there is no 
+        // need to calll open on certain functions
+        // Also there is no close anymore so even setting null wont close
+        // the actual connection
+        if (empty($this->dsn)) {
+            throw new InvalidConfigException($this->className() . '::dsn cannot be empty.');
+        }
+        $token = 'Opening MongoDB connection: ' . $this->dsn;
+        try {
+            Yii::trace($token, __METHOD__);
+            Yii::beginProfile($token, __METHOD__);
 
-    /**
-     * @var Database[] list of Mongo databases
-     */
-    private $_databases = [];
+            // Been made simple, no more fooling around with DB
+            // The new driver prefers simplicity on this front plus 
+            // auth has to work at first try now so many will use an auth DB
+            // here instead
+            $this->client = new Client(
+                $this->dsn, 
+                $this->options, 
+                array_merge(
+                    $this->driverOptions, 
+                    [
+                        'typeMap' => 
+                        [
+                            'root' => 'array',
+                            'document' => 'array',
+                            'array' => 'array'
+                        ]
+                    ]
+                )
+            );
 
+            // Since databases won't trigger a call to the 
+            // server let's just init our DB array right now... init
+            if(!is_array($this->dbs) || empty($this->dbs)){
+                $this->dbs[] = $this->fetchDefaultDatabaseName();
+            }
+            foreach($this->dbs as $k => $v){
+                $options = [];
+                if(is_numeric($k)){
+                    $name = $v;
+                }else{
+                    $name = $k;
+                    $options = $v;
+                }
+                $this->dbs[$k] = $this->selectDatabase($name, $options);
+            }
+
+            $this->initConnection();
+            Yii::endProfile($token, __METHOD__);
+        } catch (\Exception $e) {
+            Yii::endProfile($token, __METHOD__);
+            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+        }
+        return parent::init();
+    }
 
     /**
      * Returns the Mongo collection with the given name.
@@ -131,54 +187,49 @@ class Connection extends Component
      * @param boolean $refresh whether to reestablish the database connection even if it is found in the cache.
      * @return Database database instance.
      */
-    public function getDatabase($name = null, $refresh = false)
+    public function getDatabase($name = null, $options = [], $refresh = false)
     {
-        if ($name === null) {
-            $name = $this->fetchDefaultDatabaseName();
-        }
-        if ($refresh || !array_key_exists($name, $this->_databases)) {
-            $this->_databases[$name] = $this->selectDatabase($name);
-        }
-
-        return $this->_databases[$name];
+		if(isset($options['active'])){
+			$this->activeDb = $name;
+		}
+		
+		if($name){
+			if(isset($this->dbs[$name])){
+				return $this->dbs[$name];
+			}
+			$db = $this->dbs[$name] = $this->selectDatabase($name, $options);
+			return $db;
+		}
+		
+		// If we have a default database set let's go looking for it
+		if($this->activeDb && isset($this->dbs[$this->activeDb])){
+			return $this->dbs[$this->activeDb];
+		}elseif($this->activeDb){
+			throw new Exception($name . ' is default but does not exist');
+		}
+		
+		// By default let's return the first in the list
+		foreach($this->dbs as $db){
+			return $db;
+		}
     }
-
-    /**
-     * Returns [[defaultDatabaseName]] value, if it is not set,
-     * attempts to determine it from [[dsn]] value.
-     * @return string default database name
-     * @throws \yii\base\InvalidConfigException if unable to determine default database name.
-     */
-    protected function fetchDefaultDatabaseName()
+    
+    public function selectDatabase($name, $options = [])
     {
-        if ($this->defaultDatabaseName === null) {
-            if (isset($this->options['db'])) {
-                $this->defaultDatabaseName = $this->options['db'];
-            } elseif (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
-                $this->defaultDatabaseName = $matches[1];
-            } else {
-                throw new InvalidConfigException("Unable to determine default database name from dsn.");
-            }
-        }
-
-        return $this->defaultDatabaseName;
-    }
-
-    /**
-     * Selects the database with given name.
-     * @param string $name database name.
-     * @return Database database instance.
-     */
-    protected function selectDatabase($name)
-    {
-        $this->open();
-
         return Yii::createObject([
             'class' => 'yii\mongodb\Database',
-            'mongoDb' => $this->mongoClient->selectDB($name)
+            'mongoDb' => $this->client->selectDatabase(
+                $name, 
+                array_merge(
+                    [
+                        'writeConcern' => new WriteConcern(1)
+                    ],
+                    $options
+                )
+            )
         ]);
     }
-
+    
     /**
      * Returns the Mongo collection with the given name.
      * @param string|array $name collection name. If string considered as the name of the collection
@@ -187,14 +238,13 @@ class Connection extends Component
      * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
      * @return Collection Mongo collection instance.
      */
-    public function getCollection($name, $refresh = false)
+    public function getCollection($name, $options = [], $refresh = false)
     {
         if (is_array($name)) {
             list ($dbName, $collectionName) = $name;
-
-            return $this->getDatabase($dbName)->getCollection($collectionName, $refresh);
+            return $this->getDatabase($dbName)->getCollection($collectionName, $options, $refresh);
         } else {
-            return $this->getDatabase()->getCollection($name, $refresh);
+            return $this->getDatabase()->getCollection($name, $options, $refresh);
         }
     }
 
@@ -222,54 +272,17 @@ class Connection extends Component
     }
 
     /**
-     * Returns a value indicating whether the Mongo connection is established.
-     * @return boolean whether the Mongo connection is established
+     * Returns [[defaultDatabaseName]] value, if it is not set,
+     * attempts to determine it from [[dsn]] value.
+     * @return string default database name
+     * @throws \yii\base\InvalidConfigException if unable to determine default database name.
      */
-    public function getIsActive()
+    protected function fetchDefaultDatabaseName()
     {
-        return is_object($this->mongoClient) && $this->mongoClient->getConnections() != [];
-    }
-
-    /**
-     * Establishes a Mongo connection.
-     * It does nothing if a Mongo connection has already been established.
-     * @throws Exception if connection fails
-     */
-    public function open()
-    {
-        if ($this->mongoClient === null) {
-            if (empty($this->dsn)) {
-                throw new InvalidConfigException($this->className() . '::dsn cannot be empty.');
-            }
-            $token = 'Opening MongoDB connection: ' . $this->dsn;
-            try {
-                Yii::trace($token, __METHOD__);
-                Yii::beginProfile($token, __METHOD__);
-                $options = $this->options;
-                $options['connect'] = true;
-                if ($this->defaultDatabaseName !== null) {
-                    $options['db'] = $this->defaultDatabaseName;
-                }
-                $this->mongoClient = new \MongoClient($this->dsn, $options, $this->driverOptions);
-                $this->initConnection();
-                Yii::endProfile($token, __METHOD__);
-            } catch (\Exception $e) {
-                Yii::endProfile($token, __METHOD__);
-                throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-            }
-        }
-    }
-
-    /**
-     * Closes the currently active DB connection.
-     * It does nothing if the connection is already closed.
-     */
-    public function close()
-    {
-        if ($this->mongoClient !== null) {
-            Yii::trace('Closing MongoDB connection: ' . $this->dsn, __METHOD__);
-            $this->mongoClient = null;
-            $this->_databases = [];
+        if (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
+            return $matches[1];
+        } else {
+            throw new InvalidConfigException("Unable to determine default database name from dsn.");
         }
     }
 

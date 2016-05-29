@@ -9,6 +9,8 @@ namespace yii\mongodb\validators;
 
 use yii\validators\DateValidator;
 
+use MongoDB\BSON\UTCDateTime;
+
 /**
  * MongoDateValidator is an enhanced version of [[DateValidator]], which supports [[\MongoDate]] values.
  *
@@ -64,8 +66,8 @@ class MongoDateValidator extends DateValidator
                 $timestamp = $model->{$this->timestampAttribute};
                 $mongoDateAttributeValue = $model->{$this->mongoDateAttribute};
                 // ensure "dirty attributes" support :
-                if (!($mongoDateAttributeValue instanceof \MongoDate) || $mongoDateAttributeValue->sec !== $timestamp) {
-                    $model->{$this->mongoDateAttribute} = new \MongoDate($timestamp);
+                if (!($mongoDateAttributeValue instanceof UTCDateTime) || $mongoDateAttributeValue->toDateTime()->getTimestamp() !== $timestamp) {
+                    $model->{$this->mongoDateAttribute} = new UTCDateTime($timestamp*1000);
                 }
             }
         }
@@ -76,8 +78,8 @@ class MongoDateValidator extends DateValidator
      */
     protected function parseDateValue($value)
     {
-        if ($value instanceof \MongoDate) {
-            return $value->sec;
+        if ($value instanceof UTCDateTime) {
+            return $value->toDateTime()->getTimestamp();
         }
         return parent::parseDateValue($value);
     }

@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/yii2-mongodb",
+    "name": "sammaye/yii2-mongodb",
     "description": "MongoDb extension for the Yii framework",
     "keywords": ["yii2", "mongo", "mongodb", "active-record"],
     "type": "yii2-extension",
@@ -19,7 +19,7 @@
     ],
     "require": {
         "yiisoft/yii2": ">=2.0.5",
-        "ext-mongo": ">=1.5.0"
+        "mongodb/mongodb": "^1.0.0"
     },
     "autoload": {
         "psr-4": { "yii\\mongodb\\": "" }
