@@ -15,7 +15,6 @@ use yii\helpers\Json;
  * Database represents the Mongo database information.
  *
  * @property file\Collection $fileCollection Mongo GridFS collection. This property is read-only.
- * @property string $name Name of this database. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
@@ -23,9 +22,13 @@ use yii\helpers\Json;
 class Database extends Object
 {
     /**
-     * @var \MongoDB Mongo database instance.
+     * @var Connection MongoDB connection.
      */
-    public $mongoDb;
+    public $connection;
+    /**
+     * @var string name of this database.
+     */
+    public $name;
 
     /**
      * @var Collection[] list of collections.
@@ -36,14 +39,6 @@ class Database extends Object
      */
     private $_fileCollections = [];
 
-
-    /**
-     * @return string name of this database.
-     */
-    public function getName()
-    {
-        return $this->mongoDb->__toString();
-    }
 
     /**
      * Returns the Mongo collection with the given name.
@@ -84,7 +79,8 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
-            'mongoCollection' => $this->mongoDb->selectCollection($name)
+            'database' => $this,
+            'name' => $name,
         ]);
     }
 
@@ -97,7 +93,8 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
-            'mongoCollection' => $this->mongoDb->getGridFS($prefix)
+            'database' => $this,
+            'prefix' => $prefix,
         ]);
     }
 

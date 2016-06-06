@@ -11,6 +11,7 @@ $config = [
         'dsn' => 'mongodb://travis:test@localhost:27017',
         'defaultDatabaseName' => 'yii2test',
         'options' => [],
+        'driverOptions' => [],
     ]
 ];
 

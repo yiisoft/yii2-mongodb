@@ -103,7 +103,9 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         }
         $db = new Connection();
         $db->dsn = $this->mongoDbConfig['dsn'];
-        $db->defaultDatabaseName = $this->mongoDbConfig['defaultDatabaseName'];
+        if (isset($this->mongoDbConfig['defaultDatabaseName'])) {
+            $db->defaultDatabaseName = $this->mongoDbConfig['defaultDatabaseName'];
+        }
         if (isset($this->mongoDbConfig['options'])) {
             $db->options = $this->mongoDbConfig['options'];
         }
@@ -123,7 +125,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     {
         if ($this->mongodb) {
             try {
-                $this->mongodb->getCollection($name)->drop();
+                $this->mongodb->createCommand()->dropCollection($name);
             } catch (Exception $e) {
                 // shut down exception
             }
