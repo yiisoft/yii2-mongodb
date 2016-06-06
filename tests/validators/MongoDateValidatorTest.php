@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\validators;
 
+use MongoDB\BSON\UTCDateTime;
 use yii\base\Model;
 use yii\mongodb\validators\MongoDateValidator;
 use yiiunit\extensions\mongodb\TestCase;
@@ -18,7 +19,7 @@ class MongoDateValidatorTest extends TestCase
     {
         $validator = new MongoDateValidator();
         $this->assertFalse($validator->validate('string'));
-        $this->assertTrue($validator->validate(new \MongoDate(time())));
+        $this->assertTrue($validator->validate(new UTCDateTime(time())));
     }
 
     public function testValidateAttribute()
@@ -27,7 +28,7 @@ class MongoDateValidatorTest extends TestCase
 
         $model->date = 'string';
         $this->assertFalse($model->validate());
-        $model->date = new \MongoDate(time());
+        $model->date = new UTCDateTime(time());
         $this->assertTrue($model->validate());
     }
 
@@ -37,8 +38,8 @@ class MongoDateValidatorTest extends TestCase
 
         $model->date = '05/08/2015';
         $this->assertTrue($model->validate());
-        $this->assertTrue($model->mongoDate instanceof \MongoDate);
-        $this->assertEquals(strtotime('2015-05-08'), $model->mongoDate->sec);
+        $this->assertTrue($model->mongoDate instanceof UTCDateTime);
+        $this->assertEquals(strtotime('2015-05-08'), $model->mongoDate->__toString());
     }
 }
 
