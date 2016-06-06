@@ -2,6 +2,8 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\BSON\ObjectID;
+
 class CommandTest extends TestCase
 {
     protected function tearDown()
@@ -48,6 +50,24 @@ class CommandTest extends TestCase
     /**
      * @depends testCreateIndexes
      */
+    public function testListIndexes()
+    {
+        $command = $this->getConnection()->createCommand();
+        $command->createIndexes('customer', [
+            [
+                'key' => ['name' => +1],
+                'name' => 'asc_index'
+            ],
+        ]);
+
+        $result = $command->listIndexes('customer');
+        $this->assertEquals('_id_', $result[0]['name']);
+        $this->assertEquals('asc_index', $result[1]['name']);
+    }
+
+    /**
+     * @depends testCreateIndexes
+     */
     public function testDropIndexes()
     {
         $command = $this->getConnection()->createCommand();
@@ -70,5 +90,26 @@ class CommandTest extends TestCase
 
         $this->setExpectedException('yii\mongodb\Exception', 'index not found with name');
         $command->dropIndexes('customer', 'desc_index');
+    }
+
+    public function testInsert()
+    {
+        $command = $this->getConnection()->createCommand();
+        $insertedId = $command->insert('customer', ['name' => 'John']);
+        $this->assertTrue($insertedId instanceof ObjectID);
+    }
+
+    /**
+     * @depends testInsert
+     */
+    public function testBatchInsert()
+    {
+        $command = $this->getConnection()->createCommand();
+        $insertedIds = $command->batchInsert('customer', [
+            ['name' => 'John'],
+            ['name' => 'Sara'],
+        ]);
+        $this->assertTrue($insertedIds[0] instanceof ObjectID);
+        $this->assertTrue($insertedIds[1] instanceof ObjectID);
     }
 }

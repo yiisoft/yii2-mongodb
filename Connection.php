@@ -114,6 +114,14 @@ class Connection extends Component
      * @var Manager MongoDB driver manager
      */
     public $manager;
+    /**
+     * @var array type map to use for BSON unserialization.
+     * @see http://php.net/manual/en/mongodb-driver-cursor.settypemap.php
+     */
+    public $cursorTypeMap = [
+        'root' => 'array',
+        'document' => 'array'
+    ];
 
     /**
      * @var string name of the MongoDB database to use by default.

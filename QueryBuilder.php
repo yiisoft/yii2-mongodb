@@ -163,6 +163,21 @@ class QueryBuilder extends Object
     }
 
     /**
+     * Generates list indexes command.
+     * @param string $collectionName collection name
+     * @param array $options command options.
+     * Available options are:
+     *
+     * - maxTimeMS: integer, max execution time in ms.
+     *
+     * @return array command document.
+     */
+    public function listIndexes($collectionName, $options = [])
+    {
+        return array_merge(['listIndexes' => $collectionName], $options);
+    }
+
+    /**
      * Generates count command
      * @param string $collectionName
      * @param array $condition

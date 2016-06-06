@@ -7,13 +7,19 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\ObjectID;
+use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\WriteConcern;
+use yii\base\InvalidConfigException;
 use yii\base\Object;
 
 /**
  * Command represents MongoDB command
  *
- * @property ReadPreference|integer|string|null $readPreference
+ * @property ReadPreference|integer|string|null $readPreference command read preference.
+ * @param WriteConcern|integer|string|null $writeConcern write concern to be used by this command.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -34,9 +40,13 @@ class Command extends Object
     public $document = [];
 
     /**
-     * @var ReadPreference|integer|string|null command read preference
+     * @var ReadPreference|integer|string|null command read preference.
      */
     private $_readPreference;
+    /**
+     * @var WriteConcern|integer|string|null write concern to be used by this command.
+     */
+    private $_writeConcern;
 
 
     /**
@@ -65,6 +75,29 @@ class Command extends Object
     }
 
     /**
+     * @return WriteConcern|null write concern to be used in this command.
+     */
+    public function getWriteConcern()
+    {
+        if ($this->_writeConcern !== null) {
+            if (is_scalar($this->_writeConcern)) {
+                $this->_writeConcern = new WriteConcern($this->_writeConcern);
+            }
+        }
+        return $this->_writeConcern;
+    }
+
+    /**
+     * @param WriteConcern|integer|string|null $writeConcern
+     * @return $this self reference
+     */
+    public function setWriteConcern($writeConcern)
+    {
+        $this->_writeConcern = $writeConcern;
+        return $this;
+    }
+
+    /**
      * Executes this command.
      * @return \MongoDB\Driver\Cursor result cursor
      * @throws Exception on failure
@@ -77,11 +110,54 @@ class Command extends Object
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
             $cursor = $server->executeCommand($databaseName, $mongoCommand);
-        } catch (\MongoDB\Driver\Exception\Exception $e) {
+        } catch (RuntimeException $e) {
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
         return $cursor;
+    }
+
+    /**
+     * @param string $collectionName collection name
+     * @param array $options batch options
+     * @return array
+     * @throws Exception on failure.
+     * @throws InvalidConfigException on invalid [[document]] format.
+     */
+    public function executeBatch($collectionName, $options = [])
+    {
+        $batch = new BulkWrite($options);
+
+        $insertedIds = [];
+        foreach ($this->document as $key => $operation) {
+            switch ($operation['type']) {
+                case 'insert':
+                    $insertedIds[$key] = $batch->insert($operation['document']);
+                    break;
+                case 'update':
+                    $batch->update($operation['condition'], $operation['document'], $operation['options']);
+                    break;
+                case 'delete':
+                    $batch->delete($operation['condition'], isset($operation['options']) ? $operation['options'] : []);
+                    break;
+                default:
+                    throw new InvalidConfigException("Unsupported batch operation type '{$operation['type']}'");
+            }
+        }
+
+        $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
+
+        try {
+            $server = $this->db->manager->selectServer($this->getReadPreference());
+            $writeResult = $server->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
+        } catch (RuntimeException $e) {
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
+
+        return [
+            'insertedIds' => $insertedIds,
+            'result' => $writeResult,
+        ];
     }
 
     /**
@@ -138,6 +214,36 @@ class Command extends Object
 
     /**
      * @param string $collectionName
+     * @param array $options
+     * @return array list of indexes info.
+     * @throws Exception on failure.
+     */
+    public function listIndexes($collectionName, $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->listIndexes($collectionName, $options);
+
+        try {
+            $cursor = $this->execute();
+        } catch (Exception $e) {
+            // The server may return an error if the collection does not exist.
+            $notFoundCodes = [
+                26, // namespace not found
+                60 // database not found
+            ];
+            if (in_array($e->getCode(), $notFoundCodes, true)) {
+                return [];
+            }
+
+            throw $e;
+        }
+
+        $cursor->setTypeMap($this->db->cursorTypeMap);
+
+        return $cursor->toArray();
+    }
+
+    /**
+     * @param string $collectionName
      * @param array $condition
      * @param array $options
      * @return integer records count
@@ -148,5 +254,55 @@ class Command extends Object
 
         $result = current($this->execute()->toArray());
         return $result->n;
+    }
+
+    /**
+     * Inserts new document into collection.
+     * @param string $collectionName collection name
+     * @param array $document document content
+     * @param array $options
+     * @return ObjectID|boolean inserted record ID, `false` - on failure.
+     */
+    public function insert($collectionName, $document, $options = [])
+    {
+        $this->document = [
+            [
+                'type' => 'insert',
+                'document' => $document,
+            ]
+        ];
+        $result = $this->executeBatch($collectionName, $options);
+
+        if ($result['result']->getInsertedCount() < 1) {
+            return false;
+        }
+
+        return reset($result['insertedIds']);
+    }
+
+    /**
+     * Inserts batch of new documents into collection.
+     * @param string $collectionName collection name
+     * @param array[] $documents documents list
+     * @param array $options
+     * @return array|false list of inserted IDs, `false` on failure.
+     */
+    public function batchInsert($collectionName, $documents, $options = [])
+    {
+        $this->document = [];
+        foreach ($documents as $key => $document) {
+            $this->document[$key] = [
+                'type' => 'insert',
+                'document' => $document
+            ];
+        }
+
+        $result = $this->executeBatch($collectionName, $options);
+
+        if ($result['result']->getInsertedCount() < 1) {
+            return false;
+        }
+
+        return $result['insertedIds'];
     }
 }
