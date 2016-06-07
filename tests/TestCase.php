@@ -26,8 +26,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     protected function setUp()
     {
         parent::setUp();
-        if (!extension_loaded('mongo')) {
-            $this->markTestSkipped('mongo extension required.');
+        if (!extension_loaded('mongodb')) {
+            $this->markTestSkipped('mongodb extension required.');
         }
         $config = self::getParam('mongodb');
         if (!empty($config)) {
