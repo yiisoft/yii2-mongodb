@@ -88,14 +88,6 @@ class Collection extends Object
     }
 
     /**
-     * @return array last error information.
-     */
-    public function getLastError()
-    {
-        return $this->mongoCollection->db->lastError();
-    }
-
-    /**
      * Composes log/profile token.
      * @param string $command command name
      * @param array $arguments command arguments.
@@ -176,19 +168,7 @@ class Collection extends Object
      */
     public function drop()
     {
-        $token = $this->composeLogToken('drop');
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->drop();
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-
-            return true;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->dropCollection($this->name);
     }
 
     /**
@@ -213,26 +193,8 @@ class Collection extends Object
      */
     public function createIndex($columns, $options = [])
     {
-        $columns = (array)$columns;
-        $keys = $this->normalizeIndexKeys($columns);
-        $token = $this->composeLogToken('createIndex', [$keys, $options]);
-        $options = array_merge(['w' => 1], $options);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            if (method_exists($this->mongoCollection, 'createIndex')) {
-                $result = $this->mongoCollection->createIndex($keys, $options);
-            } else {
-                $result = $this->mongoCollection->ensureIndex($keys, $options);
-            }
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-
-            return true;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        $index = array_merge(['key' => $columns], $options);
+        return $this->database->createCommand()->createIndexes($this->name, [$index]);
     }
 
     /**
@@ -299,17 +261,8 @@ class Collection extends Object
      */
     public function dropAllIndexes()
     {
-        $token = $this->composeLogToken('dropIndexes');
-        Yii::info($token, __METHOD__);
-        try {
-            $result = $this->mongoCollection->deleteIndexes();
-            $this->tryResultError($result);
-
-            return $result['nIndexesWas'];
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        $result = $this->database->createCommand()->dropIndexes($this->name, '*');
+        return $result->nIndexesWas;
     }
 
     /**
@@ -317,24 +270,30 @@ class Collection extends Object
      * In order to perform "find" queries use [[Query]] class.
      * @param array $condition query condition
      * @param array $fields fields to be selected
-     * @return \MongoCursor cursor for the search results
+     * @param array $options query options (available since 2.1).
+     * @return \MongoDB\Driver\Cursor cursor for the search results
      * @see Query
      */
-    public function find($condition = [], $fields = [])
+    public function find($condition = [], $fields = [], $options = [])
     {
-        return $this->mongoCollection->find($this->buildCondition($condition), $fields);
+        if (!empty($fields)) {
+            $options['projection'] = $fields;
+        }
+        return $this->database->createCommand()->find($this->name, $condition, $options);
     }
 
     /**
      * Returns a single document.
      * @param array $condition query condition
      * @param array $fields fields to be selected
+     * @param array $options query options (available since 2.1).
      * @return array|null the single document. Null is returned if the query results in nothing.
-     * @see http://www.php.net/manual/en/mongocollection.findone.php
      */
-    public function findOne($condition = [], $fields = [])
+    public function findOne($condition = [], $fields = [], $options = [])
     {
-        return $this->mongoCollection->findOne($this->buildCondition($condition), $fields);
+        $options['limit'] = 1;
+        $cursor = $this->find($condition, $fields, $options);
+        return reset($cursor->toArray());
     }
 
     /**
@@ -368,24 +327,12 @@ class Collection extends Object
      * Inserts new data into collection.
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoId new record id instance.
+     * @return \MongoDB\BSON\ObjectID new record ID instance.
      * @throws Exception on failure.
      */
     public function insert($data, $options = [])
     {
-        $token = $this->composeLogToken('insert', [$data]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->insert($data, $options));
-            Yii::endProfile($token, __METHOD__);
-
-            return is_array($data) ? $data['_id'] : $data->_id;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->insert($this->name, $data, $options);
     }
 
     /**
@@ -397,24 +344,12 @@ class Collection extends Object
      */
     public function batchInsert($rows, $options = [])
     {
-        $token = $this->composeLogToken('batchInsert', [$rows]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->batchInsert($rows, $options));
-            Yii::endProfile($token, __METHOD__);
-
-            return $rows;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->batchInsert($this->name, $rows, $options);
     }
 
     /**
      * Updates the rows, which matches given criteria by given data.
-     * Note: for "multiple" mode Mongo requires explicit strategy "$set" or "$inc"
+     * Note: for "multi" mode Mongo requires explicit strategy "$set" or "$inc"
      * to be specified for the "newData". If no strategy is passed "$set" will be used.
      * @param array $condition description of the objects to update.
      * @param array $newData the object with which to update the matching records.
@@ -424,30 +359,17 @@ class Collection extends Object
      */
     public function update($condition, $newData, $options = [])
     {
-        $condition = $this->buildCondition($condition);
-        $options = array_merge(['w' => 1, 'multiple' => true], $options);
-        if ($options['multiple']) {
+        $options = array_merge(['multi' => true], $options);
+        if ($options['multi']) {
             $keys = array_keys($newData);
             if (!empty($keys) && strncmp('$', $keys[0], 1) !== 0) {
                 $newData = ['$set' => $newData];
             }
         }
-        $token = $this->composeLogToken('update', [$condition, $newData, $options]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->update($condition, $newData, $options);
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-            if (is_array($result) && array_key_exists('n', $result)) {
-                return $result['n'];
-            } else {
-                return true;
-            }
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+
+        $writeResult = $this->database->createCommand()->update($this->name, $condition, $newData, $options);
+
+        return $writeResult->getModifiedCount() + $writeResult->getUpsertedCount();
     }
 
     /**
@@ -459,18 +381,11 @@ class Collection extends Object
      */
     public function save($data, $options = [])
     {
-        $token = $this->composeLogToken('save', [$data]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $options = array_merge(['w' => 1], $options);
-            $this->tryResultError($this->mongoCollection->save($data, $options));
-            Yii::endProfile($token, __METHOD__);
-
-            return is_array($data) ? $data['_id'] : $data->_id;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+        if (empty($data['_id'])) {
+            return $this->insert($data, $options);
+        } else {
+            $this->update(['_id' => $data['_id']], ['$set' => $data], ['upsert' => true]);
+            return $data['_id'];
         }
     }
 
@@ -484,24 +399,9 @@ class Collection extends Object
      */
     public function remove($condition = [], $options = [])
     {
-        $condition = $this->buildCondition($condition);
-        $options = array_merge(['w' => 1, 'justOne' => false], $options);
-        $token = $this->composeLogToken('remove', [$condition, $options]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->remove($condition, $options);
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-            if (is_array($result) && array_key_exists('n', $result)) {
-                return $result['n'];
-            } else {
-                return true;
-            }
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        $options = array_merge(['limit' => 0], $options);
+        $writeResult = $this->database->createCommand()->delete($this->name, $condition, $options);
+        return $writeResult->getDeletedCount();
     }
 
     /**

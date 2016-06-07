@@ -14,8 +14,10 @@ use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\WriteResult;
+use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Object;
+use yii\helpers\Json;
 
 /**
  * Command represents MongoDB command
@@ -135,11 +137,19 @@ class Command extends Object
     {
         $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
 
+        $token = $databaseName . '.command(' . Json::encode($this->document) . ')';
+        Yii::info($token, __METHOD__);
+
         try {
+            Yii::beginProfile($token, __METHOD__);
+
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
             $cursor = $server->executeCommand($databaseName, $mongoCommand);
+
+            Yii::endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
+            Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
@@ -200,6 +210,18 @@ class Command extends Object
         $readConcern = $this->getReadConcern();
         if ($readConcern !== null) {
             $options['readConcern'] = $readConcern;
+        }
+
+        if (isset($options['projection'])) {
+            $projection = [];
+            foreach ($options['projection'] as $key => $value) {
+                if (is_int($key)) {
+                    $projection[$value] = true;
+                } else {
+                    $projection[$key] = $value;
+                }
+            }
+            $options['projection'] = $projection;
         }
 
         $query = new \MongoDB\Driver\Query($this->document, $options);
