@@ -140,4 +140,19 @@ class CommandTest extends TestCase
 
         $this->assertEquals(1, $result->getDeletedCount());
     }
+
+    /**
+     * @depends testInsert
+     */
+    public function testFind()
+    {
+        $connection = $this->getConnection();
+
+        $connection->createCommand()->insert('customer', ['name' => 'John']);
+
+        $cursor = $connection->createCommand()->find('customer', []);
+        $rows = $cursor->toArray();
+        $this->assertCount(1, $rows);
+        $this->assertEquals('John', $rows[0]['name']);
+    }
 }

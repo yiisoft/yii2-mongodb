@@ -10,6 +10,7 @@ namespace yii\mongodb;
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
+use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\WriteResult;
@@ -48,6 +49,10 @@ class Command extends Object
      * @var WriteConcern|integer|string|null write concern to be used by this command.
      */
     private $_writeConcern;
+    /**
+     * @var ReadConcern|string read concern to be used by this command
+     */
+    private $_readConcern;
 
 
     /**
@@ -95,6 +100,29 @@ class Command extends Object
     public function setWriteConcern($writeConcern)
     {
         $this->_writeConcern = $writeConcern;
+        return $this;
+    }
+
+    /**
+     * @return ReadConcern|string
+     */
+    public function getReadConcern()
+    {
+        if ($this->_readConcern !== null) {
+            if (is_scalar($this->_readConcern)) {
+                $this->_readConcern = new ReadConcern($this->_readConcern);
+            }
+        }
+        return $this->_readConcern;
+    }
+
+    /**
+     * @param ReadConcern|string $readConcern
+     * @return $this self reference
+     */
+    public function setReadConcern($readConcern)
+    {
+        $this->_readConcern = $readConcern;
         return $this;
     }
 
@@ -159,6 +187,31 @@ class Command extends Object
             'insertedIds' => $insertedIds,
             'result' => $writeResult,
         ];
+    }
+
+    /**
+     * Executes this command as a mongo query
+     * @param string $collectionName collection name
+     * @param array $options query options.
+     * @return \MongoDB\Driver\Cursor result cursor.
+     */
+    public function query($collectionName, $options = [])
+    {
+        $readConcern = $this->getReadConcern();
+        if ($readConcern !== null) {
+            $options['readConcern'] = $readConcern;
+        }
+
+        $query = new \MongoDB\Driver\Query($this->document, $options);
+
+        $server = $this->db->manager->selectServer($this->getReadPreference());
+
+        $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
+        $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
+
+        $cursor->setTypeMap($this->db->cursorTypeMap);
+
+        return $cursor;
     }
 
     /**
@@ -419,5 +472,18 @@ class Command extends Object
         $result = $this->executeBatch($collectionName, $batchOptions);
 
         return $result['result'];
+    }
+
+    /**
+     * Performs find query.
+     * @param string $collectionName collection name
+     * @param array $condition filter condition
+     * @param array $options query options.
+     * @return \MongoDB\Driver\Cursor result cursor.
+     */
+    public function find($collectionName, $condition, $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->buildCondition($condition);
+        return $this->query($collectionName, $options);
     }
 }
