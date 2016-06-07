@@ -31,6 +31,7 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
+  - pecl install -f mongodb
   - mongo yii2test --eval 'db.addUser("travis", "test");'
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
