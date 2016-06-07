@@ -377,7 +377,7 @@ class CollectionTest extends TestCase
         $collection = $this->getConnection()->getCollection('customer');
         $columns = [
             'name',
-            'status' => \MongoCollection::DESCENDING,
+            'status' => SORT_DESC
         ];
         $this->assertTrue($collection->createIndex($columns));
         $indexInfo = $collection->listIndexes();

@@ -246,25 +246,6 @@ class Collection extends Object
     }
 
     /**
-     * Compose index keys from given columns/keys list.
-     * @param array $columns raw columns/keys list.
-     * @return array normalizes index keys array.
-     */
-    protected function normalizeIndexKeys($columns)
-    {
-        $keys = [];
-        foreach ($columns as $key => $value) {
-            if (is_numeric($key)) {
-                $keys[$value] = \MongoCollection::ASCENDING;
-            } else {
-                $keys[$key] = $value;
-            }
-        }
-
-        return $keys;
-    }
-
-    /**
      * Drops all indexes for this collection.
      * @throws Exception on failure.
      * @return integer count of dropped indexes.
@@ -421,29 +402,13 @@ class Collection extends Object
      * Returns a list of distinct values for the given column across a collection.
      * @param string $column column to use.
      * @param array $condition query parameters.
+     * @param array $options list of options in format: optionName => optionValue.
      * @return array|boolean array of distinct values, or "false" on failure.
      * @throws Exception on failure.
      */
-    public function distinct($column, $condition = [])
+    public function distinct($column, $condition = [], $options = [])
     {
-        $condition = $this->buildCondition($condition);
-        $token = $this->composeLogToken('distinct', [$column, $condition]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            // See https://bugs.php.net/bug.php?id=68858
-            if (empty($condition)) {
-                $result = $this->mongoCollection->distinct($column);
-            } else {
-                $result = $this->mongoCollection->distinct($column, $condition);
-            }
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->distinct($this->name, $column, $condition, $options);
     }
 
     /**
@@ -476,12 +441,12 @@ class Collection extends Object
     /**
      * Performs aggregation using Mongo "group" command.
      * @param mixed $keys fields to group by. If an array or non-code object is passed,
-     * it will be the key used to group results. If instance of [[\MongoCode]] passed,
+     * it will be the key used to group results. If instance of [[\MongoDB\BSON\Javascript]] passed,
      * it will be treated as a function that returns the key to group by.
      * @param array $initial Initial value of the aggregation counter object.
-     * @param \MongoCode|string $reduce function that takes two arguments (the current
+     * @param \MongoDB\BSON\Javascript|string $reduce function that takes two arguments (the current
      * document and the aggregation to this point) and does the aggregation.
-     * Argument will be automatically cast to [[\MongoCode]].
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
      * @param array $options optional parameters to the group command. Valid options include:
      *  - condition - criteria for including a document in the aggregation.
      *  - finalize - function called once per unique key that takes the final output of the reduce function.
@@ -491,39 +456,7 @@ class Collection extends Object
      */
     public function group($keys, $initial, $reduce, $options = [])
     {
-        if (!($reduce instanceof \MongoCode)) {
-            $reduce = new \MongoCode((string) $reduce);
-        }
-        if (array_key_exists('condition', $options)) {
-            $options['condition'] = $this->buildCondition($options['condition']);
-        }
-        if (array_key_exists('finalize', $options)) {
-            if (!($options['finalize'] instanceof \MongoCode)) {
-                $options['finalize'] = new \MongoCode((string) $options['finalize']);
-            }
-        }
-        $token = $this->composeLogToken('group', [$keys, $initial, $reduce, $options]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            // Avoid possible E_DEPRECATED for $options:
-            if (empty($options)) {
-                $result = $this->mongoCollection->group($keys, $initial, $reduce);
-            } else {
-                $result = $this->mongoCollection->group($keys, $initial, $reduce, $options);
-            }
-            $this->tryResultError($result);
-
-            Yii::endProfile($token, __METHOD__);
-            if (array_key_exists('retval', $result)) {
-                return $result['retval'];
-            } else {
-                return [];
-            }
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->group($this->name, $keys, $initial, $reduce, $options);
     }
 
     /**
@@ -565,79 +498,6 @@ class Collection extends Object
      */
     public function mapReduce($map, $reduce, $out, $condition = [], $options = [])
     {
-        if (!($map instanceof \MongoCode)) {
-            $map = new \MongoCode((string) $map);
-        }
-        if (!($reduce instanceof \MongoCode)) {
-            $reduce = new \MongoCode((string) $reduce);
-        }
-        $command = [
-            'mapReduce' => $this->getName(),
-            'map' => $map,
-            'reduce' => $reduce,
-            'out' => $out
-        ];
-        if (!empty($condition)) {
-            $command['query'] = $this->buildCondition($condition);
-        }
-        if (array_key_exists('finalize', $options)) {
-            if (!($options['finalize'] instanceof \MongoCode)) {
-                $options['finalize'] = new \MongoCode((string) $options['finalize']);
-            }
-        }
-        if (!empty($options)) {
-            $command = array_merge($command, $options);
-        }
-        $token = $this->composeLogToken('mapReduce', [$map, $reduce, $out]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $command = array_merge(['mapReduce' => $this->getName()], $command);
-            $result = $this->mongoCollection->db->command($command);
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-
-            return array_key_exists('results', $result) ? $result['results'] : $result['result'];
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
-    }
-
-    /**
-     * Checks if command execution result ended with an error.
-     * @param mixed $result raw command execution result.
-     * @throws Exception if an error occurred.
-     */
-    protected function tryResultError($result)
-    {
-        if (is_array($result)) {
-            if (!empty($result['errmsg'])) {
-                $errorMessage = $result['errmsg'];
-            } elseif (!empty($result['err'])) {
-                $errorMessage = $result['err'];
-            }
-            if (isset($errorMessage)) {
-                if (array_key_exists('code', $result)) {
-                    $errorCode = (int) $result['code'];
-                } elseif (array_key_exists('ok', $result)) {
-                    $errorCode = (int) $result['ok'];
-                } else {
-                    $errorCode = 0;
-                }
-                throw new Exception($errorMessage, $errorCode);
-            }
-        } elseif (!$result) {
-            throw new Exception('Unknown error, use "w=1" option to enable error tracking');
-        }
-    }
-
-    /**
-     * Throws an exception if there was an error on the last operation.
-     * @throws Exception if an error occurred.
-     */
-    protected function tryLastError()
-    {
-        $this->tryResultError($this->getLastError());
+        return $this->database->createCommand()->mapReduce($this->name, $map, $reduce, $out, $condition, $options);
     }
 }

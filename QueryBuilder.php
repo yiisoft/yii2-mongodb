@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\Javascript;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
 use MongoDB\Driver\Exception\InvalidArgumentException;
@@ -214,6 +215,115 @@ class QueryBuilder extends Object
             if (isset($options[$name])) {
                 $document[$name] = (object) $options[$name];
             }
+        }
+
+        return $document;
+    }
+
+    /**
+     * Generates 'distinct' command.
+     * @param string $collectionName collection name.
+     * @param string $fieldName target field name.
+     * @param array $condition filter condition
+     * @param array $options list of options in format: optionName => optionValue.
+     * @return array command document.
+     */
+    public function distinct($collectionName, $fieldName, $condition = [], $options = [])
+    {
+        $document = array_merge(
+            [
+                'distinct' => $collectionName,
+                'key' => $fieldName,
+            ],
+            $options
+        );
+
+        if (!empty($condition)) {
+            $document['query'] = $this->buildCondition($condition);
+        }
+
+        return $document;
+    }
+
+    /**
+     * Generates 'group' command.
+     * @param string $collectionName
+     * @@param mixed $keys fields to group by. If an array or non-code object is passed,
+     * it will be the key used to group results. If instance of [[Javascript]] passed,
+     * it will be treated as a function that returns the key to group by.
+     * @param array $initial Initial value of the aggregation counter object.
+     * @param Javascript|string $reduce function that takes two arguments (the current
+     * document and the aggregation to this point) and does the aggregation.
+     * Argument will be automatically cast to [[Javascript]].
+     * @param array $options optional parameters to the group command. Valid options include:
+     *  - condition - criteria for including a document in the aggregation.
+     *  - finalize - function called once per unique key that takes the final output of the reduce function.
+     * @return array command document.
+     */
+    public function group($collectionName, $keys, $initial, $reduce, $options = [])
+    {
+        if (!($reduce instanceof Javascript)) {
+            $reduce = new Javascript((string) $reduce);
+        }
+
+        if (isset($options['condition'])) {
+            $options['cond'] = $this->buildCondition($options['condition']);
+            unset($options['condition']);
+        }
+
+        if (isset($options['finalize'])) {
+            if (!($options['finalize'] instanceof Javascript)) {
+                $options['finalize'] = new Javascript((string) $options['finalize']);
+            }
+        }
+
+        if (isset($options['keyf'])) {
+            $options['$keyf'] = $options['keyf'];
+            unset($options['keyf']);
+        }
+        if (isset($options['$keyf'])) {
+            if (!($options['$keyf'] instanceof Javascript)) {
+                $options['$keyf'] = new Javascript((string) $options['$keyf']);
+            }
+        }
+
+        $document = [
+            'group' => array_merge(
+                [
+                    'ns' => $collectionName,
+                    'key' => $keys,
+                    'initial' => $initial,
+                    '$reduce' => $reduce,
+                ],
+                $options
+            )
+        ];
+
+        return $document;
+    }
+
+    public function mapReduce($collectionName, $map, $reduce, $out, $condition = [], $options = [])
+    {
+        if (!($map instanceof Javascript)) {
+            $map = new Javascript((string) $map);
+        }
+        if (!($reduce instanceof Javascript)) {
+            $reduce = new Javascript((string) $reduce);
+        }
+
+        $document = [
+            'mapReduce' => $collectionName,
+            'map' => $map,
+            'reduce' => $reduce,
+            'out' => $out
+        ];
+
+        if (!empty($condition)) {
+            $document['query'] = $this->buildCondition($condition);
+        }
+
+        if (!empty($options)) {
+            $document = array_merge($document, $options);
         }
 
         return $document;

@@ -529,4 +529,61 @@ class Command extends Object
 
         return $result['value'];
     }
+
+    /**
+     * Returns a list of distinct values for the given column across a collection.
+     * @param string $collectionName collection name.
+     * @param string $fieldName field name to use.
+     * @param array $condition query parameters.
+     * @param array $options list of options in format: optionName => optionValue.
+     * @return array array of distinct values, or "false" on failure.
+     */
+    public function distinct($collectionName, $fieldName, $condition = [], $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->distinct($collectionName, $fieldName, $condition, $options);
+        $cursor = $this->execute();
+
+        $result = current($cursor->toArray());
+
+        if (!isset($result['values']) || !is_array($result['values'])) {
+            return false;
+        }
+
+        return $result['values'];
+    }
+
+    /**
+     * Performs aggregation using MongoDB "group" command.
+     * @param string $collectionName collection name.
+     * @param mixed $keys fields to group by. If an array or non-code object is passed,
+     * it will be the key used to group results. If instance of [[\MongoDB\BSON\Javascript]] passed,
+     * it will be treated as a function that returns the key to group by.
+     * @param array $initial Initial value of the aggregation counter object.
+     * @param \MongoDB\BSON\Javascript|string $reduce function that takes two arguments (the current
+     * document and the aggregation to this point) and does the aggregation.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param array $options optional parameters to the group command. Valid options include:
+     *  - condition - criteria for including a document in the aggregation.
+     *  - finalize - function called once per unique key that takes the final output of the reduce function.
+     * @return array the result of the aggregation.
+     */
+    public function group($collectionName, $keys, $initial, $reduce, $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->group($collectionName, $keys, $initial, $reduce, $options);
+        $cursor = $this->execute();
+
+        $result = current($cursor->toArray());
+
+        return $result['retval'];
+    }
+
+    public function mapReduce($collectionName, $map, $reduce, $out, $condition = [], $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->mapReduce($collectionName, $map, $reduce, $out, $condition, $options);
+        $cursor = $this->execute();
+
+        $result = current($cursor->toArray());
+
+        return array_key_exists('results', $result) ? $result['results'] : $result['result'];
+    }
 }
