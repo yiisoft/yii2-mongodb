@@ -65,6 +65,7 @@ use Yii;
  * ```
  *
  * @property string $defaultDatabaseName name of the MongoDB database to use by default.
+ * @property QueryBuilder $queryBuilder the query builder for the current MongoDB connection.
  * @property Database $database Database instance. This property is read-only.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
  * @property boolean $isActive Whether the Mongo connection is established. This property is read-only.
@@ -140,24 +141,6 @@ class Connection extends Component
 
 
     /**
-     * Returns the Mongo collection with the given name.
-     * @param string|null $name collection name, if null default one will be used.
-     * @param boolean $refresh whether to reestablish the database connection even if it is found in the cache.
-     * @return Database database instance.
-     */
-    public function getDatabase($name = null, $refresh = false)
-    {
-        if ($name === null) {
-            $name = $this->getDefaultDatabaseName();
-        }
-        if ($refresh || !array_key_exists($name, $this->_databases)) {
-            $this->_databases[$name] = $this->selectDatabase($name);
-        }
-
-        return $this->_databases[$name];
-    }
-
-    /**
      * @param string $name default database name
      */
     public function setDefaultDatabaseName($name)
@@ -182,6 +165,36 @@ class Connection extends Component
         }
 
         return $this->_defaultDatabaseName;
+    }
+
+    /**
+     * Returns the query builder for the current MongoDB connection.
+     * @return QueryBuilder the query builder for the current MongoDB connection.
+     */
+    public function getQueryBuilder()
+    {
+        if ($this->_queryBuilder === null) {
+            $this->_queryBuilder = new QueryBuilder($this);
+        }
+        return $this->_queryBuilder;
+    }
+
+    /**
+     * Returns the Mongo collection with the given name.
+     * @param string|null $name collection name, if null default one will be used.
+     * @param boolean $refresh whether to reestablish the database connection even if it is found in the cache.
+     * @return Database database instance.
+     */
+    public function getDatabase($name = null, $refresh = false)
+    {
+        if ($name === null) {
+            $name = $this->getDefaultDatabaseName();
+        }
+        if ($refresh || !array_key_exists($name, $this->_databases)) {
+            $this->_databases[$name] = $this->selectDatabase($name);
+        }
+
+        return $this->_databases[$name];
     }
 
     /**
@@ -301,18 +314,6 @@ class Connection extends Component
     protected function initConnection()
     {
         $this->trigger(self::EVENT_AFTER_OPEN);
-    }
-
-    /**
-     * Returns the query builder for the current MongoDB connection.
-     * @return QueryBuilder the query builder for the current MongoDB connection.
-     */
-    public function getQueryBuilder()
-    {
-        if ($this->_queryBuilder === null) {
-            $this->_queryBuilder = new QueryBuilder($this);
-        }
-        return $this->_queryBuilder;
     }
 
     /**

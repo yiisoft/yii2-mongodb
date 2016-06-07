@@ -112,4 +112,32 @@ class CommandTest extends TestCase
         $this->assertTrue($insertedIds[0] instanceof ObjectID);
         $this->assertTrue($insertedIds[1] instanceof ObjectID);
     }
+
+    /**
+     * @depends testInsert
+     */
+    public function testUpdate()
+    {
+        $connection = $this->getConnection();
+
+        $newRecordId = $connection->createCommand()->insert('customer', ['name' => 'John']);
+
+        $result = $connection->createCommand()->update('customer', ['_id' => $newRecordId], ['name' => 'Mike']);
+
+        $this->assertEquals(1, $result->getModifiedCount());
+    }
+
+    /**
+     * @depends testInsert
+     */
+    public function testDelete()
+    {
+        $connection = $this->getConnection();
+
+        $newRecordId = $connection->createCommand()->insert('customer', ['name' => 'John']);
+
+        $result = $connection->createCommand()->delete('customer', ['_id' => $newRecordId]);
+
+        $this->assertEquals(1, $result->getDeletedCount());
+    }
 }

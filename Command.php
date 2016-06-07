@@ -12,6 +12,7 @@ use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\ReadPreference;
 use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\WriteResult;
 use yii\base\InvalidConfigException;
 use yii\base\Object;
 
@@ -161,8 +162,20 @@ class Command extends Object
     }
 
     /**
-     * @param string $collectionName
-     * @param array $options
+     * Drops database associated with this command.
+     * @return boolean whether operation was successful.
+     */
+    public function dropDatabase()
+    {
+        $this->document = $this->db->getQueryBuilder()->dropDatabase();
+        $result = current($this->execute()->toArray());
+        return $result->ok > 0;
+    }
+
+    /**
+     * Creates new collection in database associated with this command.s
+     * @param string $collectionName collection name
+     * @param array $options collection options.
      * @return boolean whether operation was successful.
      */
     public function createCollection($collectionName, array $options = [])
@@ -257,6 +270,65 @@ class Command extends Object
     }
 
     /**
+     * Adds the insert operation to the batch command.
+     * @param array $document document to be inserted
+     * @return $this self reference.
+     * @see executeBatch()
+     */
+    public function addInsert($document)
+    {
+        $this->document[] = [
+            'type' => 'insert',
+            'document' => $document,
+        ];
+        return $this;
+    }
+
+    /**
+     * Adds the update operation to the batch command.
+     * @param array $condition filter condition
+     * @param array $document data to be updated
+     * @param array $options update options.
+     * @return $this self reference.
+     * @see executeBatch()
+     */
+    public function addUpdate($condition, $document, $options = [])
+    {
+        $options = array_merge(
+            [
+                'multi' => false,
+                'upsert' => false,
+            ],
+            $options
+        );
+
+        $this->document[] = [
+            'type' => 'update',
+            'condition' => $this->db->getQueryBuilder()->buildCondition($condition),
+            'document' => $document,
+            'options' => $options,
+        ];
+        return $this;
+    }
+
+    /**
+     * Adds the delete operation to the batch command.
+     * @param array $condition filter condition.
+     * @param array $options delete options.
+     * @return $this self reference.
+     * @see executeBatch()
+     */
+    public function addDelete($condition, $options = [])
+    {
+        $this->document[] = [
+            'type' => 'delete',
+            'condition' => $this->db->getQueryBuilder()->buildCondition($condition),
+            'options' => $options,
+        ];
+        return $this;
+    }
+
+    /**
      * Inserts new document into collection.
      * @param string $collectionName collection name
      * @param array $document document content
@@ -265,12 +337,8 @@ class Command extends Object
      */
     public function insert($collectionName, $document, $options = [])
     {
-        $this->document = [
-            [
-                'type' => 'insert',
-                'document' => $document,
-            ]
-        ];
+        $this->document = [];
+        $this->addInsert($document);
         $result = $this->executeBatch($collectionName, $options);
 
         if ($result['result']->getInsertedCount() < 1) {
@@ -304,5 +372,52 @@ class Command extends Object
         }
 
         return $result['insertedIds'];
+    }
+
+    /**
+     * @param string $collectionName collection name
+     * @param array $condition filter condition
+     * @param array $document data to be updated.
+     * @param array $options update options.
+     * @return WriteResult write result.
+     */
+    public function update($collectionName, $condition, $document, $options = [])
+    {
+        $batchOptions = [];
+        foreach (['bypassDocumentValidation'] as $name) {
+            if (isset($options[$name])) {
+                $batchOptions[$name] = $options[$name];
+                unset($options[$name]);
+            }
+        }
+
+        $this->document = [];
+        $this->addUpdate($condition, $document, $options);
+        $result = $this->executeBatch($collectionName, $batchOptions);
+
+        return $result['result'];
+    }
+
+    /**
+     * @param string $collectionName collection name.
+     * @param array $condition filter condition.
+     * @param array $options delete options.
+     * @return WriteResult write result.
+     */
+    public function delete($collectionName, $condition, $options = [])
+    {
+        $batchOptions = [];
+        foreach (['bypassDocumentValidation'] as $name) {
+            if (isset($options[$name])) {
+                $batchOptions[$name] = $options[$name];
+                unset($options[$name]);
+            }
+        }
+
+        $this->document = [];
+        $this->addDelete($condition, $options);
+        $result = $this->executeBatch($collectionName, $batchOptions);
+
+        return $result['result'];
     }
 }

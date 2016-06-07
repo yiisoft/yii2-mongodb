@@ -8,6 +8,8 @@
 namespace yii\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\Regex;
+use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\helpers\ArrayHelper;
@@ -63,7 +65,16 @@ class QueryBuilder extends Object
     }
 
     /**
-     * Generates drops collection command.
+     * Generates drop database command.
+     * @return array command document.
+     */
+    public function dropDatabase()
+    {
+        return ['dropDatabase' => 1];
+    }
+
+    /**
+     * Generates drop collection command.
      * @param string $collectionName name of the collection to be dropped.
      * @return array command document.
      */
@@ -243,7 +254,7 @@ class QueryBuilder extends Object
         }
         try {
             $mongoId = new ObjectID($rawId);
-        } catch (\MongoException $e) {
+        } catch (InvalidArgumentException $e) {
             // invalid id format
             $mongoId = $rawId;
         }
@@ -515,8 +526,12 @@ class QueryBuilder extends Object
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
         list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex($value);
+        if (!($value instanceof Regex)) {
+            if (preg_match('~\/(.+)\/(.*)~', $value, $matches)) {
+                $value = new Regex($matches[1], $matches[2]);
+            } else {
+                $value = new Regex($value, '');
+            }
         }
 
         return [$column => $value];
@@ -536,8 +551,8 @@ class QueryBuilder extends Object
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
         list($column, $value) = $operands;
-        if (!($value instanceof \MongoRegex)) {
-            $value = new \MongoRegex('/' . preg_quote($value) . '/i');
+        if (!($value instanceof Regex)) {
+            $value = new Regex(preg_quote($value), 'i');
         }
 
         return [$column => $value];
