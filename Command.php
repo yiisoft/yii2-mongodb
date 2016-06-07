@@ -213,18 +213,6 @@ class Command extends Object
             $options['readConcern'] = $readConcern;
         }
 
-        if (isset($options['projection'])) {
-            $projection = [];
-            foreach ($options['projection'] as $key => $value) {
-                if (is_int($key)) {
-                    $projection[$value] = true;
-                } else {
-                    $projection[$key] = $value;
-                }
-            }
-            $options['projection'] = $projection;
-        }
-
         $query = new \MongoDB\Driver\Query($this->document, $options);
 
         $server = $this->db->manager->selectServer($this->getReadPreference());
@@ -330,9 +318,10 @@ class Command extends Object
     }
 
     /**
-     * @param string $collectionName
-     * @param array $condition
-     * @param array $options
+     * Counts records in specified collection.
+     * @param string $collectionName collection name
+     * @param array $condition filter condition
+     * @param array $options options/
      * @return integer records count
      */
     public function count($collectionName, $condition = [], $options = [])
@@ -504,19 +493,40 @@ class Command extends Object
      */
     public function find($collectionName, $condition, $options = [])
     {
-        $this->document = $this->db->getQueryBuilder()->buildCondition($condition);
+        $queryBuilder = $this->db->getQueryBuilder();
+
+        $this->document = $queryBuilder->buildCondition($condition);
+
+        if (isset($options['projection'])) {
+            $options['projection'] = $queryBuilder->buildSelectFields($options['projection']);
+        }
+
+        if (isset($options['sort'])) {
+            $options['sort'] = $queryBuilder->buildSortFields($options['sort']);
+        }
+
         return $this->query($collectionName, $options);
     }
 
-    public function findAndModify($collectionName, $condition = [], $update = [], $fields = [], $options = [])
+    /**
+     * Updates a document and returns it.
+     * @param $collectionName
+     * @param array $condition query condition
+     * @param array $update update criteria
+     * @param array $options list of options in format: optionName => optionValue.
+     * @return array|null the original document, or the modified document when $options['new'] is set.
+     */
+    public function findAndModify($collectionName, $condition = [], $update = [], $options = [])
     {
-        $this->document = $this->db->getQueryBuilder()->findAndModify($collectionName, $condition, $update, $fields, $options);
+        $this->document = $this->db->getQueryBuilder()->findAndModify($collectionName, $condition, $update, $options);
         $cursor = $this->execute();
 
-        if (!isset($cursor['value'])) {
+        $result = current($cursor->toArray());
+
+        if (!isset($result['value'])) {
             return null;
         }
 
-        return $cursor['value'];
+        return $result['value'];
     }
 }

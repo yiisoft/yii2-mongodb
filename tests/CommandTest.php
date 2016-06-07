@@ -41,9 +41,12 @@ class CommandTest extends TestCase
             [
                 'key' => ['name' => +1],
             ],
-            ['status' => -1],
-            'email',
-            ['address'],
+            [
+                'key' => ['email'],
+            ],
+            [
+                'key' => 'address',
+            ],
         ]));
     }
 
@@ -154,5 +157,65 @@ class CommandTest extends TestCase
         $rows = $cursor->toArray();
         $this->assertCount(1, $rows);
         $this->assertEquals('John', $rows[0]['name']);
+    }
+
+    /**
+     * @depends testBatchInsert
+     */
+    public function testFindAndModify()
+    {
+        $connection = $this->getConnection();
+        $rows = [
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+                'amount' => 100,
+            ],
+            [
+                'name' => 'customer 2',
+                'status' => 1,
+                'amount' => 200,
+            ],
+        ];
+        $command = $connection->createCommand();
+        $command->batchInsert('customer', $rows);
+
+        // increment field
+        $result = $connection->createCommand()->findAndModify('customer', ['name' => 'customer 1'], ['$inc' => ['status' => 1]]);
+        $this->assertEquals('customer 1', $result['name']);
+        $this->assertEquals(1, $result['status']);
+
+        $cursor = $connection->createCommand()->find('customer', ['name' => 'customer 1']);
+        $newResult = current($cursor->toArray());
+        $this->assertEquals(2, $newResult['status']);
+
+        // $set and return modified document
+        $result = $connection->createCommand()->findAndModify(
+            'customer',
+            ['name' => 'customer 2'],
+            ['$set' => ['status' => 2]],
+            ['new' => true]
+        );
+        $this->assertEquals('customer 2', $result['name']);
+        $this->assertEquals(2, $result['status']);
+
+        // Full update document
+        $data = [
+            'name' => 'customer 3',
+            'city' => 'Minsk'
+        ];
+        $result = $connection->createCommand()->findAndModify(
+            'customer',
+            ['name' => 'customer 2'],
+            $data,
+            ['new' => true]
+        );
+        $this->assertEquals('customer 3', $result['name']);
+        $this->assertEquals('Minsk', $result['city']);
+        $this->assertTrue(!isset($result['status']));
+
+        // Test exceptions
+        $this->setExpectedException('\yii\mongodb\Exception');
+        $connection->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
     }
 }

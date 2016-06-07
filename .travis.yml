@@ -24,6 +24,7 @@ cache:
     - $HOME/.composer/cache
 
 install:
+  - pecl install -f mongodb
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version
   - travis_retry composer global require "fxp/composer-asset-plugin:~1.1.1"
@@ -31,7 +32,6 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
-  - pecl install -f mongodb
   - mongo yii2test --eval 'db.addUser("travis", "test");'
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then

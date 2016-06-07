@@ -30,7 +30,7 @@ class CollectionTest extends TestCase
     {
         $collection = $this->getConnection()->getCollection('customer');
         $cursor = $collection->find();
-        $this->assertTrue($cursor instanceof \MongoCursor);
+        $this->assertTrue($cursor instanceof Cursor);
     }
 
     public function testInsert()
@@ -41,7 +41,7 @@ class CollectionTest extends TestCase
             'address' => 'customer 1 address',
         ];
         $id = $collection->insert($data);
-        $this->assertTrue($id instanceof \MongoId);
+        $this->assertTrue($id instanceof ObjectID);
         $this->assertNotEmpty($id->__toString());
     }
 
@@ -84,9 +84,9 @@ class CollectionTest extends TestCase
             ],
         ];
         $insertedRows = $collection->batchInsert($rows);
-        $this->assertTrue($insertedRows[0]['_id'] instanceof \MongoId);
-        $this->assertTrue($insertedRows[1]['_id'] instanceof \MongoId);
-        $this->assertEquals(count($rows), $collection->find()->count());
+        $this->assertTrue($insertedRows[0]['_id'] instanceof ObjectID);
+        $this->assertTrue($insertedRows[1]['_id'] instanceof ObjectID);
+        $this->assertCount(count($rows), $collection->find()->toArray());
     }
 
     public function testSave()
@@ -97,7 +97,7 @@ class CollectionTest extends TestCase
             'address' => 'customer 1 address',
         ];
         $id = $collection->save($data);
-        $this->assertTrue($id instanceof \MongoId);
+        $this->assertTrue($id instanceof ObjectID);
         $this->assertNotEmpty($id->__toString());
     }
 
@@ -246,7 +246,6 @@ class CollectionTest extends TestCase
         $result = $collection->findAndModify(
             ['name' => 'customer 2'],
             ['$set' => ['status' => 2]],
-            [],
             ['new' => true]
         );
         $this->assertEquals('customer 2', $result['name']);
@@ -260,7 +259,6 @@ class CollectionTest extends TestCase
         $result = $collection->findAndModify(
             ['name' => 'customer 2'],
             $data,
-            [],
             ['new' => true]
         );
         $this->assertEquals('customer 3', $result['name']);
@@ -382,7 +380,7 @@ class CollectionTest extends TestCase
             'status' => \MongoCollection::DESCENDING,
         ];
         $this->assertTrue($collection->createIndex($columns));
-        $indexInfo = $collection->mongoCollection->getIndexInfo();
+        $indexInfo = $collection->listIndexes();
         $this->assertEquals(2, count($indexInfo));
     }
 
@@ -395,7 +393,7 @@ class CollectionTest extends TestCase
 
         $collection->createIndex('name');
         $this->assertTrue($collection->dropIndex('name'));
-        $indexInfo = $collection->mongoCollection->getIndexInfo();
+        $indexInfo = $collection->listIndexes();
         $this->assertEquals(1, count($indexInfo));
 
         $this->setExpectedException('\yii\mongodb\Exception');
@@ -410,7 +408,7 @@ class CollectionTest extends TestCase
         $collection = $this->getConnection()->getCollection('customer');
         $collection->createIndex('name');
         $this->assertEquals(2, $collection->dropAllIndexes());
-        $indexInfo = $collection->database->createCommand()->listIndexes($collection->name);
+        $indexInfo = $collection->listIndexes();
         $this->assertEquals(1, count($indexInfo));
     }
 
@@ -430,7 +428,7 @@ class CollectionTest extends TestCase
 
         $cursor = $collection->find(['_id' => (string) $id]);
         $this->assertTrue($cursor instanceof Cursor);
-        $row = reset($cursor->toArray());
+        $row = current($cursor->toArray());
         $this->assertEquals($id, $row['_id']);
 
         $cursor = $collection->find(['_id' => 'fake']);

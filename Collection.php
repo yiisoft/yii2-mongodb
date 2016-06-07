@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\ObjectID;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
@@ -172,6 +173,16 @@ class Collection extends Object
     }
 
     /**
+     * Returns the list of defined indexes.
+     * @return array list of indexes info.
+     * @since 2.1
+     */
+    public function listIndexes()
+    {
+        return $this->database->createCommand()->listIndexes($this->name);
+    }
+
+    /**
      * Creates an index on the collection and the specified fields.
      * @param array|string $columns column name or list of column names.
      * If array is given, each element in the array has as key the field name, and as
@@ -220,19 +231,18 @@ class Collection extends Object
      */
     public function dropIndex($columns)
     {
-        $columns = (array)$columns;
-        $keys = $this->normalizeIndexKeys($columns);
-        $token = $this->composeLogToken('dropIndex', [$keys]);
-        Yii::info($token, __METHOD__);
-        try {
-            $result = $this->mongoCollection->deleteIndex($keys);
-            $this->tryResultError($result);
+        $existingIndexes = $this->listIndexes();
 
-            return true;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
+        $indexKey = $this->database->connection->getQueryBuilder()->buildSortFields($columns);
+
+        foreach ($existingIndexes as $index) {
+            if ($index['key'] == $indexKey) {
+                $this->database->createCommand()->dropIndexes($this->name, $index['name']);
+                return true;
+            }
         }
+
+        throw new Exception('Index to be dropped does not exist.');
     }
 
     /**
@@ -262,7 +272,7 @@ class Collection extends Object
     public function dropAllIndexes()
     {
         $result = $this->database->createCommand()->dropIndexes($this->name, '*');
-        return $result->nIndexesWas;
+        return $result['nIndexesWas'];
     }
 
     /**
@@ -293,21 +303,20 @@ class Collection extends Object
     {
         $options['limit'] = 1;
         $cursor = $this->find($condition, $fields, $options);
-        return reset($cursor->toArray());
+        return current($cursor->toArray());
     }
 
     /**
      * Updates a document and returns it.
      * @param array $condition query condition
      * @param array $update update criteria
-     * @param array $fields fields to be returned
      * @param array $options list of options in format: optionName => optionValue.
      * @return array|null the original document, or the modified document when $options['new'] is set.
      * @throws Exception on failure.
      */
-    public function findAndModify($condition, $update, $fields = [], $options = [])
+    public function findAndModify($condition, $update, $options = [])
     {
-        return $this->database->createCommand()->findAndModify($condition, $update, $fields, $options);
+        return $this->database->createCommand()->findAndModify($this->name, $condition, $update, $options);
     }
 
     /**
@@ -331,7 +340,11 @@ class Collection extends Object
      */
     public function batchInsert($rows, $options = [])
     {
-        return $this->database->createCommand()->batchInsert($this->name, $rows, $options);
+        $insertedIds = $this->database->createCommand()->batchInsert($this->name, $rows, $options);
+        foreach ($rows as $key => $row) {
+            $rows[$key]['_id'] = $insertedIds[$key];
+        }
+        return $rows;
     }
 
     /**
@@ -371,8 +384,10 @@ class Collection extends Object
         if (empty($data['_id'])) {
             return $this->insert($data, $options);
         } else {
-            $this->update(['_id' => $data['_id']], ['$set' => $data], ['upsert' => true]);
-            return $data['_id'];
+            $id = $data['_id'];
+            unset($data['_id']);
+            $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true]);
+            return is_object($id) ? $id : new ObjectID($id);
         }
     }
 
@@ -382,13 +397,24 @@ class Collection extends Object
      * @param array $options list of options in format: optionName => optionValue.
      * @return integer|boolean number of updated documents or whether operation was successful.
      * @throws Exception on failure.
-     * @see http://www.php.net/manual/en/mongocollection.remove.php
      */
     public function remove($condition = [], $options = [])
     {
         $options = array_merge(['limit' => 0], $options);
         $writeResult = $this->database->createCommand()->delete($this->name, $condition, $options);
         return $writeResult->getDeletedCount();
+    }
+
+    /**
+     * Counts records in this collection.
+     * @param array $condition query condition
+     * @param array $options list of options in format: optionName => optionValue.
+     * @return integer records count.
+     * @since 2.1
+     */
+    public function count($condition = [], $options = [])
+    {
+        return $this->database->createCommand()->count($this->name, $condition, $options);
     }
 
     /**

@@ -94,36 +94,12 @@ class QueryBuilder extends Object
     {
         $normalizedIndexes = [];
 
-        foreach ($indexes as $key => $value) {
-            if (is_int($key)) {
-                $index = $value;
-                if (!is_array($index)) {
-                    $index = [
-                        'key' => [
-                            $index => +1
-                        ]
-                    ];
-                } elseif (!isset($index['key'])) {
-                    $columns = [];
-                    foreach ($index as $k => $v) {
-                        if (is_int($k)) {
-                            $columns[$v] = +1;
-                        } else {
-                            $columns[$k] = $v;
-                        }
-                    }
-
-                    $index = [
-                        'key' => $columns
-                    ];
-                }
-            } else {
-                $index = [
-                    'key' => [
-                        $key => $value
-                    ]
-                ];
+        foreach ($indexes as $index) {
+            if (!isset($index['key'])) {
+                throw new InvalidParamException('"key" is required for index specification');
             }
+
+            $index['key'] = $this->buildSortFields($index['key']);
 
             if (!isset($index['ns'])) {
                 if ($databaseName === null) {
@@ -206,7 +182,15 @@ class QueryBuilder extends Object
         return array_merge($document, $options);
     }
 
-    public function findAndModify($collectionName, $condition = [], $update = [], $fields = [], $options = [])
+    /**
+     * Generates 'find and modify' command.
+     * @param string $collectionName collection name
+     * @param array $condition filter condition
+     * @param array $update update criteria
+     * @param array $options list of options in format: optionName => optionValue.
+     * @return array command document.
+     */
+    public function findAndModify($collectionName, $condition = [], $update = [], $options = [])
     {
         $document = array_merge(['findAndModify' => $collectionName], $options);
 
@@ -215,11 +199,15 @@ class QueryBuilder extends Object
         }
 
         if (!empty($update)) {
-            $options['query'] = $update;
+            $options['update'] = $update;
         }
 
-        if (!empty($fields)) {
-            $options['fields'] = $fields;
+        if (isset($options['fields'])) {
+            $options['fields'] = $this->buildSelectFields($options['fields']);
+        }
+
+        if (isset($options['sort'])) {
+            $options['sort'] = $this->buildSortFields($options['sort']);
         }
 
         foreach (['fields', 'query', 'sort', 'update'] as $name) {
@@ -232,6 +220,47 @@ class QueryBuilder extends Object
     }
 
     // Service :
+
+    /**
+     * Normalizes fields list for the MongoDB select composition.
+     * @param array|string $fields raw fields.
+     * @return array normalized select fields.
+     */
+    public function buildSelectFields($fields)
+    {
+        $selectFields = [];
+        foreach ((array)$fields as $key => $value) {
+            if (is_int($key)) {
+                $selectFields[$value] = true;
+            } else {
+                $selectFields[$key] = (boolean)$value;
+            }
+        }
+        return $selectFields;
+    }
+
+    /**
+     * Normalizes fields list for the MongoDB sort composition.
+     * @param array|string $fields raw fields.
+     * @return array normalized sort fields.
+     */
+    public function buildSortFields($fields)
+    {
+        $sortFields = [];
+        foreach ((array)$fields as $key => $value) {
+            if (is_int($key)) {
+                $sortFields[$value] = +1;
+            } else {
+                if ($value === SORT_ASC) {
+                    $value = +1;
+                } elseif ($value === SORT_DESC) {
+                    $value = -1;
+                }
+                $sortFields[$key] = $value;
+            }
+        }
+        return $sortFields;
+    }
 
     /**
      * Converts "\yii\db\*" quick condition keyword into actual Mongo condition keyword.
