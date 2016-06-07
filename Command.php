@@ -146,6 +146,7 @@ class Command extends Object
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
             $cursor = $server->executeCommand($databaseName, $mongoCommand);
+            $cursor->setTypeMap($this->db->cursorTypeMap);
 
             Yii::endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
@@ -244,7 +245,7 @@ class Command extends Object
     {
         $this->document = $this->db->getQueryBuilder()->dropDatabase();
         $result = current($this->execute()->toArray());
-        return $result->ok > 0;
+        return $result['ok'] > 0;
     }
 
     /**
@@ -258,7 +259,7 @@ class Command extends Object
         $this->document = $this->db->getQueryBuilder()->createCollection($collectionName, $options);
 
         $result = current($this->execute()->toArray());
-        return $result->ok > 0;
+        return $result['ok'] > 0;
     }
 
     /**
@@ -271,7 +272,7 @@ class Command extends Object
         $this->document = $this->db->getQueryBuilder()->dropCollection($collectionName);
 
         $result = current($this->execute()->toArray());
-        return $result->ok > 0;
+        return $result['ok'] > 0;
     }
 
     /**
@@ -285,7 +286,7 @@ class Command extends Object
         $this->document = $this->db->getQueryBuilder()->createIndexes($this->databaseName, $collectionName, $indexes);
 
         $result = current($this->execute()->toArray());
-        return $result->ok > 0;
+        return $result['ok'] > 0;
     }
 
     /**
@@ -325,8 +326,6 @@ class Command extends Object
             throw $e;
         }
 
-        $cursor->setTypeMap($this->db->cursorTypeMap);
-
         return $cursor->toArray();
     }
 
@@ -341,7 +340,7 @@ class Command extends Object
         $this->document = $this->db->getQueryBuilder()->count($collectionName, $condition, $options);
 
         $result = current($this->execute()->toArray());
-        return $result->n;
+        return $result['n'];
     }
 
     /**
@@ -507,5 +506,17 @@ class Command extends Object
     {
         $this->document = $this->db->getQueryBuilder()->buildCondition($condition);
         return $this->query($collectionName, $options);
+    }
+
+    public function findAndModify($collectionName, $condition = [], $update = [], $fields = [], $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->findAndModify($collectionName, $condition, $update, $fields, $options);
+        $cursor = $this->execute();
+
+        if (!isset($cursor['value'])) {
+            return null;
+        }
+
+        return $cursor['value'];
     }
 }

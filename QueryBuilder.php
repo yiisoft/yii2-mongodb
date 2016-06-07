@@ -206,6 +206,30 @@ class QueryBuilder extends Object
         return array_merge($document, $options);
     }
 
+    public function findAndModify($collectionName, $condition = [], $update = [], $fields = [], $options = [])
+    {
+        $document = array_merge(['findAndModify' => $collectionName], $options);
+
+        if (!empty($condition)) {
+            $options['query'] = $this->buildCondition($condition);
+        }
+
+        if (!empty($update)) {
+            $options['query'] = $update;
+        }
+
+        if (!empty($fields)) {
+            $options['fields'] = $fields;
+        }
+
+        foreach (['fields', 'query', 'sort', 'update'] as $name) {
+            if (isset($options[$name])) {
+                $document[$name] = (object) $options[$name];
+            }
+        }
+
+        return $document;
+    }
 
     // Service :
 

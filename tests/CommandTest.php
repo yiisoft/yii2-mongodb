@@ -83,10 +83,10 @@ class CommandTest extends TestCase
         ]);
 
         $result = $command->dropIndexes('customer', 'asc_index');
-        $this->assertEquals(3, $result->nIndexesWas);
+        $this->assertEquals(3, $result['nIndexesWas']);
 
         $result = $command->dropIndexes('customer', '*');
-        $this->assertEquals(2, $result->nIndexesWas);
+        $this->assertEquals(2, $result['nIndexesWas']);
 
         $this->setExpectedException('yii\mongodb\Exception', 'index not found with name');
         $command->dropIndexes('customer', 'desc_index');

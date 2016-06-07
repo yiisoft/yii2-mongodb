@@ -1,6 +1,8 @@
 <?php
 
 namespace yiiunit\extensions\mongodb;
+use MongoDB\BSON\ObjectID;
+use MongoDB\Driver\Cursor;
 
 /**
  * @group mongodb
@@ -20,8 +22,8 @@ class CollectionTest extends TestCase
     {
         $collectionName = 'customer';
         $collection = $this->getConnection()->getCollection($collectionName);
-        $this->assertEquals($collectionName, $collection->getName());
-        $this->assertEquals($this->mongoDbConfig['defaultDatabaseName'] . '.' . $collectionName, $collection->getFullName());
+        $this->assertEquals($collectionName, $collection->name);
+        $this->assertEquals($this->getConnection()->getDefaultDatabaseName() . '.' . $collectionName, $collection->getFullName());
     }
 
     public function testFind()
@@ -408,46 +410,8 @@ class CollectionTest extends TestCase
         $collection = $this->getConnection()->getCollection('customer');
         $collection->createIndex('name');
         $this->assertEquals(2, $collection->dropAllIndexes());
-        $indexInfo = $collection->mongoCollection->getIndexInfo();
+        $indexInfo = $collection->database->createCommand()->listIndexes($collection->name);
         $this->assertEquals(1, count($indexInfo));
-    }
-
-    /**
-     * @depends testBatchInsert
-     * @depends testCreateIndex
-     */
-    public function testFullTextSearch()
-    {
-        $serverVersion = $this->getServerVersion();
-        if (version_compare('2.4', $serverVersion, '<') || version_compare('3.0', $serverVersion, '>=')) {
-            $this->markTestSkipped("Mongo Server >=2.4 and <3.0 required.");
-        }
-
-        $collection = $this->getConnection()->getCollection('customer');
-
-        $rows = [
-            [
-                'name' => 'customer 1',
-                'status' => 1,
-                'amount' => 100,
-            ],
-            [
-                'name' => 'some customer',
-                'status' => 1,
-                'amount' => 200,
-            ],
-            [
-                'name' => 'no search keyword',
-                'status' => 1,
-                'amount' => 200,
-            ],
-        ];
-        $collection->batchInsert($rows);
-        $collection->createIndex(['name' => 'text']);
-
-        $result = $collection->fullTextSearch('customer');
-        $this->assertNotEmpty($result);
-        $this->assertCount(2, $result);
     }
 
     /**
@@ -465,13 +429,13 @@ class CollectionTest extends TestCase
         $id = $collection->insert($data);
 
         $cursor = $collection->find(['_id' => (string) $id]);
-        $this->assertTrue($cursor instanceof \MongoCursor);
-        $row = $cursor->getNext();
+        $this->assertTrue($cursor instanceof Cursor);
+        $row = reset($cursor->toArray());
         $this->assertEquals($id, $row['_id']);
 
         $cursor = $collection->find(['_id' => 'fake']);
-        $this->assertTrue($cursor instanceof \MongoCursor);
-        $this->assertEquals(0, $cursor->count());
+        $this->assertTrue($cursor instanceof Cursor);
+        $this->assertCount(0, $cursor->toArray());
     }
 
     /**
@@ -487,10 +451,10 @@ class CollectionTest extends TestCase
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
-            'binData' => new \MongoBinData(file_get_contents($fileName), 2),
+            'binData' => new \MongoDB\BSON\Binary(file_get_contents($fileName), 2),
         ];
         $id = $collection->insert($data);
-        $this->assertTrue($id instanceof \MongoId);
+        $this->assertTrue($id instanceof ObjectID);
         $this->assertNotEmpty($id->__toString());
     }
 

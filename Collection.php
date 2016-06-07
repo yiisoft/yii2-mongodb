@@ -304,23 +304,10 @@ class Collection extends Object
      * @param array $options list of options in format: optionName => optionValue.
      * @return array|null the original document, or the modified document when $options['new'] is set.
      * @throws Exception on failure.
-     * @see http://www.php.net/manual/en/mongocollection.findandmodify.php
      */
     public function findAndModify($condition, $update, $fields = [], $options = [])
     {
-        $condition = $this->buildCondition($condition);
-        $token = $this->composeLogToken('findAndModify', [$condition, $update, $fields, $options]);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoCollection->findAndModify($condition, $update, $fields, $options);
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->findAndModify($condition, $update, $fields, $options);
     }
 
     /**
