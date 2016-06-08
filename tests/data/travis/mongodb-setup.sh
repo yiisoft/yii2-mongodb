@@ -4,7 +4,7 @@
 
 pecl install -f mongodb
 
-mongo yii2test --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
+/usr/bin/mongo yii2test --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
 
 echo "extension = mongodb.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
