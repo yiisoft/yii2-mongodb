@@ -48,7 +48,7 @@ class MigrateControllerTest extends TestCase
     public function tearDown()
     {
         parent::tearDown();
-        if (extension_loaded('mongo')) {
+        if (extension_loaded('mongodb')) {
             try {
                 $this->getConnection()->getCollection('migration')->drop();
             } catch (Exception $e) {
@@ -61,7 +61,7 @@ class MigrateControllerTest extends TestCase
     public function setUpMigrationPath()
     {
         $this->migrationPath = Yii::getAlias('@yiiunit/extensions/mongodb/runtime/test_migrations');
-        FileHelper::createDirectory($this->migrationPath, 0777);
+        FileHelper::createDirectory($this->migrationPath);
         if (!file_exists($this->migrationPath)) {
             $this->markTestIncomplete('Unit tests runtime directory should have writable permissions!');
         }
