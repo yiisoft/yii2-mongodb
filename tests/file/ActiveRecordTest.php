@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use MongoDB\BSON\ObjectID;
 use Yii;
 use yii\helpers\FileHelper;
 use yiiunit\extensions\mongodb\TestCase;
@@ -146,7 +147,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
 
         $fileContent = $record->getFileContent();
@@ -167,7 +168,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
 
         $fileContent = $record->getFileContent();
@@ -188,7 +189,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
 
         $fileContent = $record->getFileContent();

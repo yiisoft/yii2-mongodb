@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use MongoDB\Driver\Cursor;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
@@ -22,14 +23,14 @@ class CollectionTest extends TestCase
         $collection = $this->getConnection()->getFileCollection();
         $chunkCollection = $collection->getChunkCollection();
         $this->assertTrue($chunkCollection instanceof \yii\mongodb\Collection);
-        $this->assertTrue($chunkCollection->mongoCollection instanceof \MongoCollection);
+        $this->assertTrue($chunkCollection->database instanceof \yii\mongodb\Database);
     }
 
     public function testFind()
     {
         $collection = $this->getConnection()->getFileCollection();
         $cursor = $collection->find();
-        $this->assertTrue($cursor instanceof \MongoGridFSCursor);
+        $this->assertTrue($cursor instanceof Cursor);
     }
 
     public function testInsertFile()
