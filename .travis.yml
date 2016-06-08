@@ -26,7 +26,7 @@ before_install:
 
 install:
   - sudo apt-get install -y mongodb-org
-  - sudo service mongod start
+  - if ! nc -z localhost 27017; then sudo service mongod start; fi
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version
   - travis_retry composer global require "fxp/composer-asset-plugin:~1.1.1"
