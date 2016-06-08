@@ -163,34 +163,43 @@ class Command extends Object
      * @return array
      * @throws Exception on failure.
      * @throws InvalidConfigException on invalid [[document]] format.
+     * @throws Exception on failure
      */
     public function executeBatch($collectionName, $options = [])
     {
-        $batch = new BulkWrite($options);
-
-        $insertedIds = [];
-        foreach ($this->document as $key => $operation) {
-            switch ($operation['type']) {
-                case 'insert':
-                    $insertedIds[$key] = $batch->insert($operation['document']);
-                    break;
-                case 'update':
-                    $batch->update($operation['condition'], $operation['document'], $operation['options']);
-                    break;
-                case 'delete':
-                    $batch->delete($operation['condition'], isset($operation['options']) ? $operation['options'] : []);
-                    break;
-                default:
-                    throw new InvalidConfigException("Unsupported batch operation type '{$operation['type']}'");
-            }
-        }
-
         $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
 
+        $token = $databaseName . '.' . $collectionName . '.bulkWrite(' . Json::encode($this->document) . ')';
+        Yii::info($token, __METHOD__);
+
         try {
+            Yii::beginProfile($token, __METHOD__);
+
+            $batch = new BulkWrite($options);
+
+            $insertedIds = [];
+            foreach ($this->document as $key => $operation) {
+                switch ($operation['type']) {
+                    case 'insert':
+                        $insertedIds[$key] = $batch->insert($operation['document']);
+                        break;
+                    case 'update':
+                        $batch->update($operation['condition'], $operation['document'], $operation['options']);
+                        break;
+                    case 'delete':
+                        $batch->delete($operation['condition'], isset($operation['options']) ? $operation['options'] : []);
+                        break;
+                    default:
+                        throw new InvalidConfigException("Unsupported batch operation type '{$operation['type']}'");
+                }
+            }
+
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $writeResult = $server->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
+
+            Yii::endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
+            Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
@@ -205,22 +214,36 @@ class Command extends Object
      * @param string $collectionName collection name
      * @param array $options query options.
      * @return \MongoDB\Driver\Cursor result cursor.
+     * @throws Exception on failure
      */
     public function query($collectionName, $options = [])
     {
+        $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
+
+        $token = 'find(' . Json::encode(array_merge([
+                'ns' => $databaseName . '.' . $collectionName,
+                'where' => $this->document,
+            ], $options)) . ')';
+        Yii::info($token, __METHOD__);
+
         $readConcern = $this->getReadConcern();
         if ($readConcern !== null) {
             $options['readConcern'] = $readConcern;
         }
 
-        $query = new \MongoDB\Driver\Query($this->document, $options);
+        try {
+            Yii::beginProfile($token, __METHOD__);
 
-        $server = $this->db->manager->selectServer($this->getReadPreference());
+            $query = new \MongoDB\Driver\Query($this->document, $options);
+            $server = $this->db->manager->selectServer($this->getReadPreference());
+            $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
+            $cursor->setTypeMap($this->db->cursorTypeMap);
 
-        $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
-        $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
-
-        $cursor->setTypeMap($this->db->cursorTypeMap);
+            Yii::endProfile($token, __METHOD__);
+        } catch (RuntimeException $e) {
+            Yii::endProfile($token, __METHOD__);
+            throw new Exception($e->getMessage(), $e->getCode(), $e);
+        }
 
         return $cursor;
     }
@@ -637,5 +660,53 @@ class Command extends Object
     private function encodeLogData($data)
     {
         return json_encode($this->processLogData($data));
+    }
+
+    /**
+     * Pre-processes the log data before sending it to `json_encode()`.
+     * @param mixed $data raw data.
+     * @return mixed the processed data.
+     */
+    protected function processLogData($data)
+    {
+        if (is_object($data)) {
+            if ($data instanceof \MongoId ||
+                $data instanceof \MongoRegex ||
+                $data instanceof \MongoDate ||
+                $data instanceof \MongoInt32 ||
+                $data instanceof \MongoInt64 ||
+                $data instanceof \MongoTimestamp
+            ) {
+                $data = get_class($data) . '(' . $data->__toString() . ')';
+            } elseif ($data instanceof \MongoCode) {
+                $data = 'MongoCode( ' . $data->__toString() . ' )';
+            } elseif ($data instanceof \MongoBinData) {
+                $data = 'MongoBinData(...)';
+            } elseif ($data instanceof \MongoDBRef) {
+                $data = 'MongoDBRef(...)';
+            } elseif ($data instanceof \MongoMinKey || $data instanceof \MongoMaxKey) {
+                $data = get_class($data);
+            } else {
+                $result = [];
+                foreach ($data as $name => $value) {
+                    $result[$name] = $value;
+                }
+                $data = $result;
+            }
+
+            if ($data === []) {
+                return new \stdClass();
+            }
+        }
+
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_array($value) || is_object($value)) {
+                    $data[$key] = $this->processLogData($value);
+                }
+            }
+        }
+
+        return $data;
     }
 }
