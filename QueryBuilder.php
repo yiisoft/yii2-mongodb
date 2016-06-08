@@ -329,6 +329,33 @@ class QueryBuilder extends Object
         return $document;
     }
 
+    /**
+     * Generates 'aggregate' command.
+     * @param string $collectionName collection name
+     * @param array $pipelines list of pipeline operators.
+     * @param array $options optional parameters.
+     * @return array command document.
+     */
+    public function aggregate($collectionName, $pipelines, $options = [])
+    {
+        foreach ($pipelines as $key => $pipeline) {
+            if (isset($pipeline['$match'])) {
+                $pipelines[$key]['$match'] = $this->buildCondition($pipeline['$match']);
+            }
+        }
+
+        $document = array_merge(
+            [
+                'aggregate' => $collectionName,
+                'pipeline' => $pipelines,
+                'allowDiskUse' => false,
+            ],
+            $options
+        );
+
+        return $document;
+    }
+
     // Service :
 
     /**

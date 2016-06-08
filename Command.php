@@ -359,11 +359,18 @@ class Command extends Object
     {
         $options = array_merge(
             [
-                'multi' => false,
-                'upsert' => false,
+                'multi' => true,
+                'upsert' => true,
             ],
             $options
         );
+
+        if ($options['multi']) {
+            $keys = array_keys($document);
+            if (!empty($keys) && strncmp('$', $keys[0], 1) !== 0) {
+                $document = ['$set' => $document];
+            }
+        }
 
         $this->document[] = [
             'type' => 'update',
@@ -585,5 +592,50 @@ class Command extends Object
         $result = current($cursor->toArray());
 
         return array_key_exists('results', $result) ? $result['results'] : $result['result'];
+    }
+
+    /**
+     * Performs aggregation using MongoDB Aggregation Framework.
+     * @param string $collectionName collection name
+     * @param array $pipelines list of pipeline operators.
+     * @param array $options optional parameters.
+     * @return array aggregation result.
+     */
+    public function aggregate($collectionName, $pipelines, $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->aggregate($collectionName, $pipelines, $options);
+        $cursor = $this->execute();
+
+        $result = current($cursor->toArray());
+
+        return $result['result'];
+    }
+
+    // Logging :
+
+    /**
+     * Composes log/profile token.
+     * @param string $command command name
+     * @param array $arguments command arguments.
+     * @return string token.
+     */
+    private function composeLogToken($command, $arguments = [])
+    {
+        $parts = [];
+        foreach ($arguments as $argument) {
+            $parts[] = is_scalar($argument) ? $argument : $this->encodeLogData($argument);
+        }
+
+        return $this->getFullName() . '.' . $command . '(' . implode(', ', $parts) . ')';
+    }
+
+    /**
+     * Encodes complex log data into JSON format string.
+     * @param mixed $data raw data.
+     * @return string encoded data string.
+     */
+    private function encodeLogData($data)
+    {
+        return json_encode($this->processLogData($data));
     }
 }

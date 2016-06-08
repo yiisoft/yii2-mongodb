@@ -218,4 +218,43 @@ class CommandTest extends TestCase
         $this->setExpectedException('\yii\mongodb\Exception');
         $connection->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
     }
+
+    /**
+     * @depends testBatchInsert
+     */
+    public function testAggregate()
+    {
+        $connection = $this->getConnection();
+        $rows = [
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+                'amount' => 100,
+            ],
+            [
+                'name' => 'customer 2',
+                'status' => 1,
+                'amount' => 200,
+            ],
+        ];
+        $command = $connection->createCommand();
+        $command->batchInsert('customer', $rows);
+
+        $pipelines = [
+            [
+                '$match' => ['status' => 1]
+            ],
+            [
+                '$group' => [
+                    '_id' => '1',
+                    'total' => [
+                        '$sum' => '$amount'
+                    ],
+                ]
+            ]
+        ];
+        $result = $connection->createCommand()->aggregate('customer', $pipelines);
+
+        $this->assertEquals(['_id' => '1', 'total' => 300], $result[0]);
+    }
 }

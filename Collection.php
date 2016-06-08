@@ -89,37 +89,11 @@ class Collection extends Object
     }
 
     /**
-     * Composes log/profile token.
-     * @param string $command command name
-     * @param array $arguments command arguments.
-     * @return string token.
-     */
-    protected function composeLogToken($command, $arguments = [])
-    {
-        $parts = [];
-        foreach ($arguments as $argument) {
-            $parts[] = is_scalar($argument) ? $argument : $this->encodeLogData($argument);
-        }
-
-        return $this->getFullName() . '.' . $command . '(' . implode(', ', $parts) . ')';
-    }
-
-    /**
-     * Encodes complex log data into JSON format string.
-     * @param mixed $data raw data.
-     * @return string encoded data string.
-     */
-    protected function encodeLogData($data)
-    {
-        return json_encode($this->processLogData($data));
-    }
-
-    /**
      * Pre-processes the log data before sending it to `json_encode()`.
      * @param mixed $data raw data.
      * @return mixed the processed data.
      */
-    protected function processLogData($data)
+    private function processLogData($data)
     {
         if (is_object($data)) {
             if ($data instanceof \MongoId ||
@@ -340,16 +314,7 @@ class Collection extends Object
      */
     public function update($condition, $newData, $options = [])
     {
-        $options = array_merge(['multi' => true], $options);
-        if ($options['multi']) {
-            $keys = array_keys($newData);
-            if (!empty($keys) && strncmp('$', $keys[0], 1) !== 0) {
-                $newData = ['$set' => $newData];
-            }
-        }
-
         $writeResult = $this->database->createCommand()->update($this->name, $condition, $newData, $options);
-
         return $writeResult->getModifiedCount() + $writeResult->getUpsertedCount();
     }
 
@@ -413,29 +378,14 @@ class Collection extends Object
 
     /**
      * Performs aggregation using Mongo Aggregation Framework.
-     * @param array $pipeline list of pipeline operators, or just the first operator
-     * @param array $pipelineOperator additional pipeline operator. You can specify additional
-     * pipelines via third argument, fourth argument etc.
+     * @param array $pipelines list of pipeline operators.
+     * @param array $options optional parameters.
      * @return array the result of the aggregation.
      * @throws Exception on failure.
-     * @see http://docs.mongodb.org/manual/applications/aggregation/
      */
-    public function aggregate($pipeline, $pipelineOperator = [])
+    public function aggregate($pipelines, $options = [])
     {
-        $args = func_get_args();
-        $token = $this->composeLogToken('aggregate', $args);
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = call_user_func_array([$this->mongoCollection, 'aggregate'], $args);
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-
-            return $result['result'];
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->database->createCommand()->aggregate($this->name, $pipelines, $options);
     }
 
     /**
@@ -452,7 +402,6 @@ class Collection extends Object
      *  - finalize - function called once per unique key that takes the final output of the reduce function.
      * @return array the result of the aggregation.
      * @throws Exception on failure.
-     * @see http://docs.mongodb.org/manual/reference/command/group/
      */
     public function group($keys, $initial, $reduce, $options = [])
     {
