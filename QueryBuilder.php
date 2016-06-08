@@ -16,7 +16,8 @@ use yii\base\Object;
 use yii\helpers\ArrayHelper;
 
 /**
- * QueryBuilder
+ * QueryBuilder builds a MongoDB command statements.
+ * It is used by [[Command]] for particular commands and queries composition.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1

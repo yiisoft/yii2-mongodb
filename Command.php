@@ -17,7 +17,6 @@ use MongoDB\Driver\WriteResult;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Object;
-use yii\helpers\Json;
 
 /**
  * Command represents MongoDB command
@@ -137,20 +136,19 @@ class Command extends Object
     {
         $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
 
-        $token = $databaseName . '.command(' . Json::encode($this->document) . ')';
-        Yii::info($token, __METHOD__);
+        $token = $this->log([$databaseName, 'command'], $this->document, __METHOD__);
 
         try {
-            Yii::beginProfile($token, __METHOD__);
+            $this->beginProfile($token, __METHOD__);
 
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
             $cursor = $server->executeCommand($databaseName, $mongoCommand);
-            $cursor->setTypeMap($this->db->cursorTypeMap);
+            $cursor->setTypeMap($this->db->typeMap);
 
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
@@ -169,11 +167,10 @@ class Command extends Object
     {
         $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
 
-        $token = $databaseName . '.' . $collectionName . '.bulkWrite(' . Json::encode($this->document) . ')';
-        Yii::info($token, __METHOD__);
+        $token = $this->log([$databaseName, $collectionName, 'bulkWrite'], $this->document, __METHOD__);
 
         try {
-            Yii::beginProfile($token, __METHOD__);
+            $this->beginProfile($token, __METHOD__);
 
             $batch = new BulkWrite($options);
 
@@ -197,9 +194,9 @@ class Command extends Object
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $writeResult = $server->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
 
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
@@ -220,11 +217,17 @@ class Command extends Object
     {
         $databaseName = $this->databaseName === null ? $this->db->defaultDatabaseName : $this->databaseName;
 
-        $token = 'find(' . Json::encode(array_merge([
-                'ns' => $databaseName . '.' . $collectionName,
-                'where' => $this->document,
-            ], $options)) . ')';
-        Yii::info($token, __METHOD__);
+        $token = $this->log(
+            'find',
+            array_merge(
+                [
+                    'ns' => $databaseName . '.' . $collectionName,
+                    'where' => $this->document,
+                ],
+                $options
+            ),
+            __METHOD__
+        );
 
         $readConcern = $this->getReadConcern();
         if ($readConcern !== null) {
@@ -232,16 +235,16 @@ class Command extends Object
         }
 
         try {
-            Yii::beginProfile($token, __METHOD__);
+            $this->beginProfile($token, __METHOD__);
 
             $query = new \MongoDB\Driver\Query($this->document, $options);
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
-            $cursor->setTypeMap($this->db->cursorTypeMap);
+            $cursor->setTypeMap($this->db->typeMap);
 
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
-            Yii::endProfile($token, __METHOD__);
+            $this->endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), $e->getCode(), $e);
         }
 
@@ -637,76 +640,45 @@ class Command extends Object
     // Logging :
 
     /**
-     * Composes log/profile token.
-     * @param string $command command name
-     * @param array $arguments command arguments.
-     * @return string token.
+     * Logs the command data if logging is enabled at [[db]]
+     * @param array|string $namespace command namespace
+     * @param array $data command data.
+     * @param string $category log category
+     * @return string|false log token, `false` if log is not enabled.
      */
-    private function composeLogToken($command, $arguments = [])
+    protected function log($namespace, $data, $category)
     {
-        $parts = [];
-        foreach ($arguments as $argument) {
-            $parts[] = is_scalar($argument) ? $argument : $this->encodeLogData($argument);
+        if ($this->db->enableLogging) {
+            $token = $this->db->getLogBuilder()->generateToken($namespace, $data);
+            Yii::info($token, $category);
+            return $token;
         }
-
-        return $this->getFullName() . '.' . $command . '(' . implode(', ', $parts) . ')';
+        return false;
     }
 
     /**
-     * Encodes complex log data into JSON format string.
-     * @param mixed $data raw data.
-     * @return string encoded data string.
+     * Marks the beginning of a code block for profiling.
+     * @param string $token token for the code block
+     * @param string $category the category of this log message
+     * @see endProfile()
      */
-    private function encodeLogData($data)
+    protected function beginProfile($token, $category)
     {
-        return json_encode($this->processLogData($data));
+        if ($token !== false && $this->db->enableProfiling) {
+            Yii::beginProfile($token, $category);
+        }
     }
 
     /**
-     * Pre-processes the log data before sending it to `json_encode()`.
-     * @param mixed $data raw data.
-     * @return mixed the processed data.
+     * Marks the end of a code block for profiling.
+     * @param string $token token for the code block
+     * @param string $category the category of this log message
+     * @see beginProfile()
      */
-    protected function processLogData($data)
+    protected function endProfile($token, $category)
     {
-        if (is_object($data)) {
-            if ($data instanceof \MongoId ||
-                $data instanceof \MongoRegex ||
-                $data instanceof \MongoDate ||
-                $data instanceof \MongoInt32 ||
-                $data instanceof \MongoInt64 ||
-                $data instanceof \MongoTimestamp
-            ) {
-                $data = get_class($data) . '(' . $data->__toString() . ')';
-            } elseif ($data instanceof \MongoCode) {
-                $data = 'MongoCode( ' . $data->__toString() . ' )';
-            } elseif ($data instanceof \MongoBinData) {
-                $data = 'MongoBinData(...)';
-            } elseif ($data instanceof \MongoDBRef) {
-                $data = 'MongoDBRef(...)';
-            } elseif ($data instanceof \MongoMinKey || $data instanceof \MongoMaxKey) {
-                $data = get_class($data);
-            } else {
-                $result = [];
-                foreach ($data as $name => $value) {
-                    $result[$name] = $value;
-                }
-                $data = $result;
-            }
-
-            if ($data === []) {
-                return new \stdClass();
-            }
+        if ($token !== false && $this->db->enableProfiling) {
+            Yii::endProfile($token, $category);
         }
-
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                if (is_array($value) || is_object($value)) {
-                    $data[$key] = $this->processLogData($value);
-                }
-            }
-        }
-
-        return $data;
     }
 }

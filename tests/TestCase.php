@@ -109,6 +109,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         if (isset($this->mongoDbConfig['options'])) {
             $db->options = $this->mongoDbConfig['options'];
         }
+        $db->enableLogging = true;
+        $db->enableProfiling = true;
         if ($open) {
             $db->open();
         }

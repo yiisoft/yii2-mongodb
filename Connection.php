@@ -66,6 +66,7 @@ use Yii;
  *
  * @property string $defaultDatabaseName name of the MongoDB database to use by default.
  * @property QueryBuilder $queryBuilder the query builder for the current MongoDB connection.
+ * @property LogBuilder $logBuilder the log builder for the current MongoDB connection.
  * @property Database $database Database instance. This property is read-only.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
  * @property boolean $isActive Whether the Mongo connection is established. This property is read-only.
@@ -113,16 +114,30 @@ class Connection extends Component
     public $driverOptions = [];
     /**
      * @var Manager MongoDB driver manager
+     * @since 2.1
      */
     public $manager;
     /**
      * @var array type map to use for BSON unserialization.
+     * Note: default type map will be automatically merged into this field, possibly overriding user-defined values.
      * @see http://php.net/manual/en/mongodb-driver-cursor.settypemap.php
+     * @since 2.1
      */
-    public $cursorTypeMap = [
-        'root' => 'array',
-        'document' => 'array'
-    ];
+    public $typeMap = [];
+    /**
+     * @var boolean whether to log command and query executions.
+     * While enabled this option may reduce performance, since MongoDB commands may contain large data,
+     * consuming both CPU and memory.
+     * It make sense to disable this option at production environment.
+     * @since 2.1
+     */
+    public $enableLogging = true;
+    /**
+     * @var boolean whether to enable profiling the commands and queries being executed.
+     * This option will have no effect in case [[enableLogging]] is disabled.
+     * @since 2.1
+     */
+    public $enableProfiling = true;
 
     /**
      * @var string name of the MongoDB database to use by default.
@@ -131,13 +146,17 @@ class Connection extends Component
      */
     private $_defaultDatabaseName;
     /**
-     * @var QueryBuilder the query builder for this connection
-     */
-    private $_queryBuilder = 'yii\mongodb\QueryBuilder';
-    /**
      * @var Database[] list of Mongo databases
      */
     private $_databases = [];
+    /**
+     * @var QueryBuilder|array|string the query builder for this connection
+     */
+    private $_queryBuilder = 'yii\mongodb\QueryBuilder';
+    /**
+     * @var LogBuilder|array|string log entries builder used for this connecton.
+     */
+    private $_logBuilder = 'yii\mongodb\LogBuilder';
 
 
     /**
@@ -168,16 +187,6 @@ class Connection extends Component
     }
 
     /**
-     * Sets the query builder for the this MongoDB connection.
-     * @param QueryBuilder|array|string|null $queryBuilder the query builder for this MongoDB connection.
-     * @since 2.1
-     */
-    public function setQueryBuilder($queryBuilder)
-    {
-        $this->_queryBuilder = $queryBuilder;
-    }
-
-    /**
      * Returns the query builder for the this MongoDB connection.
      * @return QueryBuilder the query builder for the this MongoDB connection.
      * @since 2.1
@@ -188,6 +197,37 @@ class Connection extends Component
             $this->_queryBuilder = Yii::createObject($this->_queryBuilder, [$this]);
         }
         return $this->_queryBuilder;
+    }
+
+    /**
+     * Sets the query builder for the this MongoDB connection.
+     * @param QueryBuilder|array|string|null $queryBuilder the query builder for this MongoDB connection.
+     * @since 2.1
+     */
+    public function setQueryBuilder($queryBuilder)
+    {
+        $this->_queryBuilder = $queryBuilder;
+    }
+
+    /**
+     * @return LogBuilder the log builder for this connection.
+     * @since 2.1
+     */
+    public function getLogBuilder()
+    {
+        if (!is_object($this->_logBuilder)) {
+            $this->_logBuilder = Yii::createObject($this->_logBuilder);
+        }
+        return $this->_logBuilder;
+    }
+
+    /**
+     * @param array|string|LogBuilder $logBuilder the log builder for this connection.
+     * @since 2.1
+     */
+    public function setLogBuilder($logBuilder)
+    {
+        $this->_logBuilder = $logBuilder;
     }
 
     /**
@@ -301,6 +341,14 @@ class Connection extends Component
                 Yii::endProfile($token, __METHOD__);
                 throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
             }
+
+            $this->typeMap = array_merge(
+                $this->typeMap,
+                [
+                    'root' => 'array',
+                    'document' => 'array'
+                ]
+            );
         }
     }
 
