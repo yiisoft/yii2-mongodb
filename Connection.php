@@ -133,7 +133,7 @@ class Connection extends Component
     /**
      * @var QueryBuilder the query builder for this connection
      */
-    private $_queryBuilder;
+    private $_queryBuilder = 'yii\mongodb\QueryBuilder';
     /**
      * @var Database[] list of Mongo databases
      */
@@ -168,13 +168,24 @@ class Connection extends Component
     }
 
     /**
-     * Returns the query builder for the current MongoDB connection.
-     * @return QueryBuilder the query builder for the current MongoDB connection.
+     * Sets the query builder for the this MongoDB connection.
+     * @param QueryBuilder|array|string|null $queryBuilder the query builder for this MongoDB connection.
+     * @since 2.1
+     */
+    public function setQueryBuilder($queryBuilder)
+    {
+        $this->_queryBuilder = $queryBuilder;
+    }
+
+    /**
+     * Returns the query builder for the this MongoDB connection.
+     * @return QueryBuilder the query builder for the this MongoDB connection.
+     * @since 2.1
      */
     public function getQueryBuilder()
     {
-        if ($this->_queryBuilder === null) {
-            $this->_queryBuilder = new QueryBuilder($this);
+        if (!is_object($this->_queryBuilder)) {
+            $this->_queryBuilder = Yii::createObject($this->_queryBuilder, [$this]);
         }
         return $this->_queryBuilder;
     }
@@ -302,6 +313,9 @@ class Connection extends Component
         if ($this->manager !== null) {
             Yii::trace('Closing MongoDB connection: ' . $this->dsn, __METHOD__);
             $this->manager = null;
+            foreach ($this->_databases as $database) {
+                $database->clearCollections();
+            }
             $this->_databases = [];
         }
     }

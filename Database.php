@@ -133,4 +133,14 @@ class Database extends Object
     {
         return $this->createCommand()->dropCollection($name);
     }
+
+    /**
+     * Clears internal collection lists.
+     * This method can be used to break cycle references between [[Database]] and [[Collection]] instances.
+     */
+    public function clearCollections()
+    {
+        $this->_collections = [];
+        $this->_fileCollections = [];
+    }
 }
