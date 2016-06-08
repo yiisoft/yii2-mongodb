@@ -15,7 +15,9 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 Installation
 ------------
 
-This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/book.mongo.php) version 1.5.0 or higher.
+This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/set.mongodb.php) version 1.0.0 or higher.
+
+This extension requires MongoDB server version 3.0 or higher.
 
 The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
 
@@ -28,7 +30,7 @@ php composer.phar require --prefer-dist yiisoft/yii2-mongodb
 or add
 
 ```
-"yiisoft/yii2-mongodb": "~2.0.0"
+"yiisoft/yii2-mongodb": "~2.1.0"
 ```
 
 to the require section of your composer.json.
