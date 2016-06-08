@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\BSON\ObjectID;
 use yii\mongodb\ActiveQuery;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
@@ -48,8 +49,7 @@ class ActiveRecordTest extends TestCase
                 'status' => $i,
             ];
         }
-        $collection->batchInsert($rows);
-        $this->testRows = $rows;
+        $this->testRows = $collection->batchInsert($rows);
     }
 
     // Tests :
@@ -129,7 +129,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
     }
 
@@ -295,7 +295,7 @@ class ActiveRecordTest extends TestCase
         $record = new Customer();
         $record->save(false);
 
-        $this->assertTrue($record->_id instanceof \MongoId);
+        $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
     }
     
