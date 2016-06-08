@@ -41,7 +41,7 @@ before_script:
 
 
 script:
-  - phpunit --verbose $PHPUNIT_FLAGS
+  - phpunit --verbose $PHPUNIT_FLAGS --exclude-group file
 
 after_script:
   - |

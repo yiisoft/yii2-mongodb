@@ -1,12 +1,10 @@
 <?php
 
 namespace yiiunit\extensions\mongodb;
+
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\Cursor;
 
-/**
- * @group mongodb
- */
 class CollectionTest extends TestCase
 {
     protected function tearDown()

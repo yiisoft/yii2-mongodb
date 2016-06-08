@@ -10,10 +10,6 @@ use yiiunit\extensions\mongodb\data\ar\Animal;
 use yiiunit\extensions\mongodb\data\ar\Dog;
 use yiiunit\extensions\mongodb\data\ar\Cat;
 
-
-/**
- * @group mongodb
- */
 class ActiveRecordTest extends TestCase
 {
     /**

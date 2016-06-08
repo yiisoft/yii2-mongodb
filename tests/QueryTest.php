@@ -4,9 +4,6 @@ namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Query;
 
-/**
- * @group mongodb
- */
 class QueryTest extends TestCase
 {
     public function testSelect()

@@ -6,7 +6,7 @@ use MongoDB\Driver\Cursor;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
- * @group mongodb
+ * @group file
  */
 class CollectionTest extends TestCase
 {

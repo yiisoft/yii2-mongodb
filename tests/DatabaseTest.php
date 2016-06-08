@@ -6,9 +6,6 @@ use yii\mongodb\Collection;
 use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;
 
-/**
- * @group mongodb
- */
 class DatabaseTest extends TestCase
 {
     protected function tearDown()

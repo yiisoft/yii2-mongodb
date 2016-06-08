@@ -11,7 +11,7 @@ use yiiunit\extensions\mongodb\data\ar\file\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 
 /**
- * @group mongodb
+ * @group file
  */
 class ActiveRecordTest extends TestCase
 {

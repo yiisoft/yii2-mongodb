@@ -4,9 +4,6 @@ namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Query;
 
-/**
- * @group mongodb
- */
 class QueryRunTest extends TestCase
 {
     protected function setUp()

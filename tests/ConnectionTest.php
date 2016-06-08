@@ -9,9 +9,6 @@ use yii\mongodb\Connection;
 use yii\mongodb\Database;
 use yii\mongodb\QueryBuilder;
 
-/**
- * @group mongodb
- */
 class ConnectionTest extends TestCase
 {
     public function testConstruct()

@@ -7,9 +7,6 @@ use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
 use yiiunit\extensions\mongodb\data\ar\Item;
 
-/**
- * @group mongodb
- */
 class ActiveRelationTest extends TestCase
 {
     protected function setUp()

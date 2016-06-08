@@ -7,7 +7,7 @@ use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
- * @group mongodb
+ * @group file
  */
 class ActiveRelationTest extends TestCase
 {

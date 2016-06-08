@@ -8,9 +8,6 @@ use yii\mongodb\Query;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 
-/**
- * @group mongodb
- */
 class ActiveDataProviderTest extends TestCase
 {
     protected function setUp()
