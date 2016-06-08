@@ -14,16 +14,6 @@ matrix:
   allow_failures:
     - php: hhvm
 
-services:
-  - mongodb
-
-addons:
-  apt:
-    sources:
-      - mongodb-3.0-precise
-    packages:
-      - mongodb-org-server
-
 # faster builds on new travis setup not using sudo
 sudo: false
 
