@@ -12,7 +12,7 @@ php:
 matrix:
   fast_finish: true
   allow_failures:
-      - php: hhvm
+    - php: hhvm
 
 services:
   - mongodb
@@ -40,7 +40,6 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
-  - mongo yii2test --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
       PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
