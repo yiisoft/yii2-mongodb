@@ -57,6 +57,20 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
+     * @param array $document
+     * @param array $options
+     * @return Upload
+     * @since 2.1
+     */
+    public function createUpload($document = [], $options = [])
+    {
+        $config = $options;
+        $config['collection'] = $this;
+        $config['document'] = $document;
+        return new Upload($config);
+    }
+
+    /**
      * Returns the Mongo collection for the file chunks.
      * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
      * @return \yii\mongodb\Collection mongo collection instance.
@@ -72,6 +86,14 @@ class Collection extends \yii\mongodb\Collection
         }
 
         return $this->_chunkCollection;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function drop()
+    {
+        return parent::drop() && $this->database->dropCollection($this->getChunkCollection()->name);
     }
 
     /**
