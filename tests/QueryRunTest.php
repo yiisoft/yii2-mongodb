@@ -4,9 +4,6 @@ namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Query;
 
-/**
- * @group mongodb
- */
 class QueryRunTest extends TestCase
 {
     protected function setUp()
@@ -318,7 +315,7 @@ class QueryRunTest extends TestCase
         $this->assertNull($row);
     }
 
-    public function testOptions()
+    /*public function testOptions()
     {
         $connection = $this->getConnection();
         $connection->getCollection('customer')->createIndex(['status' => 1]);
@@ -333,7 +330,7 @@ class QueryRunTest extends TestCase
             ->all($connection);
 
         $this->assertCount(2, $rows);
-    }
+    }*/
 
     /**
      * @see https://github.com/yiisoft/yii2/issues/4879

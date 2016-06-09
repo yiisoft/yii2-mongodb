@@ -3,13 +3,12 @@
 namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Collection;
+use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;
 use yii\mongodb\Connection;
 use yii\mongodb\Database;
+use yii\mongodb\QueryBuilder;
 
-/**
- * @group mongodb
- */
 class ConnectionTest extends TestCase
 {
     public function testConstruct()
@@ -20,8 +19,8 @@ class ConnectionTest extends TestCase
         $connection->open();
 
         $this->assertEquals($params['dsn'], $connection->dsn);
-        $this->assertEquals($params['defaultDatabaseName'], $connection->defaultDatabaseName);
         $this->assertEquals($params['options'], $connection->options);
+        $this->assertEquals($params['driverOptions'], $connection->driverOptions);
     }
 
     public function testOpenClose()
@@ -29,17 +28,17 @@ class ConnectionTest extends TestCase
         $connection = $this->getConnection(false, false);
 
         $this->assertFalse($connection->isActive);
-        $this->assertEquals(null, $connection->mongoClient);
+        $this->assertEquals(null, $connection->manager);
 
         $connection->open();
         $this->assertTrue($connection->isActive);
-        $this->assertTrue(is_object($connection->mongoClient));
+        $this->assertTrue(is_object($connection->manager));
 
         $connection->close();
         $this->assertFalse($connection->isActive);
-        $this->assertEquals(null, $connection->mongoClient);
+        $this->assertEquals(null, $connection->manager);
 
-        $connection = new Connection;
+        $connection = new Connection();
         $connection->dsn = 'unknown::memory:';
         $this->setExpectedException('yii\mongodb\Exception');
         $connection->open();
@@ -51,7 +50,8 @@ class ConnectionTest extends TestCase
 
         $database = $connection->getDatabase($connection->defaultDatabaseName);
         $this->assertTrue($database instanceof Database);
-        $this->assertTrue($database->mongoDb instanceof \MongoDB);
+        $this->assertSame($connection, $database->connection);
+        $this->assertSame($connection->defaultDatabaseName, $database->name);
 
         $database2 = $connection->getDatabase($connection->defaultDatabaseName);
         $this->assertTrue($database === $database2);
@@ -84,39 +84,23 @@ class ConnectionTest extends TestCase
      * @param string $dsn
      * @param string $databaseName
      */
-    public function testFetchDefaultDatabaseName($dsn, $databaseName)
+    public function testGetDefaultDatabaseName($dsn, $databaseName)
     {
         $connection = new Connection();
         $connection->dsn = $dsn;
 
-        $reflection = new \ReflectionObject($connection);
-        $method = $reflection->getMethod('fetchDefaultDatabaseName');
-        $method->setAccessible(true);
-        $method->invoke($connection);
+        $connection->getDefaultDatabaseName();
 
-        $this->assertEquals($databaseName, $connection->defaultDatabaseName);
+        $this->assertEquals($databaseName, $connection->getDefaultDatabaseName());
     }
 
     /**
      * @depends testGetDatabase
-     * @depends testFetchDefaultDatabaseName
      */
     public function testGetDefaultDatabase()
     {
         $connection = new Connection();
         $connection->dsn = $this->mongoDbConfig['dsn'];
-        $connection->defaultDatabaseName = $this->mongoDbConfig['defaultDatabaseName'];
-        $database = $connection->getDatabase();
-        $this->assertTrue($database instanceof Database, 'Unable to get default database!');
-
-        $connection = new Connection();
-        $connection->dsn = $this->mongoDbConfig['dsn'];
-        $connection->options = ['db' => $this->mongoDbConfig['defaultDatabaseName']];
-        $database = $connection->getDatabase();
-        $this->assertTrue($database instanceof Database, 'Unable to determine default database from options!');
-
-        $connection = new Connection();
-        $connection->dsn = $this->mongoDbConfig['dsn'] . '/' . $this->mongoDbConfig['defaultDatabaseName'];
         $database = $connection->getDatabase();
         $this->assertTrue($database instanceof Database, 'Unable to determine default database from dsn!');
     }
@@ -153,5 +137,21 @@ class ConnectionTest extends TestCase
 
         $collection2 = $connection->getFileCollection('testfs', true);
         $this->assertFalse($collection === $collection2);
+    }
+
+    public function testGetQueryBuilder()
+    {
+        $connection = $this->getConnection();
+
+        $this->assertTrue($connection->getQueryBuilder() instanceof QueryBuilder);
+    }
+
+    public function testCreateCommand()
+    {
+        $connection = $this->getConnection();
+
+        $command = $connection->createCommand();
+        $this->assertTrue($command instanceof Command);
+        $this->assertSame($connection, $command->db);
     }
 }

@@ -9,13 +9,11 @@ namespace yii\mongodb;
 
 use yii\base\Object;
 use Yii;
-use yii\helpers\Json;
 
 /**
  * Database represents the Mongo database information.
  *
  * @property file\Collection $fileCollection Mongo GridFS collection. This property is read-only.
- * @property string $name Name of this database. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
@@ -23,9 +21,13 @@ use yii\helpers\Json;
 class Database extends Object
 {
     /**
-     * @var \MongoDB Mongo database instance.
+     * @var Connection MongoDB connection.
      */
-    public $mongoDb;
+    public $connection;
+    /**
+     * @var string name of this database.
+     */
+    public $name;
 
     /**
      * @var Collection[] list of collections.
@@ -36,14 +38,6 @@ class Database extends Object
      */
     private $_fileCollections = [];
 
-
-    /**
-     * @return string name of this database.
-     */
-    public function getName()
-    {
-        return $this->mongoDb->__toString();
-    }
 
     /**
      * Returns the Mongo collection with the given name.
@@ -84,7 +78,8 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\Collection',
-            'mongoCollection' => $this->mongoDb->selectCollection($name)
+            'database' => $this,
+            'name' => $name,
         ]);
     }
 
@@ -97,8 +92,20 @@ class Database extends Object
     {
         return Yii::createObject([
             'class' => 'yii\mongodb\file\Collection',
-            'mongoCollection' => $this->mongoDb->getGridFS($prefix)
+            'database' => $this,
+            'prefix' => $prefix,
         ]);
+    }
+
+    /**
+     * Creates MongoDB command associated with this database.
+     * @param array $document command document contents.
+     * @return Command command instance.
+     * @since 2.1
+     */
+    public function createCommand($document = [])
+    {
+        return $this->connection->createCommand($this->name, $document);
     }
 
     /**
@@ -108,72 +115,32 @@ class Database extends Object
      * you need to create collection with the specific options.
      * @param string $name name of the collection
      * @param array $options collection options in format: "name" => "value"
-     * @return \MongoCollection new Mongo collection instance.
+     * @return boolean whether operation was successful.
      * @throws Exception on failure.
      */
     public function createCollection($name, $options = [])
     {
-        $token = $this->getName() . '.create(' . $name . ', ' . Json::encode($options) . ')';
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoDb->createCollection($name, $options);
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->createCommand()->createCollection($name, $options);
     }
 
     /**
-     * Executes Mongo command.
-     * @param array $command command specification.
-     * @param array $options options in format: "name" => "value"
-     * @return array database response.
-     * @throws Exception on failure.
+     * Drops specified collection.
+     * @param string $name name of the collection
+     * @return boolean whether operation was successful.
+     * @since 2.1
      */
-    public function executeCommand($command, $options = [])
+    public function dropCollection($name)
     {
-        $token = $this->getName() . '.$cmd(' . Json::encode($command) . ', ' . Json::encode($options) . ')';
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->mongoDb->command($command, $options);
-            $this->tryResultError($result);
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        return $this->createCommand()->dropCollection($name);
     }
 
     /**
-     * Checks if command execution result ended with an error.
-     * @param mixed $result raw command execution result.
-     * @throws Exception if an error occurred.
+     * Clears internal collection lists.
+     * This method can be used to break cycle references between [[Database]] and [[Collection]] instances.
      */
-    protected function tryResultError($result)
+    public function clearCollections()
     {
-        if (is_array($result)) {
-            if (!empty($result['errmsg'])) {
-                $errorMessage = $result['errmsg'];
-            } elseif (!empty($result['err'])) {
-                $errorMessage = $result['err'];
-            }
-            if (isset($errorMessage)) {
-                if (array_key_exists('ok', $result)) {
-                    $errorCode = (int) $result['ok'];
-                } else {
-                    $errorCode = 0;
-                }
-                throw new Exception($errorMessage, $errorCode);
-            }
-        } elseif (!$result) {
-            throw new Exception('Unknown error, use "w=1" option to enable error tracking');
-        }
+        $this->_collections = [];
+        $this->_fileCollections = [];
     }
 }

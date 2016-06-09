@@ -48,7 +48,7 @@ class MigrateControllerTest extends TestCase
     public function tearDown()
     {
         parent::tearDown();
-        if (extension_loaded('mongo')) {
+        if (extension_loaded('mongodb')) {
             try {
                 $this->getConnection()->getCollection('migration')->drop();
             } catch (Exception $e) {

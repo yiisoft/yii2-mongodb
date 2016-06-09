@@ -13,20 +13,20 @@ matrix:
   fast_finish: true
   allow_failures:
     - php: hhvm
-    - php: 7.0
-
-services:
-  - mongodb
-
-# faster builds on new travis setup not using sudo
-sudo: false
 
 # cache vendor dirs
 cache:
   directories:
     - $HOME/.composer/cache
 
+before_install:
+  - sudo apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+  - echo "deb http://repo.mongodb.org/apt/ubuntu precise/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+  - sudo apt-get update -qq
+
 install:
+  - sudo apt-get install -y mongodb-org
+  - if ! nc -z localhost 27017; then sudo service mongod start; fi
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version
   - travis_retry composer global require "fxp/composer-asset-plugin:~1.1.1"
@@ -34,7 +34,6 @@ install:
   - travis_retry composer install --prefer-dist --no-interaction
 
 before_script:
-  - mongo yii2test --eval 'db.addUser("travis", "test");'
   - |
     if [ $TRAVIS_PHP_VERSION = '5.6' ]; then
       PHPUNIT_FLAGS="--coverage-clover=coverage.clover"
@@ -42,7 +41,7 @@ before_script:
 
 
 script:
-  - phpunit --verbose $PHPUNIT_FLAGS
+  - phpunit --verbose $PHPUNIT_FLAGS --exclude-group file
 
 after_script:
   - |

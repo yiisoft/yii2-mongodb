@@ -17,6 +17,7 @@ use Yii;
  *
  * File collection inherits all interface from regular [[\yii\mongo\Collection]], adding methods to store files.
  *
+ * @property string $prefix prefix of this file collection.
  * @property \yii\mongodb\Collection $chunkCollection Mongo collection instance. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
@@ -25,15 +26,35 @@ use Yii;
 class Collection extends \yii\mongodb\Collection
 {
     /**
-     * @var \MongoGridFS Mongo GridFS collection instance.
+     * @var \yii\mongodb\Database MongoDB database instance.
      */
-    public $mongoCollection;
-
+    public $database;
+    /**
+     * @var string prefix of this file collection.
+     */
+    private $_prefix;
     /**
      * @var \yii\mongodb\Collection file chunks Mongo collection.
      */
     private $_chunkCollection;
 
+
+    /**
+     * @return string prefix of this file collection.
+     */
+    public function getPrefix()
+    {
+        return $this->_prefix;
+    }
+
+    /**
+     * @param string $prefix prefix of this file collection.
+     */
+    public function setPrefix($prefix)
+    {
+        $this->_prefix = $prefix;
+        $this->name = sprintf('%s.files', $prefix);
+    }
 
     /**
      * Returns the Mongo collection for the file chunks.
@@ -45,7 +66,8 @@ class Collection extends \yii\mongodb\Collection
         if ($refresh || !is_object($this->_chunkCollection)) {
             $this->_chunkCollection = Yii::createObject([
                 'class' => 'yii\mongodb\Collection',
-                'mongoCollection' => $this->mongoCollection->chunks
+                'database' => $this->database,
+                'name' => sprintf('%s.chunks', $this->getPrefix())
             ]);
         }
 

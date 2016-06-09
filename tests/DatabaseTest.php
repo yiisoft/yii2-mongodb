@@ -3,11 +3,9 @@
 namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Collection;
+use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;
 
-/**
- * @group mongodb
- */
 class DatabaseTest extends TestCase
 {
     protected function tearDown()
@@ -21,50 +19,46 @@ class DatabaseTest extends TestCase
 
     public function testGetCollection()
     {
-        $database = $connection = $this->getConnection()->getDatabase();
+        $database = $this->getConnection()->getDatabase();
 
         $collection = $database->getCollection('customer');
         $this->assertTrue($collection instanceof Collection);
-        $this->assertTrue($collection->mongoCollection instanceof \MongoCollection);
+        $this->assertSame($database, $collection->database);
 
         $collection2 = $database->getCollection('customer');
-        $this->assertTrue($collection === $collection2);
+        $this->assertSame($collection, $collection2);
 
         $collectionRefreshed = $database->getCollection('customer', true);
-        $this->assertFalse($collection === $collectionRefreshed);
+        $this->assertNotSame($collection, $collectionRefreshed);
     }
 
     public function testGetFileCollection()
     {
-        $database = $connection = $this->getConnection()->getDatabase();
+        $database = $this->getConnection()->getDatabase();
 
         $collection = $database->getFileCollection('testfs');
         $this->assertTrue($collection instanceof FileCollection);
-        $this->assertTrue($collection->mongoCollection instanceof \MongoGridFS);
+        $this->assertSame($database, $collection->database);
 
         $collection2 = $database->getFileCollection('testfs');
-        $this->assertTrue($collection === $collection2);
+        $this->assertSame($collection, $collection2);
 
         $collectionRefreshed = $database->getFileCollection('testfs', true);
-        $this->assertFalse($collection === $collectionRefreshed);
+        $this->assertNotSame($collection, $collectionRefreshed);
     }
 
-    public function testExecuteCommand()
+    public function testCreateCommand()
     {
-        $database = $connection = $this->getConnection()->getDatabase();
+        $database = $this->getConnection()->getDatabase();
 
-        $result = $database->executeCommand([
-            'distinct' => 'customer',
-            'key' => 'name'
-        ]);
-        $this->assertTrue(array_key_exists('ok', $result));
-        $this->assertTrue(array_key_exists('values', $result));
+        $command = $database->createCommand();
+        $this->assertTrue($command instanceof Command);
+        $this->assertEquals($database->name, $command->databaseName);
     }
 
     public function testCreateCollection()
     {
-        $database = $connection = $this->getConnection()->getDatabase();
-        $collection = $database->createCollection('customer');
-        $this->assertTrue($collection instanceof \MongoCollection);
+        $database = $this->getConnection()->getDatabase();
+        $this->assertTrue($database->createCollection('customer'));
     }
 }

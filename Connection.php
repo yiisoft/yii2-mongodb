@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\Driver\Manager;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use Yii;
@@ -63,6 +64,9 @@ use Yii;
  * ]
  * ```
  *
+ * @property string $defaultDatabaseName name of the MongoDB database to use by default.
+ * @property QueryBuilder $queryBuilder the query builder for the current MongoDB connection.
+ * @property LogBuilder $logBuilder the log builder for the current MongoDB connection.
  * @property Database $database Database instance. This property is read-only.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
  * @property boolean $isActive Whether the Mongo connection is established. This property is read-only.
@@ -99,31 +103,132 @@ class Connection extends Component
      * ]
      * ```
      *
-     * @see http://www.php.net/manual/en/mongoclient.construct.php
+     * @see http://php.net/manual/en/mongodb-driver-manager.construct.php
      */
     public $options = [];
     /**
      * @var array options for the MongoDB driver.
      *
-     * @see http://www.php.net/manual/en/mongoclient.construct.php
+     * @see http://php.net/manual/en/mongodb-driver-manager.construct.php
      */
     public $driverOptions = [];
     /**
-     * @var string name of the Mongo database to use by default.
-     * If this field left blank, connection instance will attempt to determine it from
-     * [[options]] and [[dsn]] automatically, if needed.
+     * @var Manager MongoDB driver manager
+     * @since 2.1
      */
-    public $defaultDatabaseName;
+    public $manager;
     /**
-     * @var \MongoClient Mongo client instance.
+     * @var array type map to use for BSON unserialization.
+     * Note: default type map will be automatically merged into this field, possibly overriding user-defined values.
+     * @see http://php.net/manual/en/mongodb-driver-cursor.settypemap.php
+     * @since 2.1
      */
-    public $mongoClient;
+    public $typeMap = [];
+    /**
+     * @var boolean whether to log command and query executions.
+     * While enabled this option may reduce performance, since MongoDB commands may contain large data,
+     * consuming both CPU and memory.
+     * It make sense to disable this option at production environment.
+     * @since 2.1
+     */
+    public $enableLogging = true;
+    /**
+     * @var boolean whether to enable profiling the commands and queries being executed.
+     * This option will have no effect in case [[enableLogging]] is disabled.
+     * @since 2.1
+     */
+    public $enableProfiling = true;
 
+    /**
+     * @var string name of the MongoDB database to use by default.
+     * If this field left blank, connection instance will attempt to determine it from
+     * [[dsn]] automatically, if needed.
+     */
+    private $_defaultDatabaseName;
     /**
      * @var Database[] list of Mongo databases
      */
     private $_databases = [];
+    /**
+     * @var QueryBuilder|array|string the query builder for this connection
+     */
+    private $_queryBuilder = 'yii\mongodb\QueryBuilder';
+    /**
+     * @var LogBuilder|array|string log entries builder used for this connecton.
+     */
+    private $_logBuilder = 'yii\mongodb\LogBuilder';
 
+
+    /**
+     * @param string $name default database name
+     */
+    public function setDefaultDatabaseName($name)
+    {
+        $this->_defaultDatabaseName = $name;
+    }
+
+    /**
+     * Returns default database name, if it is not set,
+     * attempts to determine it from [[dsn]] value.
+     * @return string default database name
+     * @throws \yii\base\InvalidConfigException if unable to determine default database name.
+     */
+    public function getDefaultDatabaseName()
+    {
+        if ($this->_defaultDatabaseName === null) {
+            if (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
+                $this->_defaultDatabaseName = $matches[1];
+            } else {
+                throw new InvalidConfigException("Unable to determine default database name from dsn.");
+            }
+        }
+
+        return $this->_defaultDatabaseName;
+    }
+
+    /**
+     * Returns the query builder for the this MongoDB connection.
+     * @return QueryBuilder the query builder for the this MongoDB connection.
+     * @since 2.1
+     */
+    public function getQueryBuilder()
+    {
+        if (!is_object($this->_queryBuilder)) {
+            $this->_queryBuilder = Yii::createObject($this->_queryBuilder, [$this]);
+        }
+        return $this->_queryBuilder;
+    }
+
+    /**
+     * Sets the query builder for the this MongoDB connection.
+     * @param QueryBuilder|array|string|null $queryBuilder the query builder for this MongoDB connection.
+     * @since 2.1
+     */
+    public function setQueryBuilder($queryBuilder)
+    {
+        $this->_queryBuilder = $queryBuilder;
+    }
+
+    /**
+     * @return LogBuilder the log builder for this connection.
+     * @since 2.1
+     */
+    public function getLogBuilder()
+    {
+        if (!is_object($this->_logBuilder)) {
+            $this->_logBuilder = Yii::createObject($this->_logBuilder);
+        }
+        return $this->_logBuilder;
+    }
+
+    /**
+     * @param array|string|LogBuilder $logBuilder the log builder for this connection.
+     * @since 2.1
+     */
+    public function setLogBuilder($logBuilder)
+    {
+        $this->_logBuilder = $logBuilder;
+    }
 
     /**
      * Returns the Mongo collection with the given name.
@@ -134,34 +239,13 @@ class Connection extends Component
     public function getDatabase($name = null, $refresh = false)
     {
         if ($name === null) {
-            $name = $this->fetchDefaultDatabaseName();
+            $name = $this->getDefaultDatabaseName();
         }
         if ($refresh || !array_key_exists($name, $this->_databases)) {
             $this->_databases[$name] = $this->selectDatabase($name);
         }
 
         return $this->_databases[$name];
-    }
-
-    /**
-     * Returns [[defaultDatabaseName]] value, if it is not set,
-     * attempts to determine it from [[dsn]] value.
-     * @return string default database name
-     * @throws \yii\base\InvalidConfigException if unable to determine default database name.
-     */
-    protected function fetchDefaultDatabaseName()
-    {
-        if ($this->defaultDatabaseName === null) {
-            if (isset($this->options['db'])) {
-                $this->defaultDatabaseName = $this->options['db'];
-            } elseif (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
-                $this->defaultDatabaseName = $matches[1];
-            } else {
-                throw new InvalidConfigException("Unable to determine default database name from dsn.");
-            }
-        }
-
-        return $this->defaultDatabaseName;
     }
 
     /**
@@ -175,7 +259,8 @@ class Connection extends Component
 
         return Yii::createObject([
             'class' => 'yii\mongodb\Database',
-            'mongoDb' => $this->mongoClient->selectDB($name)
+            'name' => $name,
+            'connection' => $this,
         ]);
     }
 
@@ -227,7 +312,7 @@ class Connection extends Component
      */
     public function getIsActive()
     {
-        return is_object($this->mongoClient) && $this->mongoClient->getConnections() != [];
+        return is_object($this->manager) && $this->manager->getServers() !== [];
     }
 
     /**
@@ -237,7 +322,7 @@ class Connection extends Component
      */
     public function open()
     {
-        if ($this->mongoClient === null) {
+        if ($this->manager === null) {
             if (empty($this->dsn)) {
                 throw new InvalidConfigException($this->className() . '::dsn cannot be empty.');
             }
@@ -246,17 +331,24 @@ class Connection extends Component
                 Yii::trace($token, __METHOD__);
                 Yii::beginProfile($token, __METHOD__);
                 $options = $this->options;
-                $options['connect'] = true;
-                if ($this->defaultDatabaseName !== null) {
-                    $options['db'] = $this->defaultDatabaseName;
-                }
-                $this->mongoClient = new \MongoClient($this->dsn, $options, $this->driverOptions);
+
+                $this->manager = new Manager($this->dsn, $options, $this->driverOptions);
+                $this->manager->selectServer($this->manager->getReadPreference());
+
                 $this->initConnection();
                 Yii::endProfile($token, __METHOD__);
             } catch (\Exception $e) {
                 Yii::endProfile($token, __METHOD__);
                 throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
             }
+
+            $this->typeMap = array_merge(
+                $this->typeMap,
+                [
+                    'root' => 'array',
+                    'document' => 'array'
+                ]
+            );
         }
     }
 
@@ -266,9 +358,12 @@ class Connection extends Component
      */
     public function close()
     {
-        if ($this->mongoClient !== null) {
+        if ($this->manager !== null) {
             Yii::trace('Closing MongoDB connection: ' . $this->dsn, __METHOD__);
-            $this->mongoClient = null;
+            $this->manager = null;
+            foreach ($this->_databases as $database) {
+                $database->clearCollections();
+            }
             $this->_databases = [];
         }
     }
@@ -281,5 +376,21 @@ class Connection extends Component
     protected function initConnection()
     {
         $this->trigger(self::EVENT_AFTER_OPEN);
+    }
+
+    /**
+     * Creates MongoDB command.
+     * @param string|null $databaseName database name, if not set [[defaultDatabaseName]] will be used.
+     * @param array $document command document contents.
+     * @return Command command instance.
+     * @since 2.1
+     */
+    public function createCommand($databaseName = null, $document = [])
+    {
+        return new Command([
+            'db' => $this,
+            'databaseName' => $databaseName,
+            'document' => $document,
+        ]);
     }
 }

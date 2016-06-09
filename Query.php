@@ -55,7 +55,7 @@ class Query extends Component implements QueryInterface
     public $from;
     /**
      * @var array cursor options in format: optionKey => optionValue
-     * @see \MongoCursor::addOption()
+     * @see \MongoDB\Driver\Cursor::addOption()
      * @see options()
      */
     public $options = [];
@@ -171,27 +171,25 @@ class Query extends Component implements QueryInterface
     /**
      * Builds the Mongo cursor for this query.
      * @param Connection $db the database connection used to execute the query.
-     * @return \MongoCursor mongo cursor instance.
+     * @return \MongoDB\Driver\Cursor mongo cursor instance.
      */
     protected function buildCursor($db = null)
     {
-        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->composeSelectFields());
+        $options = $this->options;
         if (!empty($this->orderBy)) {
-            $cursor->sort($this->composeSort());
+            $options['sort'] = $this->orderBy;
         }
-        $cursor->limit($this->limit);
-        $cursor->skip($this->offset);
+        $options['limit'] = $this->limit;
+        $options['skip'] = $this->offset;
 
-        foreach ($this->options as $key => $value) {
-            $cursor->addOption($key, $value);
-        }
+        $cursor = $this->getCollection($db)->find($this->composeCondition(), $this->select, $options);
 
         return $cursor;
     }
 
     /**
      * Fetches rows from the given Mongo cursor.
-     * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
+     * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy the column name or PHP callback,
      * by which the query results should be indexed by.
@@ -200,7 +198,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'find(' . Json::encode($cursor->info()) . ')';
+        $token = 'fetch cursor id = ' . $cursor->getId();
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -215,7 +213,7 @@ class Query extends Component implements QueryInterface
     }
 
     /**
-     * @param \MongoCursor $cursor Mongo cursor instance to fetch data from.
+     * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
      * @param boolean $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy value to index by.
      * @return array|boolean result.
@@ -229,7 +227,7 @@ class Query extends Component implements QueryInterface
                 $result[] = $row;
             }
         } else {
-            if ($row = $cursor->getNext()) {
+            if ($row = current($cursor->toArray())) {
                 $result = $row;
             } else {
                 $result = false;
@@ -300,10 +298,11 @@ class Query extends Component implements QueryInterface
     {
         $collection = $this->getCollection($db);
         if (!empty($this->orderBy)) {
-            $options['sort'] = $this->composeSort();
+            $options['sort'] = $this->orderBy;
         }
 
-        return $collection->findAndModify($this->composeCondition(), $update, $this->composeSelectFields(), $options);
+        $options['fields'] = $this->select;
+        return $collection->findAndModify($this->composeCondition(), $update, $options);
     }
 
     /**
@@ -316,19 +315,8 @@ class Query extends Component implements QueryInterface
      */
     public function count($q = '*', $db = null)
     {
-        $cursor = $this->buildCursor($db);
-        $token = 'find.count(' . Json::encode($cursor->info()) . ')';
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $cursor->count();
-            Yii::endProfile($token, __METHOD__);
-
-            return $result;
-        } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
-            throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
-        }
+        $collection = $this->getCollection($db);
+        return $collection->count($this->where, $this->options);
     }
 
     /**
@@ -406,7 +394,7 @@ class Query extends Component implements QueryInterface
         $collection = $this->getCollection($db);
         $pipelines = [];
         if ($this->where !== null) {
-            $pipelines[] = ['$match' => $collection->buildCondition($this->where)];
+            $pipelines[] = ['$match' => $this->where];
         }
         $pipelines[] = [
             '$group' => [
@@ -458,46 +446,5 @@ class Query extends Component implements QueryInterface
         } else {
             return $this->where;
         }
-    }
-
-    /**
-     * Composes select fields from raw [[select]] value.
-     * @return array select fields.
-     */
-    private function composeSelectFields()
-    {
-        $selectFields = [];
-        if (!empty($this->select)) {
-            foreach ($this->select as $key => $value) {
-                if (is_numeric($key)) {
-                    $selectFields[$value] = true;
-                } else {
-                    $selectFields[$key] = $value;
-                }
-            }
-        }
-        return $selectFields;
-    }
-
-    /**
-     * Composes sort specification from raw [[orderBy]] value.
-     * @return array sort specification.
-     */
-    private function composeSort()
-    {
-        $sort = [];
-        foreach ($this->orderBy as $fieldName => $sortOrder) {
-            switch ($sortOrder) {
-                case SORT_ASC:
-                    $sort[$fieldName] = \MongoCollection::ASCENDING;
-                    break;
-                case SORT_DESC:
-                    $sort[$fieldName] = \MongoCollection::DESCENDING;
-                    break;
-                default:
-                    $sort[$fieldName] = $sortOrder;
-            }
-        }
-        return $sort;
     }
 }
