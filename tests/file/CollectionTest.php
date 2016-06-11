@@ -2,7 +2,9 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\Cursor;
+use yii\mongodb\file\Download;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
@@ -55,15 +57,14 @@ class CollectionTest extends TestCase
 
         $filename = __FILE__;
         $id = $collection->insertFile($filename);
-        $this->assertTrue($id instanceof \MongoId);
+        $this->assertTrue($id instanceof ObjectID);
 
         $files = $this->findAll($collection);
         $this->assertEquals(1, count($files));
 
-        /* @var $file \MongoGridFSFile */
         $file = $files[0];
-        $this->assertEquals($filename, $file->getFilename());
-        $this->assertEquals(file_get_contents($filename), $file->getBytes());
+        $this->assertEquals(basename($filename), $file['filename']);
+        $this->assertEquals(filesize($filename), $file['length']);
     }
 
     public function testInsertFileContent()
@@ -72,14 +73,14 @@ class CollectionTest extends TestCase
 
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
-        $this->assertTrue($id instanceof \MongoId);
+        $this->assertTrue($id instanceof ObjectID);
 
         $files = $this->findAll($collection);
         $this->assertEquals(1, count($files));
 
-        /* @var $file \MongoGridFSFile */
+        /* @var $file Download */
         $file = $files[0];
-        $this->assertEquals($bytes, $file->getBytes());
+        //$this->assertEquals($bytes, $file->getBytes());
     }
 
     /**
@@ -93,7 +94,7 @@ class CollectionTest extends TestCase
         $id = $collection->insertFileContent($bytes);
 
         $file = $collection->get($id);
-        $this->assertTrue($file instanceof \MongoGridFSFile);
+        $this->assertTrue($file instanceof Download);
         $this->assertEquals($bytes, $file->getBytes());
     }
 
@@ -107,7 +108,7 @@ class CollectionTest extends TestCase
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
 
-        $this->assertTrue($collection->delete($id));
+        $this->assertTrue($collection->delete($id));;
 
         $file = $collection->get($id);
         $this->assertNull($file);

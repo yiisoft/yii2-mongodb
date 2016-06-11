@@ -69,6 +69,24 @@ class Download extends Object
     }
 
     /**
+     * Returns the size of the associated file.
+     * @return integer file size.
+     */
+    public function getSize()
+    {
+        return $this->getDocument()['length'];
+    }
+
+    /**
+     * Returns associated file's filename.
+     * @return string file name.
+     */
+    public function getFilename()
+    {
+        return $this->getDocument()['filename'];
+    }
+
+    /**
      * @return Cursor chuck list cursor.
      * @throws InvalidConfigException
      */
@@ -109,5 +127,30 @@ class Download extends Object
         $filename = Yii::getAlias($filename);
         FileHelper::createDirectory(dirname($filename));
         return $this->toStream(fopen($filename, 'w+'));
+    }
+
+    /**
+     * Returns a string of the bytes in the associated file.
+     * @return string file content.
+     */
+    public function toString()
+    {
+        $result = '';
+        foreach ($this->getChunkCursor() as $chunk) {
+            $result .= $chunk['data']->getData();
+        }
+        return $result;
+    }
+
+    // Compatibility with `MongoGridFSFile` :
+
+    public function getBytes()
+    {
+        return $this->toString();
+    }
+
+    public function write($filename)
+    {
+        return $this->toFile($filename);
     }
 }

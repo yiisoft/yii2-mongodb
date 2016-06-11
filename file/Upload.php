@@ -9,6 +9,8 @@ namespace yii\mongodb\file;
 
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\UTCDatetime;
+use yii\base\InvalidParamException;
 use yii\base\Object;
 
 /**
@@ -24,9 +26,21 @@ class Upload extends Object
      */
     public $collection;
     /**
-     * @var array document data to be saved.
+     * @var string filename to be used for file storage.
      */
-    public $document;
+    public $filename;
+    /**
+     * @var array user data for the "metadata" field of the files collection document.
+     */
+    public $metadata = [];
+    /**
+     * @var array saving options.
+     * Supported options:
+     *
+     * - aliases: array, an array of aliases
+     * - contentType: string, content type to be stored with the file.
+     */
+    public $options = [];
     /**
      * @var integer chunk size in bytes.
      */
@@ -39,6 +53,11 @@ class Upload extends Object
      * @var integer file chunk counts.
      */
     public $chunkCount = 0;
+
+    /**
+     * @var array file data to be saved.
+     */
+    protected $fileData;
 
     /**
      * @var resource has context for collecting md5 hash
@@ -57,8 +76,8 @@ class Upload extends Object
     {
         $this->hashContext = hash_init('md5');
 
-        if (!isset($this->document['_id'])) {
-            $this->document['_id'] = new ObjectID();
+        if (!isset($this->fileData['_id'])) {
+            $this->fileData['_id'] = new ObjectID();
         }
 
         $this->collection->ensureIndexes();
@@ -109,6 +128,25 @@ class Upload extends Object
     }
 
     /**
+     * Adds a file content to the upload.
+     * This method can invoked several times before [[complete()]] is called.
+     * @param string $filename source file name.
+     * @return $this self reference.
+     */
+    public function addFile($filename)
+    {
+        if ($this->filename === null) {
+            $this->filename = basename($filename);
+        }
+
+        $stream = fopen($filename, 'r+');
+        if ($stream === false) {
+            throw new InvalidParamException("Unable to read file '{$filename}'");
+        }
+        return $this->addStream($stream);
+    }
+
+    /**
      * Completes upload.
      * @return array saved document.
      */
@@ -116,15 +154,9 @@ class Upload extends Object
     {
         $this->flushBuffer(true);
 
-        if (isset($this->document['filename'])) {
-            $this->document['filename'] = 'file.dat';
-        }
-        $this->document['length'] = $this->length;
-        $this->document['md5'] = hash_final($this->hashContext);
-
         $this->insertFile();
 
-        return $this->document;
+        return $this->fileData;
     }
 
     /**
@@ -134,8 +166,8 @@ class Upload extends Object
     {
         $this->buffer = null;
 
-        $this->collection->getChunkCollection()->remove(['files_id' => $this->document['_id']], ['limit' => 0]);
-        $this->collection->remove(['_id' => $this->document['_id']], ['limit' => 1]);
+        $this->collection->getChunkCollection()->remove(['files_id' => $this->fileData['_id']], ['limit' => 0]);
+        $this->collection->remove(['_id' => $this->fileData['_id']], ['limit' => 1]);
     }
 
     /**
@@ -161,7 +193,7 @@ class Upload extends Object
     private function insertChunk($data)
     {
         $chunkDocument = [
-            'files_id' => $this->document['_id'],
+            'files_id' => $this->fileData['_id'],
             'n' => $this->chunkCount,
             'data' => new Binary($data, Binary::TYPE_GENERIC),
         ];
@@ -178,6 +210,22 @@ class Upload extends Object
      */
     private function insertFile()
     {
-        $this->collection->insert($this->document);
+        if ($this->filename === null) {
+            $this->fileData['filename'] = $this->fileData['_id'] . '.dat';
+        } else {
+            $this->fileData['filename'] = $this->filename;
+        }
+        $this->fileData['uploadDate'] = new UTCDateTime(round(microtime(true) * 1000));
+
+        $this->fileData = array_merge($this->fileData, $this->options);
+
+        if (!empty($this->metadata)) {
+            $this->fileData['metadata'] = $this->metadata;
+        }
+        $this->fileData['chunkSize'] = $this->chunkSize;
+        $this->fileData['length'] = $this->length;
+        $this->fileData['md5'] = hash_final($this->hashContext);
+
+        $this->collection->insert($this->fileData);
     }
 }

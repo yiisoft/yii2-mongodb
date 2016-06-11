@@ -31,4 +31,19 @@ class DownloadTest extends TestCase
         rewind($stream);
         $this->assertEquals('test content', stream_get_contents($stream));
     }
+
+    public function testToFile()
+    {
+        $collection = $this->getConnection()->getFileCollection();
+
+        $upload = $collection->createUpload();
+        $document = $upload->addContent('test content')->complete();
+
+        $download = $collection->createDownload($document);
+        $fileName = $this->getTestFilePath() . DIRECTORY_SEPARATOR . 'download.txt';
+        $download->toFile($fileName);
+
+        $this->assertFileExists($fileName);
+        $this->assertEquals('test content', file_get_contents($fileName));
+    }
 }
