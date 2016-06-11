@@ -7,6 +7,7 @@
 
 namespace yii\mongodb\file;
 
+use MongoDB\BSON\ObjectID;
 use yii\mongodb\Exception;
 use Yii;
 
@@ -73,6 +74,20 @@ class Collection extends \yii\mongodb\Collection
         $config['collection'] = $this;
         $config['document'] = $document;
         return new Upload($config);
+    }
+
+    /**
+     * @param array|ObjectID $document
+     * @return Download
+     * @since 2.1
+     */
+    public function createDownload($document)
+    {
+        $config = [
+            'collection' => $this,
+            'document' => $document,
+        ];
+        return new Download($config);
     }
 
     /**
