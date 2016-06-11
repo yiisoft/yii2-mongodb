@@ -26,6 +26,22 @@ class CollectionTest extends TestCase
         $this->assertTrue($chunkCollection->database instanceof \yii\mongodb\Database);
     }
 
+    public function testEnsureIndexes()
+    {
+        $collection = $this->getConnection()->getFileCollection();
+
+        $collection->ensureIndexes();
+        $this->assertCount(2, $collection->listIndexes());
+        $this->assertCount(2, $collection->getChunkCollection()->listIndexes());
+
+        $collection->dropAllIndexes();
+        $collection->ensureIndexes();
+        $this->assertCount(1, $collection->listIndexes());
+
+        $collection->ensureIndexes(true);
+        $this->assertCount(2, $collection->listIndexes());
+    }
+
     public function testFind()
     {
         $collection = $this->getConnection()->getFileCollection();

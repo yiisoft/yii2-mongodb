@@ -29,6 +29,7 @@ class Collection extends \yii\mongodb\Collection
      * @var \yii\mongodb\Database MongoDB database instance.
      */
     public $database;
+
     /**
      * @var string prefix of this file collection.
      */
@@ -37,6 +38,10 @@ class Collection extends \yii\mongodb\Collection
      * @var \yii\mongodb\Collection file chunks Mongo collection.
      */
     private $_chunkCollection;
+    /**
+     * @var boolean whether file related fields indexes are ensured for this collection.
+     */
+    private $indexesEnsured = false;
 
 
     /**
@@ -234,5 +239,55 @@ class Collection extends \yii\mongodb\Collection
             Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
+    }
+
+    /**
+     * Makes sure that indexes, which are crucial for the file processing,
+     * exist at this collection and [[chunkCollection]].
+     * The check result is cached per collection instance.
+     * @param boolean $force whether to ignore internal collection instance cache.
+     * @return $this self reference.
+     */
+    public function ensureIndexes($force = false)
+    {
+        if (!$force && $this->indexesEnsured) {
+            return $this;
+        }
+
+        $this->ensureFileIndexes();
+        $this->ensureChunkIndexes();
+
+        $this->indexesEnsured = true;
+        return $this;
+    }
+
+    /**
+     * Ensures indexes at file collection.
+     */
+    private function ensureFileIndexes()
+    {
+        $indexKey = ['filename' => 1, 'uploadDate' => 1];
+        foreach ($this->listIndexes() as $index) {
+            if (!empty($index['unique']) && $index['key'] === $indexKey) {
+                return;
+            }
+        }
+
+        $this->createIndex($indexKey);
+    }
+
+    /**
+     * Ensures indexes at chunk collection.
+     */
+    private function ensureChunkIndexes()
+    {
+        $chunkCollection = $this->getChunkCollection();
+        $indexKey = ['files_id' => 1, 'n' => 1];
+        foreach ($chunkCollection->listIndexes() as $index) {
+            if ($index['key'] === $indexKey) {
+                return;
+            }
+        }
+        $chunkCollection->createIndex($indexKey, ['unique' => true]);
     }
 }

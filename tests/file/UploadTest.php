@@ -5,6 +5,9 @@ namespace yiiunit\extensions\mongodb\file;
 use MongoDB\BSON\ObjectID;
 use yiiunit\extensions\mongodb\TestCase;
 
+/**
+ * @group file
+ */
 class UploadTest extends TestCase
 {
     protected function tearDown()

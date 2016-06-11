@@ -61,7 +61,7 @@ class Upload extends Object
             $this->document['_id'] = new ObjectID();
         }
 
-        $this->ensureIndexes();
+        $this->collection->ensureIndexes();
     }
 
     /**
@@ -179,10 +179,5 @@ class Upload extends Object
     private function insertFile()
     {
         $this->collection->insert($this->document);
-    }
-
-    private function ensureIndexes()
-    {
-        ;
     }
 }
