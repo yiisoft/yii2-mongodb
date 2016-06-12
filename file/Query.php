@@ -61,9 +61,8 @@ class Query extends \yii\mongodb\Query
     public function populate($rows)
     {
         $result = [];
-        foreach ($rows as $file) {
-            $row = $file->file;
-            $row['file'] = $file;
+        foreach ($rows as $row) {
+            $row['file'] = new Download();
             $result[] = $row;
         }
         return parent::populate($result);

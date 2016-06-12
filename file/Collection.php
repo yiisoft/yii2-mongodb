@@ -127,7 +127,7 @@ class Collection extends \yii\mongodb\Collection
      */
     public function insertFile($filename, $metadata = [], $options = [])
     {
-        $options['metadata'] = $metadata;
+        $options['document'] = $metadata;
         $document = $this->createUpload($options)->addFile($filename)->complete();
         return $document['_id'];
     }
@@ -144,7 +144,7 @@ class Collection extends \yii\mongodb\Collection
      */
     public function insertFileContent($bytes, $metadata = [], $options = [])
     {
-        $options['metadata'] = $metadata;
+        $options['document'] = $metadata;
         $document = $this->createUpload($options)->addContent($bytes)->complete();
         return $document['_id'];
     }
@@ -168,7 +168,7 @@ class Collection extends \yii\mongodb\Collection
         }
 
         $options['filename'] = $uploadedFile->name;
-        $options['metadata'] = $metadata;
+        $options['document'] = $metadata;
         $document = $this->createUpload($options)->addFile($uploadedFile->tempName)->complete();
         return $document['_id'];
     }
@@ -228,7 +228,7 @@ class Collection extends \yii\mongodb\Collection
     {
         $indexKey = ['filename' => 1, 'uploadDate' => 1];
         foreach ($this->listIndexes() as $index) {
-            if (!empty($index['unique']) && $index['key'] === $indexKey) {
+            if ($index['key'] === $indexKey) {
                 return;
             }
         }
@@ -244,7 +244,7 @@ class Collection extends \yii\mongodb\Collection
         $chunkCollection = $this->getChunkCollection();
         $indexKey = ['files_id' => 1, 'n' => 1];
         foreach ($chunkCollection->listIndexes() as $index) {
-            if ($index['key'] === $indexKey) {
+            if (!empty($index['unique']) && $index['key'] === $indexKey) {
                 return;
             }
         }

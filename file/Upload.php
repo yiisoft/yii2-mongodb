@@ -30,17 +30,14 @@ class Upload extends Object
      */
     public $filename;
     /**
-     * @var array user data for the "metadata" field of the files collection document.
-     */
-    public $metadata = [];
-    /**
-     * @var array saving options.
-     * Supported options:
+     * @var array additional file document contents.
+     * Common GridFS columns:
      *
-     * - aliases: array, an array of aliases
+     * - metadata: array, additional data associated with the file.
+     * - aliases: array, an array of aliases.
      * - contentType: string, content type to be stored with the file.
      */
-    public $options = [];
+    public $document = [];
     /**
      * @var integer chunk size in bytes.
      */
@@ -55,9 +52,9 @@ class Upload extends Object
     public $chunkCount = 0;
 
     /**
-     * @var array file data to be saved.
+     * @var ObjectID file document ID.
      */
-    protected $fileData;
+    protected $documentId;
 
     /**
      * @var resource has context for collecting md5 hash
@@ -76,8 +73,10 @@ class Upload extends Object
     {
         $this->hashContext = hash_init('md5');
 
-        if (!isset($this->fileData['_id'])) {
-            $this->fileData['_id'] = new ObjectID();
+        if (isset($this->document['_id'])) {
+            $this->documentId = $this->document['_id'] instanceof ObjectID ? $this->document['_id'] : ObjectID($this->document['_id']);
+        } else {
+            $this->documentId = new ObjectID();
         }
 
         $this->collection->ensureIndexes();
@@ -154,9 +153,7 @@ class Upload extends Object
     {
         $this->flushBuffer(true);
 
-        $this->insertFile();
-
-        return $this->fileData;
+        return $this->insertFile();
     }
 
     /**
@@ -166,8 +163,8 @@ class Upload extends Object
     {
         $this->buffer = null;
 
-        $this->collection->getChunkCollection()->remove(['files_id' => $this->fileData['_id']], ['limit' => 0]);
-        $this->collection->remove(['_id' => $this->fileData['_id']], ['limit' => 1]);
+        $this->collection->getChunkCollection()->remove(['files_id' => $this->documentId], ['limit' => 0]);
+        $this->collection->remove(['_id' => $this->documentId], ['limit' => 1]);
     }
 
     /**
@@ -193,7 +190,7 @@ class Upload extends Object
     private function insertChunk($data)
     {
         $chunkDocument = [
-            'files_id' => $this->fileData['_id'],
+            'files_id' => $this->documentId,
             'n' => $this->chunkCount,
             'data' => new Binary($data, Binary::TYPE_GENERIC),
         ];
@@ -207,25 +204,31 @@ class Upload extends Object
 
     /**
      * Inserts [[document]] into file collection.
+     * @return array inserted file document data.
      */
     private function insertFile()
     {
+        $fileDocument = [
+            '_id' => $this->documentId,
+            'uploadDate' => new UTCDateTime(round(microtime(true) * 1000)),
+        ];
         if ($this->filename === null) {
-            $this->fileData['filename'] = $this->fileData['_id'] . '.dat';
+            $fileDocument['filename'] = $this->documentId . '.dat';
         } else {
-            $this->fileData['filename'] = $this->filename;
+            $fileDocument['filename'] = $this->filename;
         }
-        $this->fileData['uploadDate'] = new UTCDateTime(round(microtime(true) * 1000));
 
-        $this->fileData = array_merge($this->fileData, $this->options);
+        $fileDocument = array_merge(
+            $fileDocument,
+            $this->document,
+            [
+                'chunkSize' => $this->chunkSize,
+                'length' => $this->length,
+                'md5' => hash_final($this->hashContext),
+            ]
+        );
 
-        if (!empty($this->metadata)) {
-            $this->fileData['metadata'] = $this->metadata;
-        }
-        $this->fileData['chunkSize'] = $this->chunkSize;
-        $this->fileData['length'] = $this->length;
-        $this->fileData['md5'] = hash_final($this->hashContext);
-
-        $this->collection->insert($this->fileData);
+        $this->collection->insert($fileDocument);
+        return $fileDocument;
     }
 }
