@@ -116,6 +116,20 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
+     * @inheritdoc
+     */
+    public function remove($condition = [], $options = [])
+    {
+        $cursor = $this->find($condition, ['_id'], $options);
+        $deleteCount = 0;
+        foreach ($cursor as $row) {
+            $deleteCount += parent::remove(['_id' => $row['_id']]);
+            $this->getChunkCollection()->remove(['files_id' => $row['_id']]);
+        }
+        return $deleteCount;
+    }
+
+    /**
      * Creates new file in GridFS collection from given local filesystem file.
      * Additional attributes can be added file document using $metadata.
      * @param string $filename name of the file to store.

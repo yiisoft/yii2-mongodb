@@ -74,16 +74,24 @@ class Download extends Object
      */
     public function getSize()
     {
-        return $this->getDocument()['length'];
+        $document = $this->getDocument();
+        if (isset($document['length'])) {
+            return $document['length'];
+        }
+        return 0;
     }
 
     /**
      * Returns associated file's filename.
-     * @return string file name.
+     * @return string|null file name.
      */
     public function getFilename()
     {
-        return $this->getDocument()['filename'];
+        $document = $this->getDocument();
+        if (isset($document['filename'])) {
+            return $document['filename'];
+        }
+        return null;
     }
 
     /**

@@ -283,7 +283,7 @@ class ActiveRecordTest extends TestCase
      */
     public function testWriteFile()
     {
-        $record = new CustomerFile;
+        $record = new CustomerFile();
         $record->tag = 'new new';
         $record->status = 7;
         $newFileContent = 'Test new file content';
