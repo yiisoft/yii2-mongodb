@@ -321,7 +321,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
         if (empty($file)) {
             throw new InvalidParamException('There is no file associated with this object.');
-        } elseif ($file instanceof \MongoGridFSFile) {
+        } elseif ($file instanceof Download) {
             return $file->getResource();
         } elseif ($file instanceof UploadedFile) {
             return fopen($file->tempName, 'r');

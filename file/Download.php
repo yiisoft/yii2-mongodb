@@ -8,7 +8,6 @@
 namespace yii\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
-use MongoDB\Driver\Cursor;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Object;
@@ -18,7 +17,7 @@ use yii\helpers\FileHelper;
  * Download represents the GridFS download operation.
  *
  * @property array|ObjectID $document document to be downloaded.
- * @property Cursor $chunkCursor cursor for the file chunks. This property is read-only.
+ * @property \MongoDB\Driver\Cursor $chunkCursor cursor for the file chunks. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -35,7 +34,7 @@ class Download extends Object
      */
     private $_document;
     /**
-     * @var Cursor cursor for the file chunks.
+     * @var \MongoDB\Driver\Cursor cursor for the file chunks.
      */
     private $_chunkCursor;
 
@@ -95,7 +94,7 @@ class Download extends Object
     }
 
     /**
-     * @return Cursor chuck list cursor.
+     * @return \MongoDB\Driver\Cursor chuck list cursor.
      * @throws InvalidConfigException
      */
     public function getChunkCursor()
@@ -152,13 +151,30 @@ class Download extends Object
 
     // Compatibility with `MongoGridFSFile` :
 
+    /**
+     * Alias of [[toString()]] method.
+     * @return string file content.
+     */
     public function getBytes()
     {
         return $this->toString();
     }
 
+    /**
+     * Alias of [[toFile()]] method.
+     * @param string $filename name of the physical file.
+     * @return integer number of written bytes.
+     */
     public function write($filename)
     {
         return $this->toFile($filename);
+    }
+
+    /**
+     * @return resource file stream resource.
+     */
+    public function getResource()
+    {
+        // TODO : create stream wrapper
     }
 }

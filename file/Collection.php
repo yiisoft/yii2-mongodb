@@ -117,10 +117,20 @@ class Collection extends \yii\mongodb\Collection
 
     /**
      * @inheritdoc
+     * @return Cursor cursor for the search results
+     */
+    public function find($condition = [], $fields = [], $options = [])
+    {
+        return new Cursor($this, parent::find($condition, $fields, $options));
+    }
+
+    /**
+     * @inheritdoc
      */
     public function remove($condition = [], $options = [])
     {
-        $cursor = $this->find($condition, ['_id'], $options);
+        // TODO : better approach for deleting
+        $cursor = parent::find($condition, ['_id'], $options);
         $deleteCount = 0;
         foreach ($cursor as $row) {
             $deleteCount += parent::remove(['_id' => $row['_id']]);
@@ -210,7 +220,6 @@ class Collection extends \yii\mongodb\Collection
      */
     public function delete($id)
     {
-        $this->getChunkCollection()->remove(['files_id' => $id], ['limit' => 0]);
         $this->remove(['_id' => $id], ['limit' => 1]);
         return true;
     }
