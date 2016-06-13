@@ -91,7 +91,7 @@ class Upload extends Object
      */
     public function addContent($content)
     {
-        $freeBufferLength = $this->chunkSize - strlen($this->buffer);
+        $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->buffer);
         $contentLength = StringHelper::byteLength($content);
         if ($contentLength > $freeBufferLength) {
             $this->buffer .= StringHelper::byteSubstr($content, 0, $freeBufferLength);
