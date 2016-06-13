@@ -283,7 +283,7 @@ class ActiveRecordTest extends TestCase
      */
     public function testWriteFile()
     {
-        $record = new CustomerFile;
+        $record = new CustomerFile();
         $record->tag = 'new new';
         $record->status = 7;
         $newFileContent = 'Test new file content';
@@ -303,7 +303,7 @@ class ActiveRecordTest extends TestCase
     /**
      * @depends testInsertFileContent
      */
-    public function testGetFileResource()
+    /*public function testGetFileResource()
     {
         $record = new CustomerFile;
         $record->tag = 'new new';
@@ -322,5 +322,5 @@ class ActiveRecordTest extends TestCase
         $contents = stream_get_contents($fileResource);
         fclose($fileResource);
         $this->assertEquals($newFileContent, $contents);
-    }
+    }*/
 }

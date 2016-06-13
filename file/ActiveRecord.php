@@ -257,12 +257,12 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
         if (empty($file)) {
             return null;
-        } elseif ($file instanceof \MongoGridFSFile) {
+        } elseif ($file instanceof Download) {
             $fileSize = $file->getSize();
             if (empty($fileSize)) {
                 return null;
             } else {
-                return $file->getBytes();
+                return $file->toString();
             }
         } elseif ($file instanceof UploadedFile) {
             return file_get_contents($file->tempName);
@@ -291,8 +291,8 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
         if (empty($file)) {
             throw new InvalidParamException('There is no file associated with this object.');
-        } elseif ($file instanceof \MongoGridFSFile) {
-            return ($file->write($filename) == $file->getSize());
+        } elseif ($file instanceof Download) {
+            return ($file->toFile($filename) == $file->getSize());
         } elseif ($file instanceof UploadedFile) {
             return copy($file->tempName, $filename);
         } elseif (is_string($file)) {
@@ -321,7 +321,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
         if (empty($file)) {
             throw new InvalidParamException('There is no file associated with this object.');
-        } elseif ($file instanceof \MongoGridFSFile) {
+        } elseif ($file instanceof Download) {
             return $file->getResource();
         } elseif ($file instanceof UploadedFile) {
             return fopen($file->tempName, 'r');

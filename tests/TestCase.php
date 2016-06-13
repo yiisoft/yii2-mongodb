@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use yii\helpers\ArrayHelper;
+use yii\helpers\FileHelper;
 use yii\mongodb\Connection;
 use Yii;
 use yii\mongodb\Exception;
@@ -42,6 +43,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             $this->mongodb->close();
         }
         $this->destroyApplication();
+        $this->removeTestFilePath();
     }
 
     /**
@@ -71,6 +73,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
             'id' => 'testapp',
             'basePath' => __DIR__,
             'vendorPath' => $this->getVendorPath(),
+            'runtimePath' => dirname(__DIR__) . '/runtime',
         ], $config));
     }
 
@@ -88,7 +91,7 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
      */
     protected function destroyApplication()
     {
-        \Yii::$app = null;
+        Yii::$app = null;
     }
 
     /**
@@ -168,14 +171,30 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * Returns the Mongo server version.
-     * @return string Mongo server version.
+     * @return string test file path
      */
-    protected function getServerVersion()
+    protected function getTestFilePath()
     {
-        $connection = $this->getConnection();
-        $buildInfo = $connection->getDatabase()->executeCommand(['buildinfo' => true]);
+        return dirname(__DIR__) . '/runtime/test-tmp';
+    }
 
-        return $buildInfo['version'];
+    /**
+     * Ensures test file path exists.
+     * @return string test file path
+     */
+    protected function ensureTestFilePath()
+    {
+        $path = $this->getTestFilePath();
+        FileHelper::createDirectory($path);
+        return $path;
+    }
+
+    /**
+     * Removes the test file path.
+     */
+    protected function removeTestFilePath()
+    {
+        $path = $this->getTestFilePath();
+        FileHelper::removeDirectory($path);
     }
 }

@@ -24,20 +24,6 @@ use Yii;
 class Query extends \yii\mongodb\Query
 {
     /**
-     * @inheritdoc
-     */
-    public function one($db = null)
-    {
-        $row = parent::one($db);
-        if ($row !== false) {
-            $models = $this->populate([$row]);
-            return reset($models) ?: null;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Returns the Mongo collection for this query.
      * @param \yii\mongodb\Connection $db Mongo connection.
      * @return Collection collection instance.
@@ -49,23 +35,5 @@ class Query extends \yii\mongodb\Query
         }
 
         return $db->getFileCollection($this->from);
-    }
-
-    /**
-     * Converts the raw query results into the format as specified by this query.
-     * This method is internally used to convert the data fetched from database
-     * into the format as required by this query.
-     * @param array $rows the raw query result from database
-     * @return array the converted query result
-     */
-    public function populate($rows)
-    {
-        $result = [];
-        foreach ($rows as $file) {
-            $row = $file->file;
-            $row['file'] = $file;
-            $result[] = $row;
-        }
-        return parent::populate($result);
     }
 }
