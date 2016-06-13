@@ -64,8 +64,9 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * @param array $options
-     * @return Upload
+     * Creates upload command.
+     * @param array $options upload options.
+     * @return Upload file upload instance.
      * @since 2.1
      */
     public function createUpload($options = [])
@@ -76,8 +77,9 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * @param array|ObjectID $document
-     * @return Download
+     * Creates download command.
+     * @param array|ObjectID $document file document ot be downloaded.
+     * @return Download file download instance.
      * @since 2.1
      */
     public function createDownload($document)
