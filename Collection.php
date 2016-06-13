@@ -8,10 +8,8 @@
 namespace yii\mongodb;
 
 use MongoDB\BSON\ObjectID;
-use yii\base\InvalidParamException;
 use yii\base\Object;
 use Yii;
-use yii\helpers\ArrayHelper;
 
 /**
  * Collection represents the Mongo collection information.
@@ -86,54 +84,6 @@ class Collection extends Object
     public function getFullName()
     {
         return $this->database->name . '.' . $this->name;
-    }
-
-    /**
-     * Pre-processes the log data before sending it to `json_encode()`.
-     * @param mixed $data raw data.
-     * @return mixed the processed data.
-     */
-    private function processLogData($data)
-    {
-        if (is_object($data)) {
-            if ($data instanceof \MongoId ||
-                $data instanceof \MongoRegex ||
-                $data instanceof \MongoDate ||
-                $data instanceof \MongoInt32 ||
-                $data instanceof \MongoInt64 ||
-                $data instanceof \MongoTimestamp
-            ) {
-                $data = get_class($data) . '(' . $data->__toString() . ')';
-            } elseif ($data instanceof \MongoCode) {
-                $data = 'MongoCode( ' . $data->__toString() . ' )';
-            } elseif ($data instanceof \MongoBinData) {
-                $data = 'MongoBinData(...)';
-            } elseif ($data instanceof \MongoDBRef) {
-                $data = 'MongoDBRef(...)';
-            } elseif ($data instanceof \MongoMinKey || $data instanceof \MongoMaxKey) {
-                $data = get_class($data);
-            } else {
-                $result = [];
-                foreach ($data as $name => $value) {
-                    $result[$name] = $value;
-                }
-                $data = $result;
-            }
-
-            if ($data === []) {
-                return new \stdClass();
-            }
-        }
-
-        if (is_array($data)) {
-            foreach ($data as $key => $value) {
-                if (is_array($value) || is_object($value)) {
-                    $data[$key] = $this->processLogData($value);
-                }
-            }
-        }
-
-        return $data;
     }
 
     /**

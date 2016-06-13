@@ -27,6 +27,11 @@ Upgrade from Yii 2.0.5
 
 * Method `Collection::getName()` has been removed. Use `Collection::name` in order to get collection self name.
 
+* For GridFS `yii\mongodb\file\Download` is returned instead of `MongoGridFSFile` for the query result set.
+
+* Cursor composed via `yii\mongodb\file\Collection::find()` now returns result in the same format as `yii\mongodb\file\Query::one()`.
+  If you wish to perform file manipulations on returned row you should use `file` key instead of direct method invocations.
+
 Upgrade from Yii 2.0.1
 ----------------------
 
