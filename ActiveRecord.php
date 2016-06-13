@@ -349,4 +349,17 @@ abstract class ActiveRecord extends BaseActiveRecord
 
         return $this->collectionName() === $record->collectionName() && (string) $this->getPrimaryKey() === (string) $record->getPrimaryKey();
     }
+    
+    /**
+    * Serialization fix to array for Mongo/BSON/ObjectID
+    * @see BaseActiveRecord::toArray()
+    */
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        $data = parent::toArray($fields, $expand, $recursive);
+        if ($this->hasAttribute('_id') && $this->getAttribute('_id') instanceof \MongoDB\BSON\ObjectId) {
+            $data['_id'] = $this->getAttribute('_id')->__toString();
+        }
+        return $data;
+    }
 }
