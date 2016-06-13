@@ -80,7 +80,8 @@ class CollectionTest extends TestCase
 
         /* @var $file Download */
         $file = $files[0];
-        //$this->assertEquals($bytes, $file->getBytes());
+        $this->assertTrue($file['file'] instanceof Download);
+        $this->assertEquals($bytes, $file['file']->getBytes());
     }
 
     /**
@@ -108,7 +109,7 @@ class CollectionTest extends TestCase
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
 
-        $this->assertTrue($collection->delete($id));;
+        $this->assertTrue($collection->delete($id));
 
         $file = $collection->get($id);
         $this->assertNull($file);

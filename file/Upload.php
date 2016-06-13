@@ -12,6 +12,7 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDatetime;
 use yii\base\InvalidParamException;
 use yii\base\Object;
+use yii\helpers\StringHelper;
 
 /**
  * Upload represents the GridFS upload operation.
@@ -91,11 +92,11 @@ class Upload extends Object
     public function addContent($content)
     {
         $freeBufferLength = $this->chunkSize - strlen($this->buffer);
-        $contentLength = strlen($content);
+        $contentLength = StringHelper::byteLength($content);
         if ($contentLength > $freeBufferLength) {
-            $this->buffer .= substr($content, 0, $freeBufferLength);
+            $this->buffer .= StringHelper::byteSubstr($content, 0, $freeBufferLength);
             $this->flushBuffer(true);
-            return $this->addContent(substr($content, $freeBufferLength));
+            return $this->addContent(StringHelper::byteSubstr($content, $freeBufferLength));
         } else {
             $this->buffer .= $content;
             $this->flushBuffer();
@@ -113,7 +114,7 @@ class Upload extends Object
     public function addStream($stream)
     {
         while (!feof($stream)) {
-            $freeBufferLength = $this->chunkSize - strlen($this->buffer);
+            $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->buffer);
 
             $streamChunk = fread($stream, $freeBufferLength);
             if ($streamChunk === false) {
@@ -177,7 +178,7 @@ class Upload extends Object
             return;
         }
 
-        if ($force || strlen($this->buffer) == $this->chunkSize) {
+        if ($force || StringHelper::byteLength($this->buffer) == $this->chunkSize) {
             $this->insertChunk($this->buffer);
             $this->buffer = null;
         }
@@ -198,7 +199,7 @@ class Upload extends Object
         hash_update($this->hashContext, $data);
 
         $this->collection->getChunkCollection()->insert($chunkDocument);
-        $this->length += strlen($data);
+        $this->length += StringHelper::byteLength($data);
         $this->chunkCount++;
     }
 
