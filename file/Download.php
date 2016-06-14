@@ -12,12 +12,14 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\Object;
 use yii\helpers\FileHelper;
+use yii\helpers\StringHelper;
 
 /**
  * Download represents the GridFS download operation.
  *
  * @property array|ObjectID $document document to be downloaded.
  * @property \MongoDB\Driver\Cursor $chunkCursor cursor for the file chunks. This property is read-only.
+ * @property \Iterator $chunkIterator  iterator for [[chunkCursor]]. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -37,6 +39,10 @@ class Download extends Object
      * @var \MongoDB\Driver\Cursor cursor for the file chunks.
      */
     private $_chunkCursor;
+    /**
+     * @var \Iterator iterator for [[chunkCursor]].
+     */
+    private $_chunkIterator;
 
 
     /**
@@ -94,12 +100,13 @@ class Download extends Object
     }
 
     /**
+     * @param boolean $refresh whether to recreate cursor, if it is already exist.
      * @return \MongoDB\Driver\Cursor chuck list cursor.
      * @throws InvalidConfigException
      */
-    public function getChunkCursor()
+    public function getChunkCursor($refresh = false)
     {
-        if ($this->_chunkCursor === null) {
+        if ($refresh || $this->_chunkCursor === null) {
             $file = $this->getDocument();
             $this->_chunkCursor = $this->collection->getChunkCollection()->find(
                 ['files_id' => $file['_id']],
@@ -108,6 +115,19 @@ class Download extends Object
             );
         }
         return $this->_chunkCursor;
+    }
+
+    /**
+     * @param boolean $refresh whether to recreate iterator, if it is already exist.
+     * @return \Iterator chuck cursor iterator.
+     */
+    public function getChunkIterator($refresh = false)
+    {
+        if ($refresh || $this->_chunkIterator === null) {
+            $this->_chunkIterator = new \IteratorIterator($this->getChunkCursor($refresh));
+            $this->_chunkIterator->rewind();
+        }
+        return $this->_chunkIterator;
     }
 
     /**
@@ -146,6 +166,79 @@ class Download extends Object
         foreach ($this->getChunkCursor() as $chunk) {
             $result .= $chunk['data']->getData();
         }
+        return $result;
+    }
+
+    /**
+     * Return part of a file.
+     * @param integer $start reading start position.
+     * If non-negative, the returned string will start at the start'th position in file, counting from zero.
+     * If negative, the returned string will start at the start'th character from the end of file.
+     * @param integer $length number of bytes to read.
+     * If given and is positive, the string returned will contain at most length characters beginning from start (depending on the length of file).
+     * If given and is negative, then that many characters will be omitted from the end of file (after the start position has been calculated when a start is negative).
+     * @return string|false the extracted part of file or `false` on failure
+     */
+    public function substr($start, $length)
+    {
+        $document = $this->getDocument();
+
+        if ($start < 0) {
+            $start = max($document['length'] + $start, 0);
+        }
+
+        if ($start > $document['length']) {
+            return false;
+        }
+
+        if ($length < 0) {
+            $length = $document['length'] - $start + $length;
+            if ($length < 0) {
+                return false;
+            }
+        }
+
+        $chunkSize = $document['chunkSize'];
+
+        $startChunkNumber = floor($start / $chunkSize);
+
+        $chunkIterator = $this->getChunkIterator();
+
+        if (!$chunkIterator->valid()) {
+            // invalid iterator state - recreate iterator
+            // unable to use `rewind` due to error "Cursors cannot rewind after starting iteration"
+            $chunkIterator = $this->getChunkIterator(true);
+        }
+
+        if ($chunkIterator->key() > $startChunkNumber) {
+            // unable to go back by iterator
+            // unable to use `rewind` due to error "Cursors cannot rewind after starting iteration"
+            $chunkIterator = $this->getChunkIterator(true);
+        }
+
+        $result = '';
+
+        $chunkDataOffset = $start - $startChunkNumber * $chunkSize;
+        while ($chunkIterator->valid()) {
+            if ($chunkIterator->key() >= $startChunkNumber) {
+                $chunk = $chunkIterator->current();
+                $data = $chunk['data']->getData();
+
+                $readLength = min($chunkSize - $chunkDataOffset, $length);
+
+                $result .= StringHelper::byteSubstr($data, $chunkDataOffset, $readLength);
+
+                $length -= $readLength;
+                if ($length <= 0) {
+                    break;
+                }
+
+                $chunkDataOffset = 0;
+            }
+
+            $chunkIterator->next();
+        }
+
         return $result;
     }
 
