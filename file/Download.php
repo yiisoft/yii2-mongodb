@@ -268,6 +268,15 @@ class Download extends Object
      */
     public function getResource()
     {
-        // TODO : create stream wrapper
+        $protocol = StreamWrapper::PROTOCOL;
+
+        $context = stream_context_create([
+            $protocol => [
+                'download' => $this,
+            ]
+        ]);
+
+        $document = $this->getDocument();
+        return fopen(sprintf('gridfs://%s/%s', $this->collection->getFullName(), $document['_id']), 'r', false, $context);
     }
 }
