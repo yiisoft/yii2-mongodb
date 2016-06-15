@@ -13,6 +13,8 @@ class StreamWrapperTest extends TestCase
             stream_wrapper_unregister($connection->fileStreamProtocol);
         }
 
+        $this->dropFileCollection('fs');
+
         parent::tearDown();
     }
 

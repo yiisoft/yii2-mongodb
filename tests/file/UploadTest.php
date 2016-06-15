@@ -62,4 +62,19 @@ class UploadTest extends TestCase
         $this->assertEquals(1, $collection->count());
         $this->assertEquals(1, $collection->getChunkCollection()->count());
     }
+
+    /**
+     * @depends testAddContent
+     */
+    public function testCancel()
+    {
+        $collection = $this->getConnection()->getFileCollection();
+
+        $upload = $collection->createUpload();
+        $document = $upload->addContent('content line 1');
+        $document->cancel();
+
+        $this->assertEquals(0, $collection->count());
+        $this->assertEquals(0, $collection->getChunkCollection()->count());
+    }
 }

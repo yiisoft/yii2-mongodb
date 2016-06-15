@@ -17,9 +17,23 @@ use yii\helpers\StringHelper;
 /**
  * Download represents the GridFS download operation.
  *
+ * A `Download` object is usually created by calling [[Collection::get()]] or [[Collection::createDownload()]].
+ *
+ * Usage example:
+ *
+ * ```php
+ * Yii::$app->mongodb->getFileCollection()->createDownload($document['_id'])->toFile('/path/to/file.dat');
+ * ```
+ *
+ * You can use `Download::substr()` to read a specific part of the file:
+ *
+ * ```php
+ * $filePart = Yii::$app->mongodb->getFileCollection()->createDownload($document['_id'])->substr(256, 1024);
+ * ```
+ *
  * @property array|ObjectID $document document to be downloaded.
  * @property \MongoDB\Driver\Cursor $chunkCursor cursor for the file chunks. This property is read-only.
- * @property \Iterator $chunkIterator  iterator for [[chunkCursor]]. This property is read-only.
+ * @property \Iterator $chunkIterator iterator for [[chunkCursor]]. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -70,7 +84,10 @@ class Download extends Object
     }
 
     /**
-     * @param array|ObjectID $document
+     * Sets data of the document to be downloaded.
+     * Document can be specified by its ID, in this case its data will be fetched automatically
+     * via extra query.
+     * @param array|ObjectID $document document raw data or document ID.
      */
     public function setDocument($document)
     {
@@ -104,6 +121,7 @@ class Download extends Object
     }
 
     /**
+     * Returns file chunks read cursor.
      * @param boolean $refresh whether to recreate cursor, if it is already exist.
      * @return \MongoDB\Driver\Cursor chuck list cursor.
      * @throws InvalidConfigException
@@ -122,6 +140,7 @@ class Download extends Object
     }
 
     /**
+     * Returns iterator for the file chunks cursor.
      * @param boolean $refresh whether to recreate iterator, if it is already exist.
      * @return \Iterator chuck cursor iterator.
      */
@@ -175,6 +194,7 @@ class Download extends Object
 
     /**
      * Returns an opened stream resource, which can be used to read file.
+     * Note: each invocation of this method will create new file resource.
      * @return resource stream resource.
      */
     public function toResource()
@@ -287,6 +307,7 @@ class Download extends Object
     }
 
     /**
+     * Returns persistent stream resource, which can be used to read file.
      * @return resource file stream resource.
      */
     public function getResource()

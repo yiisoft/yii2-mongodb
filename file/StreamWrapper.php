@@ -14,7 +14,36 @@ use yii\helpers\StringHelper;
 use yii\mongodb\Connection;
 
 /**
- * StreamWrapper
+ * StreamWrapper provides stream wrapper for MongoDB GridFS, allowing file operations via
+ * regular PHP stream resources.
+ *
+ * Before feature can be used this wrapper should be registered via [[register()]] method.
+ * It is usually performed via [[yii\mongodb\Connection::registerFileStreamWrapper()]].
+ *
+ * Note: do not use this class directly - its instance will be created and maintained by PHP internally
+ * once corresponding stream resource is created.
+ *
+ * Resource path should be specified in following format:
+ *
+ * ```
+ * 'protocol://databaseName.fileCollectionPrefix?file_attribute=value'
+ * ```
+ *
+ * Write example:
+ *
+ * ```php
+ * $resource = fopen('gridfs://mydatabase.fs?filename=new_file.txt', 'w');
+ * fwrite($resource, 'some content');
+ * // ...
+ * fclose($resource);
+ * ```
+ *
+ * Read example:
+ *
+ * ```php
+ * $resource = fopen('gridfs://mydatabase.fs?filename=my_file.txt', 'r');
+ * $fileContent = stream_get_contents($resource);
+ * ```
  *
  * @see http://php.net/manual/en/function.stream-wrapper-register.php
  *
@@ -104,7 +133,8 @@ class StreamWrapper extends Object
     }
 
     /**
-     * @return boolean
+     * Prepares [[Download]] instance for the read operations.
+     * @return boolean success.
      * @throws InvalidConfigException on invalid context configuration.
      */
     private function prepareDownload()
@@ -133,7 +163,8 @@ class StreamWrapper extends Object
     }
 
     /**
-     * @return boolean
+     * Prepares [[Upload]] instance for the write operations.
+     * @return boolean success.
      * @throws InvalidConfigException on invalid context configuration.
      */
     private function prepareUpload()
@@ -316,6 +347,7 @@ class StreamWrapper extends Object
 
     /**
      * Retrieve information about a file resource.
+     * This method is called in response to `stat()`.
      * @see stat()
      * @return array file statistic information.
      */
