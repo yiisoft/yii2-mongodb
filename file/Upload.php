@@ -91,7 +91,9 @@ class Upload extends Object
      */
     public function __destruct()
     {
-        $this->cancel();
+        if (!$this->isComplete) {
+            $this->cancel();
+        }
     }
 
     /**
@@ -193,14 +195,12 @@ class Upload extends Object
      */
     public function cancel()
     {
-        if (!$this->isComplete) {
-            $this->buffer = null;
+        $this->buffer = null;
 
-            $this->collection->getChunkCollection()->remove(['files_id' => $this->documentId], ['limit' => 0]);
-            $this->collection->remove(['_id' => $this->documentId], ['limit' => 1]);
+        $this->collection->getChunkCollection()->remove(['files_id' => $this->documentId], ['limit' => 0]);
+        $this->collection->remove(['_id' => $this->documentId], ['limit' => 1]);
 
-            $this->isComplete = true;
-        }
+        $this->isComplete = true;
     }
 
     /**
