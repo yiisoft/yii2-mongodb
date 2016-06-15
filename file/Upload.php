@@ -17,6 +17,21 @@ use yii\helpers\StringHelper;
 /**
  * Upload represents the GridFS upload operation.
  *
+ * An `Upload` object is usually created by calling [[Collection::createUpload()]].
+ *
+ * Note: instance of this class is 'single use' only. Do not attempt to use same `Upload` instance for
+ * multiple file upload.
+ *
+ * Usage example:
+ *
+ * ```php
+ * $document = Yii::$app->mongodb->getFileCollection()->createUpload()
+ *     ->addContent('Line 1')
+ *     ->addContent('Line 2')
+ *     // ...
+ *     ->complete();
+ * ```
+ *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
@@ -55,8 +70,7 @@ class Upload extends Object
     /**
      * @var ObjectID file document ID.
      */
-    protected $documentId;
-
+    private $documentId;
     /**
      * @var resource has context for collecting md5 hash
      */
@@ -65,7 +79,22 @@ class Upload extends Object
      * @var string internal data buffer
      */
     private $buffer;
+    /**
+     * @var boolean indicates whether upload is complete or not.
+     */
+    private $isComplete = false;
 
+
+    /**
+     * Destructor.
+     * Makes sure abandoned upload is cancelled.
+     */
+    public function __destruct()
+    {
+        if (!$this->isComplete) {
+            $this->cancel();
+        }
+    }
 
     /**
      * @inheritdoc
@@ -154,7 +183,11 @@ class Upload extends Object
     {
         $this->flushBuffer(true);
 
-        return $this->insertFile();
+        $document = $this->insertFile();
+
+        $this->isComplete = true;
+
+        return $document;
     }
 
     /**
@@ -166,6 +199,8 @@ class Upload extends Object
 
         $this->collection->getChunkCollection()->remove(['files_id' => $this->documentId], ['limit' => 0]);
         $this->collection->remove(['_id' => $this->documentId], ['limit' => 1]);
+
+        $this->isComplete = true;
     }
 
     /**

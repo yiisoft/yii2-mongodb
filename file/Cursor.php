@@ -125,4 +125,25 @@ class Cursor extends \IteratorIterator implements \Countable
     {
         return $this->getInnerIterator()->{$name};
     }
+
+    /**
+     * PHP magic method, which is invoked on attempt of checking if a property is set.
+     * @param string $name field name.
+     * @return boolean whether field exists or not.
+     */
+    public function __isset($name)
+    {
+        $cursor = $this->getInnerIterator();
+        return isset($cursor->$name);
+    }
+
+    /**
+     * PHP magic method, which is invoked on attempt of unsetting of property.
+     * @param string $name field name.
+     */
+    public function __unset($name)
+    {
+        $cursor = $this->getInnerIterator();
+        unset($cursor->$name);
+    }
 }
