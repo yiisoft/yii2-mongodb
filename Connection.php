@@ -138,6 +138,18 @@ class Connection extends Component
      * @since 2.1
      */
     public $enableProfiling = true;
+    /**
+     * @var string name of the protocol, which should be used for the GridFS stream wrapper.
+     * Only alphanumeric values are allowed: do not use any URL special characters, such as '/', '&', ':' etc.
+     * @see \yii\mongodb\file\StreamWrapper
+     * @since 2.1
+     */
+    public $fileStreamProtocol = 'gridfs';
+    /**
+     * @var string name of the class, which should serve as a stream wrapper for [[fileStreamProtocol]] protocol.
+     * @since 2.1
+     */
+    public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
 
     /**
      * @var string name of the MongoDB database to use by default.
@@ -157,6 +169,10 @@ class Connection extends Component
      * @var LogBuilder|array|string log entries builder used for this connecton.
      */
     private $_logBuilder = 'yii\mongodb\LogBuilder';
+    /**
+     * @var boolean whether GridFS stream wrapper has been already registered.
+     */
+    private $fileStreamWrapperRegistered = false;
 
 
     /**
@@ -392,5 +408,23 @@ class Connection extends Component
             'databaseName' => $databaseName,
             'document' => $document,
         ]);
+    }
+
+    /**
+     * Registers GridFS stream wrapper for the [[fileStreamProtocol]] protocol.
+     * @param boolean $force whether to enforce registration even wrapper has been already registered.
+     * @return string registered stream protocol name.
+     */
+    public function registerFileStreamWrapper($force = false)
+    {
+        if ($force || !$this->fileStreamWrapperRegistered) {
+            /* @var $class \yii\mongodb\file\StreamWrapper */
+            $class = $this->fileStreamWrapperClass;
+            $class::register($this->fileStreamProtocol, $force);
+
+            $this->fileStreamWrapperRegistered = true;
+        }
+
+        return $this->fileStreamProtocol;
     }
 }

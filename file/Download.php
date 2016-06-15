@@ -43,6 +43,10 @@ class Download extends Object
      * @var \Iterator iterator for [[chunkCursor]].
      */
     private $_chunkIterator;
+    /**
+     * @var resource|null
+     */
+    private $_resource;
 
 
     /**
@@ -170,6 +174,25 @@ class Download extends Object
     }
 
     /**
+     * Returns an opened stream resource, which can be used to read file.
+     * @return resource stream resource.
+     */
+    public function toResource()
+    {
+        $protocol = $this->collection->database->connection->registerFileStreamWrapper();
+
+        $context = stream_context_create([
+            $protocol => [
+                'download' => $this,
+            ]
+        ]);
+
+        $document = $this->getDocument();
+        $url = "{$protocol}://{$this->collection->database->name}.{$this->collection->prefix}?_id={$document['_id']}";
+        return fopen($url, 'r', false, $context);
+    }
+
+    /**
      * Return part of a file.
      * @param integer $start reading start position.
      * If non-negative, the returned string will start at the start'th position in file, counting from zero.
@@ -268,15 +291,9 @@ class Download extends Object
      */
     public function getResource()
     {
-        $protocol = StreamWrapper::PROTOCOL;
-
-        $context = stream_context_create([
-            $protocol => [
-                'download' => $this,
-            ]
-        ]);
-
-        $document = $this->getDocument();
-        return fopen(sprintf('gridfs://%s/%s', $this->collection->getFullName(), $document['_id']), 'r', false, $context);
+        if ($this->_resource === null) {
+            $this->_resource = $this->toResource();
+        }
+        return $this->_resource;
     }
 }
