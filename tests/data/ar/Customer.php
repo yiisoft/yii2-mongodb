@@ -4,6 +4,13 @@ namespace yiiunit\extensions\mongodb\data\ar;
 
 use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 
+/**
+ * @property string $name
+ * @property string $email
+ * @property string $address
+ * @property string $status
+ * @property string $file_id
+ */
 class Customer extends ActiveRecord
 {
     public static function collectionName()

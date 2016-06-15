@@ -2,7 +2,9 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\Regex;
 use yii\mongodb\ActiveQuery;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
@@ -250,7 +252,7 @@ class ActiveRecordTest extends TestCase
      */
     public function testQueryByIntegerField()
     {
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->status = 7;
         $record->save();
@@ -305,5 +307,27 @@ class ActiveRecordTest extends TestCase
 
         $animal = Animal::find()->where(['type' => Cat::className()])->one();
         $this->assertEquals('meow', $animal->getDoes());
+    }
+
+    /**
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/79
+     */
+    public function testToArray()
+    {
+        $record = new Customer();
+        $record->name = 'test name';
+        $record->email = new Regex('[a-z]@[a-z]', 'i');
+        $record->address = new Binary('abcdef', Binary::TYPE_MD5);
+        $record->status = 1;
+        $record->file_id = new Binary('Test Binary', Binary::TYPE_GENERIC);;
+        $record->save(false);
+
+        $this->assertEquals($record->attributes, $record->toArray([], [], false));
+
+        $array = $record->toArray([], [], true);
+        $this->assertTrue(is_string($array['_id']));
+        $this->assertEquals('/[a-z]@[a-z]/i', $array['email']);
+        $this->assertEquals('abcdef', $array['address']);
+        $this->assertEquals([], $array['file_id']);
     }
 }

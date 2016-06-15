@@ -7,6 +7,7 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\Binary;
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\MaxKey;
 use MongoDB\BSON\MinKey;
@@ -68,6 +69,12 @@ class LogBuilder extends Object
                 $data = print_r($data, true);
             } elseif ($data instanceof MinKey || $data instanceof MaxKey) {
                 $data = StringHelper::basename(get_class($data));
+            } elseif ($data instanceof Binary) {
+                if (in_array($data->getType(), [Binary::TYPE_MD5, Binary::TYPE_UUID, Binary::TYPE_OLD_UUID], true)) {
+                    $data = $data->getData();
+                } else {
+                    $data = 'Binary(...)';
+                }
             } elseif ($data instanceof Type) {
                 // Covers 'Binary', 'DBRef' and others
                 $data = StringHelper::basename(get_class($data)) . '(...)';

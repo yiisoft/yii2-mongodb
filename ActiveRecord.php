@@ -7,10 +7,13 @@
 
 namespace yii\mongodb;
 
+use MongoDB\BSON\Binary;
+use MongoDB\BSON\Type;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\BaseActiveRecord;
 use yii\db\StaleObjectException;
+use yii\helpers\ArrayHelper;
 use yii\helpers\Inflector;
 use yii\helpers\StringHelper;
 
@@ -348,5 +351,63 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         return $this->collectionName() === $record->collectionName() && (string) $this->getPrimaryKey() === (string) $record->getPrimaryKey();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function toArray(array $fields = [], array $expand = [], $recursive = true)
+    {
+        $data = parent::toArray($fields, $expand, false);
+        if (!$recursive) {
+            return $data;
+        }
+        return $this->toArrayInternal($data);
+    }
+
+    /**
+     * Converts data to array recursively, converting MongoDB BSON objects to readable values.
+     * @param mixed $data the data to be converted into an array.
+     * @return array the array representation of the data.
+     * @since 2.1
+     */
+    private function toArrayInternal($data)
+    {
+        if (is_array($data)) {
+            foreach ($data as $key => $value) {
+                if (is_array($value)) {
+                    $data[$key] = $this->toArrayInternal($value);
+                }
+                if (is_object($value)) {
+                    if ($value instanceof Type) {
+                        $data[$key] = $this->dumpBsonObject($value);
+                    } else {
+                        $data[$key] = ArrayHelper::toArray($value);
+                    }
+                }
+            }
+            return $data;
+        } elseif (is_object($data)) {
+            return ArrayHelper::toArray($data);
+        } else {
+            return [$data];
+        }
+    }
+
+    /**
+     * Converts MongoDB BSON object to readable value.
+     * @param Type $object MongoDB BSON object.
+     * @return array|string object dump value.
+     * @since 2.1
+     */
+    private function dumpBsonObject(Type $object)
+    {
+        if ($object instanceof Binary && in_array($object->getType(), [Binary::TYPE_MD5, Binary::TYPE_UUID, Binary::TYPE_OLD_UUID], true)) {
+            return $object->getData();
+        }
+        if (method_exists($object, '__toString')) {
+            return $object->__toString();
+        }
+        return ArrayHelper::toArray($object);
     }
 }

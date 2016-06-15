@@ -8,6 +8,7 @@ Enh #33: Added support for batch (bulk) write operations (klimov-paul)
 Enh #56: Now 'mongodb' PHP extension used instead of 'mongo' (klimov-paul, hardsetting, Sammaye)
 Enh #76: Added ability to disabled logging and/or profiling for the commands and queries (klimov-paul)
 Enh #77: Added support for fetching data from MongoDB in batches (klimov-paul)
+Enh #79: `yii\mongodb\ActiveRecord::toArray()` provides better representation for BSON objects in recursive mode (klimov-paul, rowdyroad)
 
 
 2.0.5 May 9, 2016
