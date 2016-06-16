@@ -17,7 +17,6 @@ use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\Type;
 use MongoDB\BSON\UTCDatetime;
 use yii\base\Object;
-use yii\helpers\StringHelper;
 
 /**
  * LogBuilder allows composition and escaping of the log entries.
@@ -68,16 +67,16 @@ class LogBuilder extends Object
             } elseif ($data instanceof Javascript) {
                 $data = print_r($data, true);
             } elseif ($data instanceof MinKey || $data instanceof MaxKey) {
-                $data = StringHelper::basename(get_class($data));
+                $data = get_class($data);
             } elseif ($data instanceof Binary) {
                 if (in_array($data->getType(), [Binary::TYPE_MD5, Binary::TYPE_UUID, Binary::TYPE_OLD_UUID], true)) {
                     $data = $data->getData();
                 } else {
-                    $data = 'Binary(...)';
+                    $data = get_class($data) . '(...)';
                 }
             } elseif ($data instanceof Type) {
                 // Covers 'Binary', 'DBRef' and others
-                $data = StringHelper::basename(get_class($data)) . '(...)';
+                $data = get_class($data) . '(...)';
             } else {
                 $result = [];
                 foreach ($data as $name => $value) {

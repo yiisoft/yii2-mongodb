@@ -15,6 +15,7 @@ use yii\web\HttpException;
  * ExplainAction provides EXPLAIN information for MongoDB queries
  *
  * @author Sergey Smirnov <webdevsega@yandex.ru>
+ * @author Klimov Paul <klimov@zfort.com>
  * @since 2.0.5
  */
 class ExplainAction extends Action
@@ -43,70 +44,72 @@ class ExplainAction extends Action
         }
 
         $query = $timings[$seq]['info'];
-        preg_match('/^.+\((.*)\)$/', $query, $matches);
-        if (!isset($matches[1])) {
+
+        if (strpos($query, 'find({') !== 0) {
             return '';
         }
 
-        $cursor = $this->getCursorFromQueryLog($matches[1]);
-        if (!$cursor) {
+        $query = substr($query, strlen('find('), -1);
+        $result = $this->explainQuery($query);
+        if (!$result) {
             return '';
         }
-        $result = $cursor->explain();
 
         return Json::encode($result, JSON_PRETTY_PRINT);
     }
 
     /**
-     * Create MongoCursor from string query log
+     * Runs explain command over the query
      *
-     * @param string $queryString
-     * @return \MongoCursor|null
+     * @param string $queryString query log string.
+     * @return array|false explain results, `false` on failure.
      */
-    protected function getCursorFromQueryLog($queryString)
+    protected function explainQuery($queryString)
     {
-        $cursor = null;
-
+        /* @var $connection \yii\mongodb\Connection */
         $connection = $this->panel->getDb();
-        $connection->open();
 
-        if ($connection->isActive) {
-            $queryInfo = Json::decode($queryString);
-            $query = $this->prepareQuery(isset($queryInfo['query']['$query']) ? $queryInfo['query']['$query'] : $queryInfo['query']);
-
-            $cursor = new \MongoCursor($connection->mongoClient, $queryInfo['ns'], $query, $queryInfo['fields']);
-            $cursor->limit($queryInfo['limit']);
-            $cursor->skip($queryInfo['skip']);
-            if (isset($queryInfo['query']['$orderby'])) {
-                $cursor->sort($queryInfo['query']['$orderby']);
-            }
+        $queryInfo = Json::decode($queryString);
+        if (!isset($queryInfo['ns'])) {
+            return false;
         }
 
-        return $cursor;
+        list($databaseName, $collectionName) = explode('.', $queryInfo['ns'], 2);
+        unset($queryInfo['ns']);
+
+        if (!empty($queryInfo['filer'])) {
+            $queryInfo['filer'] = $this->prepareQueryFiler($queryInfo['filer']);
+        }
+
+        return $connection->createCommand($databaseName)->explain($collectionName, $queryInfo);
     }
 
     /**
-     * Prepare query for using in MongoCursor.
-     * Converts array contains `$id` key into [[MongoId]] instance.
-     * If array given, each element of it will be processed.
+     * Prepare query filer for explain.
+     * Converts BSON object log entries into actual objects.
      *
-     * @param mixed $query raw query
+     * @param array $query raw query filter.
      * @return array|string prepared query
      */
-    protected function prepareQuery($query)
+    private function prepareQueryFiler($query)
     {
-        if (is_array($query)) {
-            if (count($query) === 1 && isset($query['$id'])) {
-                return new \MongoId($query['$id']);
-            } else {
-                $result = [];
-                foreach ($query as $key => $value) {
-                    $result[$key] = $this->prepareQuery($value);
+        $result = [];
+        foreach ($query as $key => $value) {
+            if (is_array($value)) {
+                $result[$key] = $this->prepareQueryFiler($value);
+            } elseif (is_string($value) && preg_match('#^(MongoDB\\\\BSON\\\\[A-Za-z]+)\\((.*)\\)$#s', $value, $matches)) {
+                $class = $matches[1];
+                $objectValue = $matches[1];
+
+                try {
+                    $result[$key] = new $class($objectValue);
+                } catch (\Exception $e) {
+                    $result[$key] = $value;
                 }
-                return $result;
+            } else {
+                $result[$key] = $value;
             }
-        } else {
-            return $query;
         }
+        return $result;
     }
 }

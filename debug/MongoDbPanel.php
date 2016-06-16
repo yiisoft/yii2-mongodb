@@ -60,9 +60,9 @@ class MongoDbPanel extends DbPanel
         $target = $this->module->logTarget;
 
         return $target->filterMessages($target->messages, Logger::LEVEL_PROFILE, [
-            'yii\mongodb\Collection::*',
+            'yii\mongodb\Command::*',
             'yii\mongodb\Query::*',
-            'yii\mongodb\Database::*',
+            'yii\mongodb\BatchQueryResult::*',
         ]);
     }
 
