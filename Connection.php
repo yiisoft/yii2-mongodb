@@ -271,8 +271,6 @@ class Connection extends Component
      */
     protected function selectDatabase($name)
     {
-        $this->open();
-
         return Yii::createObject([
             'class' => 'yii\mongodb\Database',
             'name' => $name,

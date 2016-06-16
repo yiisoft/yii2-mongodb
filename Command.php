@@ -141,6 +141,7 @@ class Command extends Object
         try {
             $this->beginProfile($token, __METHOD__);
 
+            $this->db->open();
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
             $cursor = $server->executeCommand($databaseName, $mongoCommand);
@@ -191,6 +192,7 @@ class Command extends Object
                 }
             }
 
+            $this->db->open();
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $writeResult = $server->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
 
@@ -238,6 +240,7 @@ class Command extends Object
             $this->beginProfile($token, __METHOD__);
 
             $query = new \MongoDB\Driver\Query($this->document, $options);
+            $this->db->open();
             $server = $this->db->manager->selectServer($this->getReadPreference());
             $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
             $cursor->setTypeMap($this->db->typeMap);
@@ -536,6 +539,21 @@ class Command extends Object
 
         if (isset($options['sort'])) {
             $options['sort'] = $queryBuilder->buildSortFields($options['sort']);
+        }
+
+        if (array_key_exists('limit', $options)) {
+            if ($options['limit'] === null) {
+                unset($options['limit']);
+            } else {
+                $options['limit'] = (int)$options['limit'];
+            }
+        }
+        if (array_key_exists('skip', $options)) {
+            if ($options['skip'] === null) {
+                unset($options['skip']);
+            } else {
+                $options['skip'] = (int)$options['skip'];
+            }
         }
 
         return $this->query($collectionName, $options);
