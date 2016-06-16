@@ -399,7 +399,7 @@ class QueryBuilder extends Object
             if (is_int($key)) {
                 $selectFields[$value] = true;
             } else {
-                $selectFields[$key] = (boolean)$value;
+                $selectFields[$key] = is_scalar($value) ? (boolean)$value : $value;
             }
         }
         return $selectFields;
