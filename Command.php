@@ -222,7 +222,7 @@ class Command extends Object
             array_merge(
                 [
                     'ns' => $databaseName . '.' . $collectionName,
-                    'where' => $this->document,
+                    'filter' => $this->document,
                 ],
                 $options
             ),
@@ -635,6 +635,20 @@ class Command extends Object
         $result = current($cursor->toArray());
 
         return $result['result'];
+    }
+
+    /**
+     * Return an explanation of the query, often useful for optimization and debugging.
+     * @param string $collectionName collection name
+     * @param array $query query document.
+     * @return array explanation of the query.
+     */
+    public function explain($collectionName, $query)
+    {
+        $this->document = $this->db->getQueryBuilder()->explain($collectionName, $query);
+        $cursor = $this->execute();
+
+        return current($cursor->toArray());
     }
 
     // Logging :

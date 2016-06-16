@@ -357,6 +357,34 @@ class QueryBuilder extends Object
         return $document;
     }
 
+    /**
+     * Generates 'explain' command.
+     * @param string $collectionName collection name.
+     * @param array $query query options.
+     * @return array command document.
+     */
+    public function explain($collectionName, $query)
+    {
+        $query = array_merge(
+            ['find' => $collectionName],
+            $query
+        );
+
+        if (isset($query['filter'])) {
+            $query['filter'] = (object) $this->buildCondition($query['filter']);
+        }
+        if (isset($query['projection'])) {
+            $query['projection'] = $this->buildSelectFields($query['projection']);
+        }
+        if (isset($query['sort'])) {
+            $query['sort'] = $this->buildSortFields($query['sort']);
+        }
+
+        return [
+            'explain' => $query,
+        ];
+    }
+
     // Service :
 
     /**

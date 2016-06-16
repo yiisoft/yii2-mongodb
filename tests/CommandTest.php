@@ -257,4 +257,23 @@ class CommandTest extends TestCase
 
         $this->assertEquals(['_id' => '1', 'total' => 300], $result[0]);
     }
+
+    /**
+     * @depends testFind
+     */
+    public function testExplain()
+    {
+        $connection = $this->getConnection();
+
+        $connection->createCommand()->insert('customer', ['name' => 'John']);
+
+        $result = $connection->createCommand()->explain('customer', [
+            'filter' => [
+                'name' => 'John'
+            ],
+        ]);
+
+        $this->assertArrayHasKey('queryPlanner', $result);
+        $this->assertArrayHasKey('executionStats', $result);
+    }
 }
