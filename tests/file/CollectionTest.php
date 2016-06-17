@@ -110,7 +110,7 @@ class CollectionTest extends TestCase
     /**
      * @depends testGet
      */
-    public function testDelete()
+    public function testDeleteFile()
     {
         $collection = $this->getConnection()->getFileCollection();
 
@@ -121,5 +121,32 @@ class CollectionTest extends TestCase
 
         $file = $collection->get($id);
         $this->assertNull($file);
+    }
+
+    /**
+     * @depends testInsertFileContent
+     */
+    public function testRemove()
+    {
+        $collection = $this->getConnection()->getFileCollection();
+
+        for ($i = 1; $i <=10; $i++) {
+            $bytes = 'Test file content ' . $i;
+            $collection->insertFileContent($bytes, [
+                'index' => $i
+            ]);
+        }
+
+        $this->assertEquals(1, $collection->remove(['index' => ['$in' =>[1, 2, 3]]], ['limit' => 1]));
+        $this->assertEquals(9, $collection->count());
+        $this->assertEquals(9, $collection->getChunkCollection()->count());
+
+        $this->assertEquals(3, $collection->remove(['index' => ['$in' =>[5, 7, 9]]]));
+        $this->assertEquals(6, $collection->count());
+        $this->assertEquals(6, $collection->getChunkCollection()->count());
+
+        $this->assertEquals(6, $collection->remove());
+        $this->assertEquals(0, $collection->count());
+        $this->assertEquals(0, $collection->getChunkCollection()->count());
     }
 }

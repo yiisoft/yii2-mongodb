@@ -155,13 +155,41 @@ class Collection extends \yii\mongodb\Collection
      */
     public function remove($condition = [], $options = [])
     {
-        // TODO : better approach for deleting
-        $cursor = parent::find($condition, ['_id'], $options);
-        $deleteCount = 0;
-        foreach ($cursor as $row) {
-            $deleteCount += parent::remove(['_id' => $row['_id']]);
-            $this->getChunkCollection()->remove(['files_id' => $row['_id']]);
+        $fileCollection = $this->getFileCollection();
+        $chunkCollection = $this->getChunkCollection();
+
+        if (empty($condition) && empty($options['limit'])) {
+            // truncate :
+            $deleteCount = $fileCollection->remove([], $options);
+            $chunkCollection->remove([], $options);
+            return $deleteCount;
         }
+
+        $batchSize = 200;
+        $options['batchSize'] = $batchSize;
+        $cursor = $fileCollection->find($condition, ['_id'], $options);
+        $deleteCount = 0;
+        $deleteCallback = function ($ids) use ($fileCollection, $chunkCollection, $options) {
+            $chunkCollection->remove(['files_id' => ['$in' => $ids]], $options);
+            return $fileCollection->remove(['_id' => ['$in' => $ids]], $options);
+        };
+
+        $ids = [];
+        $idsCount = 0;
+        foreach ($cursor as $row) {
+            $ids[] = $row['_id'];
+            $idsCount++;
+            if ($idsCount >= $batchSize) {
+                $deleteCount += $deleteCallback($ids);
+                $ids = [];
+                $idsCount = 0;
+            }
+        }
+
+        if (!empty($ids)) {
+            $deleteCount += $deleteCallback($ids);
+        }
+
         return $deleteCount;
     }
 
