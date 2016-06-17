@@ -105,7 +105,7 @@ class Database extends Object
      */
     public function createCommand($document = [])
     {
-        return $this->connection->createCommand($this->name, $document);
+        return $this->connection->createCommand($document, $this->name);
     }
 
     /**

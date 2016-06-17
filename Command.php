@@ -19,10 +19,39 @@ use yii\base\InvalidConfigException;
 use yii\base\Object;
 
 /**
- * Command represents MongoDB command
+ * Command represents MongoDB statement such as command or query.
+ *
+ * A command object is usually created by calling [[Connection::createCommand()]] or [[Database::createCommand()]].
+ * The statement it represents can be set via the [[document]] property.
+ *
+ * To execute a non-query command, such as 'listIndexes', 'count', 'distinct' and so on, call [[execute()]].
+ * For example:
+ *
+ * ```php
+ * $result = Yii::$app->mongodb->createCommand(['listIndexes' => 'some_collection'])->execute();
+ * ```
+ *
+ * To execute a 'find' command, which return cursor, call [[query()]].
+ * For example:
+ *
+ * ```php
+ * $cursor = Yii::$app->mongodb->createCommand(['projection' => ['name' => true]])->query('some_collection');
+ * ```
+ *
+ * To execute batch (bulk) operations, call [[executeBatch()]].
+ * For example:
+ *
+ * ```php
+ * Yii::$app->mongodb->createCommand()
+ *     ->addInsert(['name' => 'new'])
+ *     ->addUpdate(['name' => 'existing'], ['name' => 'updated'])
+ *     ->addDelete(['name' => 'old'])
+ *     ->executeBatch('some_collection');
+ * ```
  *
  * @property ReadPreference|integer|string|null $readPreference command read preference.
- * @param WriteConcern|integer|string|null $writeConcern write concern to be used by this command.
+ * @property WriteConcern|integer|string|null $writeConcern write concern to be used by this command.
+ * @property ReadConcern|string $readConcern read concern to be used by this command.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -129,8 +158,8 @@ class Command extends Object
 
     /**
      * Executes this command.
-     * @return \MongoDB\Driver\Cursor result cursor
-     * @throws Exception on failure
+     * @return \MongoDB\Driver\Cursor result cursor.
+     * @throws Exception on failure.
      */
     public function execute()
     {
@@ -157,12 +186,16 @@ class Command extends Object
     }
 
     /**
-     * @param string $collectionName collection name
-     * @param array $options batch options
-     * @return array
+     * Execute commands batch (bulk).
+     * @param string $collectionName collection name.
+     * @param array $options batch options.
+     * @return array array of 2 elements:
+     *
+     * - 'insertedIds' - contains inserted IDs.
+     * - 'result' - [[\MongoDB\Driver\WriteResult]] instance.
+     *
      * @throws Exception on failure.
      * @throws InvalidConfigException on invalid [[document]] format.
-     * @throws Exception on failure
      */
     public function executeBatch($collectionName, $options = [])
     {
@@ -294,7 +327,7 @@ class Command extends Object
 
     /**
      * Creates indexes in the collection.
-     * @param string $collectionName.
+     * @param string $collectionName collection name.
      * @param array $indexes indexes specifications.
      * @return boolean whether operation was successful.
      */
@@ -307,9 +340,10 @@ class Command extends Object
     }
 
     /**
-     * @param string $collectionName
-     * @param string $indexes
-     * @return \stdClass result data.
+     * Drops collection indexes by name.
+     * @param string $collectionName collection name.
+     * @param string $indexes wildcard for name of the indexes to be dropped.
+     * @return array result data.
      */
     public function dropIndexes($collectionName, $indexes)
     {
@@ -319,7 +353,8 @@ class Command extends Object
     }
 
     /**
-     * @param string $collectionName
+     * Returns information about current collection indexes.
+     * @param string $collectionName collection name
      * @param array $options
      * @return array list of indexes info.
      * @throws Exception on failure.
@@ -474,6 +509,7 @@ class Command extends Object
     }
 
     /**
+     * Update existing documents in the collection.
      * @param string $collectionName collection name
      * @param array $condition filter condition
      * @param array $document data to be updated.
@@ -498,6 +534,7 @@ class Command extends Object
     }
 
     /**
+     * Removes documents from the collection.
      * @param string $collectionName collection name.
      * @param array $condition filter condition.
      * @param array $options delete options.

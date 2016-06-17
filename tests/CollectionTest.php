@@ -410,6 +410,42 @@ class CollectionTest extends TestCase
         $this->assertEquals(1, count($indexInfo));
     }
 
+    public function testCreateIndexes()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+        $columns = [
+            ['key' => ['name']],
+            ['key' => ['status' => SORT_DESC]]
+        ];
+        $this->assertTrue($collection->createIndexes($columns));
+        $indexInfo = $collection->listIndexes();
+        $this->assertEquals(3, count($indexInfo));
+    }
+
+    /**
+     * @depends testCreateIndexes
+     */
+    public function testDropIndexes()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+        $columns = [
+            [
+                'key' => ['name'],
+                'name' => 'test_index'
+            ],
+            [
+                'key' => ['status'],
+                'name' => 'to_be_dropped'
+            ],
+        ];
+        $collection->createIndexes($columns);
+
+        $collection->dropIndexes('to_be_dropped');
+
+        $indexInfo = $collection->listIndexes();
+        $this->assertEquals(2, count($indexInfo));
+    }
+
     /**
      * @depends testInsert
      * @depends testFind

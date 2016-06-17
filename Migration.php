@@ -83,6 +83,34 @@ abstract class Migration extends Component implements MigrationInterface
     }
 
     /**
+     * Creates indexes in the collection.
+     * @param string|array $collection name of the collection
+     * @param array $indexes indexes specifications.
+     * @since 2.1
+     */
+    public function createIndexes($collection, $indexes)
+    {
+        echo "    > create indexes on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . empty($options) ? "" : ", " . Json::encode($options) . ") ...";
+        $time = microtime(true);
+        $this->db->getCollection($collection)->createIndexes($indexes);
+        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+    }
+
+    /**
+     * Drops collection indexes by name.
+     * @param string|array $collection name of the collection
+     * @param string $indexes wildcard for name of the indexes to be dropped.
+     * @since 2.1
+     */
+    public function dropIndexes($collection, $indexes)
+    {
+        echo "    > drop indexes '{$indexes}' on " . $this->composeCollectionLogName($collection) . ") ...";
+        $time = microtime(true);
+        $this->db->getCollection($collection)->dropIndexes($indexes);
+        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+    }
+
+    /**
      * Creates an index on the collection and the specified fields.
      * @param string|array $collection name of the collection
      * @param array|string $columns column name or list of column names.

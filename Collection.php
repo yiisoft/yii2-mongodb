@@ -107,6 +107,45 @@ class Collection extends Object
     }
 
     /**
+     * Creates several indexes at once.
+     * @param array $indexes indexes specification, each index should be specified as an array.
+     * Each index specification should contain 'key' element, which specifies fields and sort order.
+     * For example:
+     *
+     * ```php
+     * [
+     *     'key' => ['name'],
+     * ],
+     * [
+     *     'key' => [
+     *         'email' => 1,
+     *         'address' => -1,
+     *     ],
+     *     'name' => 'my_index'
+     * ],
+     * ```
+     *
+     * @return boolean whether operation was successful.
+     * @since 2.1
+     */
+    public function createIndexes($indexes)
+    {
+        return $this->database->createCommand()->createIndexes($this->name, $indexes);
+    }
+
+    /**
+     * Drops collection indexes by name.
+     * @param string $indexes wildcard for name of the indexes to be dropped.
+     * You can use `*` to drop all indexes.
+     * @return integer count of dropped indexes.
+     */
+    public function dropIndexes($indexes)
+    {
+        $result = $this->database->createCommand()->dropIndexes($this->name, $indexes);
+        return $result['nIndexesWas'];
+    }
+
+    /**
      * Creates an index on the collection and the specified fields.
      * @param array|string $columns column name or list of column names.
      * If array is given, each element in the array has as key the field name, and as

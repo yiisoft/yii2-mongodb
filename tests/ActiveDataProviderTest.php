@@ -46,7 +46,7 @@ class ActiveDataProviderTest extends TestCase
 
     public function testQuery()
     {
-        $query = new Query;
+        $query = new Query();
         $query->from('customer');
 
         $provider = new ActiveDataProvider([

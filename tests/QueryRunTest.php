@@ -45,7 +45,7 @@ class QueryRunTest extends TestCase
     public function testAll()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')->all($connection);
         $this->assertEquals(10, count($rows));
     }
@@ -53,7 +53,7 @@ class QueryRunTest extends TestCase
     public function testDirectMatch()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['name' => 'name1'])
             ->all($connection);
@@ -64,7 +64,7 @@ class QueryRunTest extends TestCase
     public function testIndexBy()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->indexBy('name')
             ->all($connection);
@@ -75,7 +75,7 @@ class QueryRunTest extends TestCase
     public function testInCondition()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where([
                 'name' => ['name1', 'name5']
@@ -90,13 +90,13 @@ class QueryRunTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['not in', 'name', ['name1', 'name5']])
             ->all($connection);
         $this->assertEquals(8, count($rows));
 
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['not in', 'name', ['name1']])
             ->all($connection);
@@ -129,7 +129,7 @@ class QueryRunTest extends TestCase
     public function testOrCondition()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['name' => 'name1'])
             ->orWhere(['address' => 'address5'])
@@ -142,7 +142,7 @@ class QueryRunTest extends TestCase
     public function testCombinedInAndCondition()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where([
                 'name' => ['name1', 'name5']
@@ -156,7 +156,7 @@ class QueryRunTest extends TestCase
     public function testCombinedInLikeAndCondition()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where([
                 'name' => ['name1', 'name5', 'name10']
@@ -171,7 +171,7 @@ class QueryRunTest extends TestCase
     public function testNestedCombinedInAndCondition()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where([
                 'and',
@@ -193,13 +193,13 @@ class QueryRunTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->orderBy(['name' => SORT_DESC])
             ->all($connection);
         $this->assertEquals('name9', $rows[0]['name']);
 
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->orderBy(['avatar.height' => SORT_DESC])
             ->all($connection);
@@ -209,9 +209,9 @@ class QueryRunTest extends TestCase
     public function testMatchPlainId()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $row = $query->from('customer')->one($connection);
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['_id' => $row['_id']->__toString()])
             ->all($connection);
@@ -221,7 +221,7 @@ class QueryRunTest extends TestCase
     public function testRegex()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['REGEX', 'name', '/me1/'])
             ->all($connection);
@@ -234,7 +234,7 @@ class QueryRunTest extends TestCase
     {
         $connection = $this->getConnection();
 
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->where(['LIKE', 'name', 'me1'])
             ->all($connection);
@@ -242,7 +242,7 @@ class QueryRunTest extends TestCase
         $this->assertEquals('name1', $rows[0]['name']);
         $this->assertEquals('name10', $rows[1]['name']);
 
-        $query = new Query;
+        $query = new Query();
         $rowsUppercase = $query->from('customer')
             ->where(['LIKE', 'name', 'ME1'])
             ->all($connection);
@@ -315,23 +315,6 @@ class QueryRunTest extends TestCase
         $this->assertNull($row);
     }
 
-    /*public function testOptions()
-    {
-        $connection = $this->getConnection();
-        $connection->getCollection('customer')->createIndex(['status' => 1]);
-
-        $query = new Query();
-        $rows = $query->from('customer')
-            ->options([
-                '$min' => [
-                    'status' => 9
-                ],
-            ])
-            ->all($connection);
-
-        $this->assertCount(2, $rows);
-    }*/
-
     /**
      * @see https://github.com/yiisoft/yii2/issues/4879
      * @see https://github.com/yiisoft/yii2-mongodb/issues/101
@@ -375,7 +358,7 @@ class QueryRunTest extends TestCase
     public function testSelect()
     {
         $connection = $this->getConnection();
-        $query = new Query;
+        $query = new Query();
         $rows = $query->from('customer')
             ->select(['name' => true, '_id' => false])
             ->limit(1)

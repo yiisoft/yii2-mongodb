@@ -20,7 +20,8 @@ use yii\web\UploadedFile;
  * File collection inherits all interface from regular [[\yii\mongo\Collection]], adding methods to store files.
  *
  * @property string $prefix prefix of this file collection.
- * @property \yii\mongodb\Collection $chunkCollection Mongo collection instance. This property is read-only.
+ * @property \yii\mongodb\Collection $chunkCollection MongoDB collection instance. This property is read-only.
+ * @property \yii\mongodb\Collection $fileCollection MongoDB collection instance. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
@@ -37,9 +38,13 @@ class Collection extends \yii\mongodb\Collection
      */
     private $_prefix;
     /**
-     * @var \yii\mongodb\Collection file chunks Mongo collection.
+     * @var \yii\mongodb\Collection file chunks MongoDB collection.
      */
     private $_chunkCollection;
+    /**
+     * @var \yii\mongodb\Collection files MongoDB collection.
+     */
+    private $_fileCollection;
     /**
      * @var boolean whether file related fields indexes are ensured for this collection.
      */
@@ -60,7 +65,7 @@ class Collection extends \yii\mongodb\Collection
     public function setPrefix($prefix)
     {
         $this->_prefix = $prefix;
-        $this->name = sprintf('%s.files', $prefix);
+        $this->name = $prefix . '.files';
     }
 
     /**
@@ -92,7 +97,7 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * Returns the Mongo collection for the file chunks.
+     * Returns the MongoDB collection for the file chunks.
      * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
      * @return \yii\mongodb\Collection mongo collection instance.
      */
@@ -102,11 +107,30 @@ class Collection extends \yii\mongodb\Collection
             $this->_chunkCollection = Yii::createObject([
                 'class' => 'yii\mongodb\Collection',
                 'database' => $this->database,
-                'name' => sprintf('%s.chunks', $this->getPrefix())
+                'name' => $this->getPrefix() . '.chunks'
             ]);
         }
 
         return $this->_chunkCollection;
+    }
+
+    /**
+     * Returns the MongoDB collection for the files.
+     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @return \yii\mongodb\Collection mongo collection instance.
+     * @since 2.1
+     */
+    public function getFileCollection($refresh = false)
+    {
+        if ($refresh || !is_object($this->_fileCollection)) {
+            $this->_fileCollection = Yii::createObject([
+                'class' => 'yii\mongodb\Collection',
+                'database' => $this->database,
+                'name' => $this->name
+            ]);
+        }
+
+        return $this->_fileCollection;
     }
 
     /**
@@ -207,7 +231,7 @@ class Collection extends \yii\mongodb\Collection
      */
     public function get($id)
     {
-        $document = $this->findOne(['_id' => $id]);
+        $document = $this->getFileCollection()->findOne(['_id' => $id]);
         if (empty($document)) {
             return null;
         }

@@ -2,6 +2,11 @@
 
 namespace yiiunit\extensions\mongodb\data\ar;
 
+/**
+ * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property string $name
+ * @property float $price
+ */
 class Item extends ActiveRecord
 {
     public static function collectionName()

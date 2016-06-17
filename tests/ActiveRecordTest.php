@@ -117,7 +117,7 @@ class ActiveRecordTest extends TestCase
 
     public function testInsert()
     {
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->email = 'new email';
         $record->address = 'new address';
@@ -136,7 +136,7 @@ class ActiveRecordTest extends TestCase
      */
     public function testUpdate()
     {
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->email = 'new email';
         $record->address = 'new address';
@@ -155,6 +155,7 @@ class ActiveRecordTest extends TestCase
         $this->assertFalse($record->isNewRecord);
         $record2 = Customer::findOne($record->_id);
         $this->assertEquals(9, $record2->status);
+        $this->assertEquals('new name', $record2->name);
 
         // updateAll
         $pk = ['_id' => $record->_id];
@@ -170,7 +171,7 @@ class ActiveRecordTest extends TestCase
     public function testDelete()
     {
         // delete
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->email = 'new email';
         $record->address = 'new address';
@@ -183,7 +184,7 @@ class ActiveRecordTest extends TestCase
         $this->assertNull($record);
 
         // deleteAll
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->email = 'new email';
         $record->address = 'new address';
@@ -225,7 +226,7 @@ class ActiveRecordTest extends TestCase
      */
     public function testUpdateNestedAttribute()
     {
-        $record = new Customer;
+        $record = new Customer();
         $record->name = 'new name';
         $record->email = 'new email';
         $record->address = [
@@ -296,8 +297,12 @@ class ActiveRecordTest extends TestCase
         $this->assertTrue($record->_id instanceof ObjectID);
         $this->assertFalse($record->isNewRecord);
     }
-    
-    public function testPopulateRecordCallWhenQueryingOnParentClass() 
+
+    /**
+     * @depends testFind
+     * @depends testInsert
+     */
+    public function testPopulateRecordCallWhenQueryingOnParentClass()
     {
         (new Cat())->save(false);
         (new Dog())->save(false);

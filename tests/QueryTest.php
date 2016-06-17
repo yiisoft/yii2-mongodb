@@ -9,12 +9,12 @@ class QueryTest extends TestCase
     public function testSelect()
     {
         // default
-        $query = new Query;
+        $query = new Query();
         $select = [];
         $query->select($select);
         $this->assertEquals($select, $query->select);
 
-        $query = new Query;
+        $query = new Query();
         $select = ['name', 'something'];
         $query->select($select);
         $this->assertEquals($select, $query->select);
@@ -22,12 +22,12 @@ class QueryTest extends TestCase
 
     public function testFrom()
     {
-        $query = new Query;
+        $query = new Query();
         $from = 'customer';
         $query->from($from);
         $this->assertEquals($from, $query->from);
 
-        $query = new Query;
+        $query = new Query();
         $from = ['', 'customer'];
         $query->from($from);
         $this->assertEquals($from, $query->from);
@@ -35,7 +35,7 @@ class QueryTest extends TestCase
 
     public function testWhere()
     {
-        $query = new Query;
+        $query = new Query();
         $query->where(['name' => 'name1']);
         $this->assertEquals(['name' => 'name1'], $query->where);
 
@@ -68,7 +68,7 @@ class QueryTest extends TestCase
     public function testFilterWhere()
     {
         // should work with hash format
-        $query = new Query;
+        $query = new Query();
         $query->filterWhere([
             'id' => 0,
             'title' => '   ',
@@ -85,7 +85,7 @@ class QueryTest extends TestCase
 
     public function testOrder()
     {
-        $query = new Query;
+        $query = new Query();
         $query->orderBy('team');
         $this->assertEquals(['team' => SORT_ASC], $query->orderBy);
 
@@ -104,7 +104,7 @@ class QueryTest extends TestCase
 
     public function testLimitOffset()
     {
-        $query = new Query;
+        $query = new Query();
         $query->limit(10)->offset(5);
         $this->assertEquals(10, $query->limit);
         $this->assertEquals(5, $query->offset);

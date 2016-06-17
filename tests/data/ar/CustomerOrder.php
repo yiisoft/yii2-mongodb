@@ -2,6 +2,12 @@
 
 namespace yiiunit\extensions\mongodb\data\ar;
 
+/**
+ * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property integer $number
+ * @property \MongoDB\BSON\ObjectID $customer_id
+ * @property array $item_ids
+ */
 class CustomerOrder extends ActiveRecord
 {
     public static function collectionName()

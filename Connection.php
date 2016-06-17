@@ -394,12 +394,12 @@ class Connection extends Component
 
     /**
      * Creates MongoDB command.
-     * @param string|null $databaseName database name, if not set [[defaultDatabaseName]] will be used.
      * @param array $document command document contents.
+     * @param string|null $databaseName database name, if not set [[defaultDatabaseName]] will be used.
      * @return Command command instance.
      * @since 2.1
      */
-    public function createCommand($databaseName = null, $document = [])
+    public function createCommand($document = [], $databaseName = null)
     {
         return new Command([
             'db' => $this,

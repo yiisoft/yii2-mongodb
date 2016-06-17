@@ -28,6 +28,14 @@ class CollectionTest extends TestCase
         $this->assertTrue($chunkCollection->database instanceof \yii\mongodb\Database);
     }
 
+    public function testGetFileCollection()
+    {
+        $collection = $this->getConnection()->getFileCollection();
+        $fileCollection = $collection->getFileCollection();
+        $this->assertTrue($fileCollection instanceof \yii\mongodb\Collection);
+        $this->assertTrue($fileCollection->database instanceof \yii\mongodb\Database);
+    }
+
     public function testEnsureIndexes()
     {
         $collection = $this->getConnection()->getFileCollection();

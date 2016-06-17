@@ -1,18 +1,14 @@
 <?php
 
-/**
- * @link http://www.yiiframework.com/
- * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
- */
-
 namespace yiiunit\extensions\mongodb\data\ar;
 
 /**
- * Class Animal
+ * Animal
+ *
+ * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property string $type
  *
  * @author Jose Lorente <jose.lorente.martin@gmail.com>
- * @since 2.0
  */
 class Animal extends ActiveRecord
 {
@@ -41,9 +37,8 @@ class Animal extends ActiveRecord
     }
 
     /**
-     * 
-     * @param type $row
-     * @return \yiiunit\data\ar\elasticsearch\Animal
+     * @param array $row
+     * @return Animal
      */
     public static function instantiate($row)
     {
