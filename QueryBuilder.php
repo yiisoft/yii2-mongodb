@@ -385,6 +385,36 @@ class QueryBuilder extends Object
         ];
     }
 
+    /**
+     * Generates 'listDatabases' command.
+     * @param array $condition filter condition.
+     * @param array $options command options.
+     * @return array command document.
+     */
+    public function listDatabases($condition = [], $options = [])
+    {
+        $document = array_merge(['listDatabases' => 1], $options);
+        if (!empty($condition)) {
+            $document['filter'] = (object)$this->buildCondition($condition);
+        }
+        return $document;
+    }
+
+    /**
+     * Generates 'listCollections' command.
+     * @param array $condition filter condition.
+     * @param array $options command options.
+     * @return array command document.
+     */
+    public function listCollections($condition = [], $options = [])
+    {
+        $document = array_merge(['listCollections' => 1], $options);
+        if (!empty($condition)) {
+            $document['filter'] = (object)$this->buildCondition($condition);
+        }
+        return $document;
+    }
+
     // Service :
 
     /**

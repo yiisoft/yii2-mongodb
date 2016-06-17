@@ -706,6 +706,42 @@ class Command extends Object
         return current($cursor->toArray());
     }
 
+    /**
+     * Returns the list of available databases.
+     * @param array $condition filter condition.
+     * @param array $options options list.
+     * @return array database information
+     */
+    public function listDatabases($condition = [], $options = [])
+    {
+        if ($this->databaseName === null) {
+            $this->databaseName = 'admin';
+        }
+        $this->document = $this->db->getQueryBuilder()->listDatabases($condition, $options);
+
+        $cursor = $this->execute();
+        $result = current($cursor->toArray());
+
+        if (empty($result['databases'])) {
+            return [];
+        }
+        return $result['databases'];
+    }
+
+    /**
+     * Returns the list of available collections.
+     * @param array $condition filter condition.
+     * @param array $options options list.
+     * @return array collections information.
+     */
+    public function listCollections($condition = [], $options = [])
+    {
+        $this->document = $this->db->getQueryBuilder()->listCollections($condition, $options);
+        $cursor = $this->execute();
+
+        return $cursor->toArray();
+    }
+
     // Logging :
 
     /**

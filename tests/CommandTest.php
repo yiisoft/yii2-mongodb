@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use yii\helpers\ArrayHelper;
 
 class CommandTest extends TestCase
 {
@@ -275,5 +276,19 @@ class CommandTest extends TestCase
 
         $this->assertArrayHasKey('queryPlanner', $result);
         $this->assertArrayHasKey('executionStats', $result);
+    }
+
+    /**
+     * @depends testCreateCollection
+     */
+    public function testListCollections()
+    {
+        $connection = $this->getConnection();
+
+        $connection->createCommand()->createCollection('customer');
+
+        $collections = $connection->createCommand()->listCollections();
+        $collectionNames = ArrayHelper::getColumn($collections, 'name');
+        $this->assertContains('customer', $collectionNames);
     }
 }
