@@ -65,7 +65,7 @@ class LogBuilder extends Object
             ) {
                 $data = get_class($data) . '(' . $data->__toString() . ')';
             } elseif ($data instanceof Javascript) {
-                $data = print_r($data, true);
+                $data = $this->processJavascript($data);
             } elseif ($data instanceof MinKey || $data instanceof MaxKey) {
                 $data = get_class($data);
             } elseif ($data instanceof Binary) {
@@ -99,5 +99,28 @@ class LogBuilder extends Object
         }
 
         return $data;
+    }
+
+    /**
+     * Processes [[Javascript]] composing recoverable value.
+     * @param Javascript $javascript javascript BSON object.
+     * @return string processed javascript.
+     */
+    private function processJavascript(Javascript $javascript)
+    {
+        $dump = print_r($javascript, true);
+        $beginPos = strpos($dump, '[javascript] => ');
+        if ($beginPos === false) {
+            return $dump;
+        }
+        $beginPos += strlen('[javascript] => ');
+
+        $endPos = strrpos($dump, '[scope] => ');
+        if ($endPos === false || $beginPos > $endPos) {
+            return $dump;
+        }
+        $content = substr($dump, $beginPos, $endPos - $beginPos);
+
+        return get_class($javascript) . '(' . trim($content, " \n\t") . ')';
     }
 }

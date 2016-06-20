@@ -99,21 +99,22 @@ class Connection extends Component
      * ```php
      * [
      *     'socketTimeoutMS' => 1000, // how long a send or receive on a socket can take before timing out
-     *     'journal' => true // block write operations until the journal be flushed the to disk
+     *     'ssl' => true // initiate the connection with TLS/SSL
      * ]
      * ```
      *
-     * @see http://php.net/manual/en/mongodb-driver-manager.construct.php
+     * @see https://docs.mongodb.com/manual/reference/connection-string/#connections-connection-options
      */
     public $options = [];
     /**
      * @var array options for the MongoDB driver.
+     * Any driver-specific options not included in MongoDB connection string specification.
      *
      * @see http://php.net/manual/en/mongodb-driver-manager.construct.php
      */
     public $driverOptions = [];
     /**
-     * @var Manager MongoDB driver manager
+     * @var Manager MongoDB driver manager.
      * @since 2.1
      */
     public $manager;
@@ -176,7 +177,8 @@ class Connection extends Component
 
 
     /**
-     * @param string $name default database name
+     * Sets default database name.
+     * @param string $name default database name.
      */
     public function setDefaultDatabaseName($name)
     {
@@ -226,6 +228,7 @@ class Connection extends Component
     }
 
     /**
+     * Returns log builder for this connection.
      * @return LogBuilder the log builder for this connection.
      * @since 2.1
      */
@@ -238,6 +241,7 @@ class Connection extends Component
     }
 
     /**
+     * Sets log builder used for this connection.
      * @param array|string|LogBuilder $logBuilder the log builder for this connection.
      * @since 2.1
      */
@@ -247,9 +251,9 @@ class Connection extends Component
     }
 
     /**
-     * Returns the Mongo collection with the given name.
-     * @param string|null $name collection name, if null default one will be used.
-     * @param boolean $refresh whether to reestablish the database connection even if it is found in the cache.
+     * Returns the MongoDB database with the given name.
+     * @param string|null $name database name, if null default one will be used.
+     * @param boolean $refresh whether to reestablish the database connection even, if it is found in the cache.
      * @return Database database instance.
      */
     public function getDatabase($name = null, $refresh = false)
@@ -279,7 +283,7 @@ class Connection extends Component
     }
 
     /**
-     * Returns the Mongo collection with the given name.
+     * Returns the MongoDB collection with the given name.
      * @param string|array $name collection name. If string considered as the name of the collection
      * inside the default database. If array - first element considered as the name of the database,
      * second - as name of collection inside that database
@@ -290,7 +294,6 @@ class Connection extends Component
     {
         if (is_array($name)) {
             list ($dbName, $collectionName) = $name;
-
             return $this->getDatabase($dbName)->getCollection($collectionName, $refresh);
         } else {
             return $this->getDatabase()->getCollection($name, $refresh);
@@ -298,7 +301,7 @@ class Connection extends Component
     }
 
     /**
-     * Returns the Mongo GridFS collection.
+     * Returns the MongoDB GridFS collection.
      * @param string|array $prefix collection prefix. If string considered as the prefix of the GridFS
      * collection inside the default database. If array - first element considered as the name of the database,
      * second - as prefix of the GridFS collection inside that database, if no second element present
@@ -331,7 +334,7 @@ class Connection extends Component
 
     /**
      * Establishes a Mongo connection.
-     * It does nothing if a Mongo connection has already been established.
+     * It does nothing if a MongoDB connection has already been established.
      * @throws Exception if connection fails
      */
     public function open()
