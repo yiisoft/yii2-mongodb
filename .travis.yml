@@ -29,6 +29,9 @@ cache:
   directories:
     - $HOME/.composer/cache
 
+before_install:
+  - sudo apt-get install -y mongodb-org-shell
+
 install:
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version

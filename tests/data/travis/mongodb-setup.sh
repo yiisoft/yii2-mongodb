@@ -7,8 +7,6 @@
 echo "MongoDB Server version:"
 mongod --version
 
-apt-get install -y mongodb-org-shell
-
 mongo yii2test --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
 
 # PHP Extension :
