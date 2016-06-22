@@ -44,9 +44,10 @@ class QueryBuilder extends Object
     // Commands :
 
     /**
-     * Generates create collection command
-     * @param string $collectionName
-     * @param array $options
+     * Generates 'create collection' command.
+     * https://docs.mongodb.com/manual/reference/method/db.createCollection/
+     * @param string $collectionName collection name.
+     * @param array $options collection options in format: "name" => "value"
      * @return array command document.
      */
     public function createCollection($collectionName, array $options = [])
@@ -68,6 +69,7 @@ class QueryBuilder extends Object
 
     /**
      * Generates drop database command.
+     * https://docs.mongodb.com/manual/reference/method/db.dropDatabase/
      * @return array command document.
      */
     public function dropDatabase()
@@ -77,6 +79,7 @@ class QueryBuilder extends Object
 
     /**
      * Generates drop collection command.
+     * https://docs.mongodb.com/manual/reference/method/db.collection.drop/
      * @param string $collectionName name of the collection to be dropped.
      * @return array command document.
      */
@@ -87,9 +90,20 @@ class QueryBuilder extends Object
 
     /**
      * Generates create indexes command.
-     * @param string|null $databaseName database name
-     * @param string $collectionName collection name
-     * @param array $indexes indexes specification
+     * @see https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/
+     * @param string|null $databaseName database name.
+     * @param string $collectionName collection name.
+     * @param array[] $indexes indexes specification. Each specification should be an array in format: optionName => value
+     * The main options are:
+     * 
+     * - keys: array, column names with sort order, to be indexed. This option is mandatory.
+     * - unique: boolean, whether to create unique index.
+     * - name: string, the name of the index, if not set it will be generated automatically.
+     * - background: boolean, whether to bind index in the background.
+     * - sparse: boolean, whether index should reference only documents with the specified field.
+     *
+     * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
+     * for the full list of options.
      * @return array command document.
      */
     public function createIndexes($databaseName, $collectionName, $indexes)
@@ -125,10 +139,10 @@ class QueryBuilder extends Object
 
     /**
      * Generates index name for the given column orders.
-     * @param array $columns
-     * @return string index name
+     * @param array $columns columns with sort order.
+     * @return string index name.
      */
-    protected function generateIndexName($columns)
+    private function generateIndexName($columns)
     {
         $parts = [];
         foreach ($columns as $column => $order) {
@@ -303,6 +317,30 @@ class QueryBuilder extends Object
         return $document;
     }
 
+    /**
+     * Generates 'map-reduce' command.
+     * @see https://docs.mongodb.com/manual/core/map-reduce/
+     * @param string $collectionName collection name.
+     * @param \MongoDB\BSON\Javascript|string $map function, which emits map data from collection.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param \MongoDB\BSON\Javascript|string $reduce function that takes two arguments (the map key
+     * and the map values) and does the aggregation.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param string|array $out output collection name. It could be a string for simple output
+     * ('outputCollection'), or an array for parametrized output (['merge' => 'outputCollection']).
+     * You can pass ['inline' => true] to fetch the result at once without temporary collection usage.
+     * @param array $condition filter condition for including a document in the aggregation.
+     * @param array $options additional optional parameters to the mapReduce command. Valid options include:
+     *
+     *  - sort: array, key to sort the input documents. The sort key must be in an existing index for this collection.
+     *  - limit: integer, the maximum number of documents to return in the collection.
+     *  - finalize: \MongoDB\BSON\Javascript|string, function, which follows the reduce method and modifies the output.
+     *  - scope: array, specifies global variables that are accessible in the map, reduce and finalize functions.
+     *  - jsMode: boolean, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
+     *  - verbose: boolean, specifies whether to include the timing information in the result information.
+     *
+     * @return array command document.
+     */
     public function mapReduce($collectionName, $map, $reduce, $out, $condition = [], $options = [])
     {
         if (!($map instanceof Javascript)) {

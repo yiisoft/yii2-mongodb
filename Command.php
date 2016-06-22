@@ -86,7 +86,8 @@ class Command extends Object
 
 
     /**
-     * @return ReadPreference
+     * Returns read preference for this command.
+     * @return ReadPreference read preference.
      */
     public function getReadPreference()
     {
@@ -101,8 +102,10 @@ class Command extends Object
     }
 
     /**
-     * @param ReadPreference|integer|string|null $readPreference
-     * @return $this self reference
+     * Sets read preference for this command.
+     * @param ReadPreference|integer|string|null $readPreference read reference, it can be specified as
+     * instance of [[ReadPreference]] or scalar mode value, for example: `ReadPreference::RP_PRIMARY`.
+     * @return $this self reference.
      */
     public function setReadPreference($readPreference)
     {
@@ -111,6 +114,7 @@ class Command extends Object
     }
 
     /**
+     * Returns write concern for this command.
      * @return WriteConcern|null write concern to be used in this command.
      */
     public function getWriteConcern()
@@ -124,7 +128,9 @@ class Command extends Object
     }
 
     /**
-     * @param WriteConcern|integer|string|null $writeConcern
+     * Sets write concern for this command.
+     * @param WriteConcern|integer|string|null $writeConcern write concern, it can be an instance of [[WriteConcern]]
+     * or its scalar mode value, for example: `majority`.
      * @return $this self reference
      */
     public function setWriteConcern($writeConcern)
@@ -134,7 +140,8 @@ class Command extends Object
     }
 
     /**
-     * @return ReadConcern|string
+     * Retuns read concern for this command.
+     * @return ReadConcern|string read concern to be used in this command.
      */
     public function getReadConcern()
     {
@@ -147,7 +154,9 @@ class Command extends Object
     }
 
     /**
-     * @param ReadConcern|string $readConcern
+     * Sets read concern for this command.
+     * @param ReadConcern|string $readConcern read concern, it can be an instance of [[ReadConcern]] or
+     * scalar level value, for example: 'local'.
      * @return $this self reference
      */
     public function setReadConcern($readConcern)
@@ -301,7 +310,7 @@ class Command extends Object
     /**
      * Creates new collection in database associated with this command.s
      * @param string $collectionName collection name
-     * @param array $options collection options.
+     * @param array $options collection options in format: "name" => "value"
      * @return boolean whether operation was successful.
      */
     public function createCollection($collectionName, array $options = [])
@@ -328,7 +337,17 @@ class Command extends Object
     /**
      * Creates indexes in the collection.
      * @param string $collectionName collection name.
-     * @param array $indexes indexes specifications.
+     * @param array[] $indexes indexes specification. Each specification should be an array in format: optionName => value
+     * The main options are:
+     *
+     * - keys: array, column names with sort order, to be indexed. This option is mandatory.
+     * - unique: boolean, whether to create unique index.
+     * - name: string, the name of the index, if not set it will be generated automatically.
+     * - background: boolean, whether to bind index in the background.
+     * - sparse: boolean, whether index should reference only documents with the specified field.
+     *
+     * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
+     * for the full list of options.
      * @return boolean whether operation was successful.
      */
     public function createIndexes($collectionName, $indexes)
@@ -355,7 +374,7 @@ class Command extends Object
     /**
      * Returns information about current collection indexes.
      * @param string $collectionName collection name
-     * @param array $options
+     * @param array $options list of options in format: optionName => optionValue.
      * @return array list of indexes info.
      * @throws Exception on failure.
      */
@@ -385,7 +404,7 @@ class Command extends Object
      * Counts records in specified collection.
      * @param string $collectionName collection name
      * @param array $condition filter condition
-     * @param array $options options/
+     * @param array $options list of options in format: optionName => optionValue.
      * @return integer records count
      */
     public function count($collectionName, $condition = [], $options = [])
@@ -466,7 +485,7 @@ class Command extends Object
      * Inserts new document into collection.
      * @param string $collectionName collection name
      * @param array $document document content
-     * @param array $options
+     * @param array $options list of options in format: optionName => optionValue.
      * @return ObjectID|boolean inserted record ID, `false` - on failure.
      */
     public function insert($collectionName, $document, $options = [])
@@ -486,7 +505,7 @@ class Command extends Object
      * Inserts batch of new documents into collection.
      * @param string $collectionName collection name
      * @param array[] $documents documents list
-     * @param array $options
+     * @param array $options list of options in format: optionName => optionValue.
      * @return array|false list of inserted IDs, `false` on failure.
      */
     public function batchInsert($collectionName, $documents, $options = [])
@@ -665,6 +684,29 @@ class Command extends Object
         return $result['retval'];
     }
 
+    /**
+     * Performs MongoDB "map-reduce" command.
+     * @param string $collectionName collection name.
+     * @param \MongoDB\BSON\Javascript|string $map function, which emits map data from collection.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param \MongoDB\BSON\Javascript|string $reduce function that takes two arguments (the map key
+     * and the map values) and does the aggregation.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param string|array $out output collection name. It could be a string for simple output
+     * ('outputCollection'), or an array for parametrized output (['merge' => 'outputCollection']).
+     * You can pass ['inline' => true] to fetch the result at once without temporary collection usage.
+     * @param array $condition filter condition for including a document in the aggregation.
+     * @param array $options additional optional parameters to the mapReduce command. Valid options include:
+     *
+     *  - sort: array, key to sort the input documents. The sort key must be in an existing index for this collection.
+     *  - limit: integer, the maximum number of documents to return in the collection.
+     *  - finalize: \MongoDB\BSON\Javascript|string, function, which follows the reduce method and modifies the output.
+     *  - scope: array, specifies global variables that are accessible in the map, reduce and finalize functions.
+     *  - jsMode: boolean, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
+     *  - verbose: boolean, specifies whether to include the timing information in the result information.
+     *
+     * @return string|array the map reduce output collection name or output results.
+     */
     public function mapReduce($collectionName, $map, $reduce, $out, $condition = [], $options = [])
     {
         $this->document = $this->db->getQueryBuilder()->mapReduce($collectionName, $map, $reduce, $out, $condition, $options);
@@ -745,8 +787,8 @@ class Command extends Object
     // Logging :
 
     /**
-     * Logs the command data if logging is enabled at [[db]]
-     * @param array|string $namespace command namespace
+     * Logs the command data if logging is enabled at [[db]].
+     * @param array|string $namespace command namespace.
      * @param array $data command data.
      * @param string $category log category
      * @return string|false log token, `false` if log is not enabled.

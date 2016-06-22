@@ -99,32 +99,46 @@ class Collection extends Object
     /**
      * Returns the list of defined indexes.
      * @return array list of indexes info.
+     * @param array $options list of options in format: optionName => optionValue.
      * @since 2.1
      */
-    public function listIndexes()
+    public function listIndexes($options = [])
     {
-        return $this->database->createCommand()->listIndexes($this->name);
+        return $this->database->createCommand()->listIndexes($this->name, $options);
     }
 
     /**
      * Creates several indexes at once.
-     * @param array $indexes indexes specification, each index should be specified as an array.
-     * Each index specification should contain 'key' element, which specifies fields and sort order.
-     * For example:
+     * Example:
      *
      * ```php
-     * [
-     *     'key' => ['name'],
-     * ],
-     * [
-     *     'key' => [
-     *         'email' => 1,
-     *         'address' => -1,
+     * $collection = Yii::$app->mongo->getCollection('customer');
+     * $collection->createIndexes([
+     *     [
+     *         'key' => ['name'],
      *     ],
-     *     'name' => 'my_index'
-     * ],
+     *     [
+     *         'key' => [
+     *             'email' => 1,
+     *             'address' => -1,
+     *         ],
+     *         'name' => 'my_index'
+     *     ],
+     * ]);
      * ```
      *
+     * @param array $indexes indexes specification, each index should be specified as an array.
+     * @param array[] $indexes indexes specification. Each specification should be an array in format: optionName => value
+     * The main options are:
+     *
+     * - keys: array, column names with sort order, to be indexed. This option is mandatory.
+     * - unique: boolean, whether to create unique index.
+     * - name: string, the name of the index, if not set it will be generated automatically.
+     * - background: boolean, whether to bind index in the background.
+     * - sparse: boolean, whether index should reference only documents with the specified field.
+     *
+     * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
+     * for the full list of options.
      * @return boolean whether operation was successful.
      * @since 2.1
      */
@@ -398,7 +412,7 @@ class Collection extends Object
     }
 
     /**
-     * Performs aggregation using Mongo "map reduce" mechanism.
+     * Performs aggregation using MongoDB "map-reduce" mechanism.
      * Note: this function will not return the aggregation result, instead it will
      * write it inside the another Mongo collection specified by "out" parameter.
      * For example:
@@ -415,22 +429,24 @@ class Collection extends Object
      * $results = $query->from($resultCollectionName)->all();
      * ```
      *
-     * @param \MongoCode|string $map function, which emits map data from collection.
-     * Argument will be automatically cast to [[\MongoCode]].
-     * @param \MongoCode|string $reduce function that takes two arguments (the map key
+     * @param \MongoDB\BSON\Javascript|string $map function, which emits map data from collection.
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
+     * @param \MongoDB\BSON\Javascript|string $reduce function that takes two arguments (the map key
      * and the map values) and does the aggregation.
-     * Argument will be automatically cast to [[\MongoCode]].
+     * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
      * @param string|array $out output collection name. It could be a string for simple output
      * ('outputCollection'), or an array for parametrized output (['merge' => 'outputCollection']).
      * You can pass ['inline' => true] to fetch the result at once without temporary collection usage.
      * @param array $condition criteria for including a document in the aggregation.
      * @param array $options additional optional parameters to the mapReduce command. Valid options include:
-     *  - sort - array - key to sort the input documents. The sort key must be in an existing index for this collection.
-     *  - limit - the maximum number of documents to return in the collection.
-     *  - finalize - function, which follows the reduce method and modifies the output.
-     *  - scope - array - specifies global variables that are accessible in the map, reduce and finalize functions.
-     *  - jsMode - boolean -Specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
-     *  - verbose - boolean - specifies whether to include the timing information in the result information.
+     *
+     * - sort: array, key to sort the input documents. The sort key must be in an existing index for this collection.
+     * - limit: integer, the maximum number of documents to return in the collection.
+     * - finalize: \MongoDB\BSON\Javascript|string, function, which follows the reduce method and modifies the output.
+     * - scope: array, specifies global variables that are accessible in the map, reduce and finalize functions.
+     * - jsMode: boolean, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
+     * - verbose: boolean, specifies whether to include the timing information in the result information.
+     *
      * @return string|array the map reduce output collection name or output results.
      * @throws Exception on failure.
      */
