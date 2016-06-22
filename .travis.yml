@@ -25,6 +25,9 @@ addons:
       - mongodb-org-server
       - mongodb-org-shell
 
+# faster builds on new travis setup not using sudo
+sudo: false
+
 # cache vendor dirs
 cache:
   directories:
