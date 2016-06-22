@@ -23,14 +23,12 @@ addons:
       - mongodb-3.0-precise
     packages:
       - mongodb-org-server
+      - mongodb-org-shell
 
 # cache vendor dirs
 cache:
   directories:
     - $HOME/.composer/cache
-
-before_install:
-  - sudo apt-get install -y mongodb-org-shell
 
 install:
   - tests/data/travis/mongodb-setup.sh
