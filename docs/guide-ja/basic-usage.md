@@ -14,7 +14,7 @@ $collection->insert(['name' => 'John Smith', 'status' => 1]);
 ```php
 use yii\mongodb\Query;
 
-$query = new Query;
+$query = new Query();
 // クエリを構築する
 $query->select(['name', 'status'])
     ->from('customer')

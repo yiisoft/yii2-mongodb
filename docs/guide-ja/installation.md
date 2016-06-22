@@ -3,7 +3,7 @@
 
 ## 必要条件
 
-このエクステンションは [MongoDB PHP 拡張](http://us1.php.net/manual/en/book.mongo.php) バージョン 1.5.0 以降を必要とします。
+このエクステンションは [MongoDB PHP 拡張](http://us1.php.net/manual/en/set.mongodb.php) バージョン 1.0.0 以降を必要とします。
 
 ## Composer パッケージを取得する
 

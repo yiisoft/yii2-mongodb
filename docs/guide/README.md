@@ -20,6 +20,7 @@ Usage
 Additional topics
 -----------------
 
+* [Logging and Profiling](topics-logging.md)
 * [Using the Cache component](topics-cache.md)
 * [Using the Session component](topics-session.md)
 * [Using the I18N Message Source](topics-i18n-message-source.md)

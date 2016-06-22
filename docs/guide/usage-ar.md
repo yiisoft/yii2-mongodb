@@ -36,7 +36,7 @@ You can use [[\yii\data\ActiveDataProvider]] with [[\yii\mongodb\Query]] and [[\
 use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
 
-$query = new Query;
+$query = new Query();
 $query->from('customer')->where(['status' => 2]);
 $provider = new ActiveDataProvider([
     'query' => $query,

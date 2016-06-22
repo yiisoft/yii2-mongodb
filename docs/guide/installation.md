@@ -3,7 +3,7 @@ Installation
 
 ## Requirements
 
-This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/book.mongo.php) version 1.5.0 or higher.
+This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/set.mongodb.php) version 1.0.0 or higher.
 
 ## Getting Composer package
 
