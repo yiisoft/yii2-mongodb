@@ -19,8 +19,12 @@ Upgrade from Yii 2.0.5
 
 * MongoDB server versions < 3.0 are no longer supported. Make sure you are running MongoDB server >= 3.0
 
-* The signature of numerous methods has been changed. In case you are extending some of the `yii\mongodb\*` classes,
-  you should check, if overridden methods match parent declaration.
+* The signature of the following `\yii\mongodb\Collection` methods has been changed: `aggregate()`, `distinct()`,
+  `find()`, `findOne()`, `findAndModify()`. Make sure you invoke those methods correctly. In case you are
+  extending `\yii\mongodb\Collection`, you should check, if overridden methods match parent declaration.
+
+* Command and query composition methods at `\yii\mongodb\Collection`, such as `buildCondition()`, `ensureMongoId()`
+  and so on, have been removed. Use `\yii\mongodb\QueryBuilder` methods instead.
 
 * Method `Database::executeCommand()` has been removed. Use `Command` class for plain MongoDB command execution.
   You may create command with database scope using `Database::createCommand()` method.

@@ -18,7 +18,7 @@ php composer.phar require --prefer-dist yiisoft/yii2-mongodb
 または、あなたの `composer.json` ファイルの `require` セクションに、下記を追加してください。
 
 ```
-"yiisoft/yii2-mongodb": "~2.0.0"
+"yiisoft/yii2-mongodb": "~2.1.0"
 ```
 
 ## アプリケーションを構成する
