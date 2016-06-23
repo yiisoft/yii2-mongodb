@@ -20,6 +20,7 @@ Yii 2 MongoDb エクステンション
 追加のトピック
 --------------
 
+* [ログとプロファイル](topics-logging.md)
 * [キャッシュコンポーネントを使用する](topics-cache.md)
 * [セッションコンポーネントを使用する](topics-session.md)
 * [I18N メッセージソースを使用する](topics-i18n-message-source.md)
