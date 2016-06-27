@@ -19,9 +19,9 @@ use yii\web\UploadedFile;
  *
  * File collection inherits all interface from regular [[\yii\mongo\Collection]], adding methods to store files.
  *
- * @property string $prefix prefix of this file collection.
- * @property \yii\mongodb\Collection $chunkCollection MongoDB collection instance. This property is read-only.
- * @property \yii\mongodb\Collection $fileCollection MongoDB collection instance. This property is read-only.
+ * @property \yii\mongodb\Collection $chunkCollection Mongo collection instance. This property is read-only.
+ * @property \yii\mongodb\Collection $fileCollection Mongo collection instance. This property is read-only.
+ * @property string $prefix Prefix of this file collection.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

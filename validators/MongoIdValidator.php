@@ -45,7 +45,7 @@ class MongoIdValidator extends Validator
      * valid values are:
      * - 'string' - enforce value converted to plain string.
      * - 'object' - enforce value converted to [[\MongoId]] instance.
-     * If not set - no conversion will be performed, leaving attribute value intact.
+     *   If not set - no conversion will be performed, leaving attribute value intact.
      */
     public $forceFormat;
 

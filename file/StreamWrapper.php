@@ -47,7 +47,7 @@ use yii\mongodb\Connection;
  *
  * @see http://php.net/manual/en/function.stream-wrapper-register.php
  *
- * @property $contextOptions context options associated with [[context]]. This property is read-only.
+ * @property array $contextOptions Context options. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1

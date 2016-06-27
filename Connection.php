@@ -64,12 +64,15 @@ use Yii;
  * ]
  * ```
  *
- * @property string $defaultDatabaseName name of the MongoDB database to use by default.
- * @property QueryBuilder $queryBuilder the query builder for the current MongoDB connection.
- * @property LogBuilder $logBuilder the log builder for the current MongoDB connection.
  * @property Database $database Database instance. This property is read-only.
+ * @property string $defaultDatabaseName Default database name.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
  * @property boolean $isActive Whether the Mongo connection is established. This property is read-only.
+ * @property LogBuilder $logBuilder The log builder for this connection. Note that the type of this property
+ * differs in getter and setter. See [[getLogBuilder()]] and [[setLogBuilder()]] for details.
+ * @property QueryBuilder $queryBuilder The query builder for the this MongoDB connection. Note that the type
+ * of this property differs in getter and setter. See [[getQueryBuilder()]] and [[setQueryBuilder()]] for
+ * details.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

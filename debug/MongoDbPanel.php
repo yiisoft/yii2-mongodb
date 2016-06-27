@@ -13,6 +13,8 @@ use yii\log\Logger;
 /**
  * MongoDbPanel panel that collects and displays MongoDB queries performed.
  *
+ * @property array $profileLogs This property is read-only.
+ *
  * @author Klimov Paul <klimov@zfort.com>
  * @since 2.0.1
  */

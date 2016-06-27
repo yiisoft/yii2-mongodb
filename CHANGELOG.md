@@ -1,8 +1,8 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.0 under development
------------------------
+2.1.0 June 27, 2016
+-------------------
 
 - Enh #33: Added support for batch (bulk) write operations (klimov-paul)
 - Enh #56: Now 'mongodb' PHP extension used instead of 'mongo' (klimov-paul, hardsetting, Sammaye)

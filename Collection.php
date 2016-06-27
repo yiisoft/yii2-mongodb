@@ -60,8 +60,6 @@ use Yii;
  *
  * @property string $fullName Full name of this collection, including database name. This property is
  * read-only.
- * @property array $lastError Last error information. This property is read-only.
- * @property string $name Name of this collection. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

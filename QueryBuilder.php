@@ -95,7 +95,7 @@ class QueryBuilder extends Object
      * @param string $collectionName collection name.
      * @param array[] $indexes indexes specification. Each specification should be an array in format: optionName => value
      * The main options are:
-     * 
+     *
      * - keys: array, column names with sort order, to be indexed. This option is mandatory.
      * - unique: boolean, whether to create unique index.
      * - name: string, the name of the index, if not set it will be generated automatically.
