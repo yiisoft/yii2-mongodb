@@ -93,4 +93,4 @@ class MongoDbPanel extends DbPanel
     {
         return $type === 'find';
     }
-} 
+}
