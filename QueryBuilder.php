@@ -19,6 +19,38 @@ use yii\helpers\ArrayHelper;
  * QueryBuilder builds a MongoDB command statements.
  * It is used by [[Command]] for particular commands and queries composition.
  *
+ * MongoDB uses JSON format to specify query conditions with quite specific syntax.
+ * However [[buildCondition()]] method provides the ability of "translating" common condition format used "yii\db\*"
+ * into MongoDB condition.
+ * For example:
+ *
+ * ```php
+ * $condition = [
+ *     [
+ *         'OR',
+ *         ['AND', ['first_name' => 'John'], ['last_name' => 'Smith']],
+ *         ['status' => [1, 2, 3]]
+ *     ],
+ * ];
+ * print_r(Yii::$app->mongodb->getQueryBuilder()->buildCondition($condition));
+ * // outputs :
+ * [
+ *     '$or' => [
+ *         [
+ *             'first_name' => 'John',
+ *             'last_name' => 'John',
+ *         ],
+ *         [
+ *             'status' => ['$in' => [1, 2, 3]],
+ *         ]
+ *     ]
+ * ]
+ * ```
+ *
+ * Note: condition values for the key '_id' will be automatically cast to [[\MongoDB\BSON\ObjectID]] instance,
+ * even if they are plain strings. However, if you have other columns, containing [[\MongoDB\BSON\ObjectID]], you
+ * should take care of possible typecast on your own.
+ *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
