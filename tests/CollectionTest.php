@@ -47,6 +47,26 @@ class CollectionTest extends TestCase
      * @depends testInsert
      * @depends testFind
      */
+    public function testFindOne()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+        $data = [
+            'name' => 'customer 1',
+            'address' => 'customer 1 address',
+        ];
+        $id = $collection->insert($data);
+
+        $row = $collection->findOne(['_id' => $id]);
+        $this->assertEquals($data['name'], $row['name']);
+
+        $row = $collection->findOne(['_id' => 'unexisting-id']);
+        $this->assertNull($row);
+    }
+
+    /**
+     * @depends testInsert
+     * @depends testFind
+     */
     public function testFindAll()
     {
         $collection = $this->getConnection()->getCollection('customer');

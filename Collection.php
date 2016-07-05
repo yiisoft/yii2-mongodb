@@ -229,7 +229,8 @@ class Collection extends Object
     {
         $options['limit'] = 1;
         $cursor = $this->find($condition, $fields, $options);
-        return current($cursor->toArray());
+        $rows = $cursor->toArray();
+        return empty($rows) ? null : current($rows);
     }
 
     /**
