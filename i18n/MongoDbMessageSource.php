@@ -32,13 +32,11 @@ use yii\mongodb\Query;
  * {
  *     "category": "app",
  *     "language": "de",
- *     "messages": [
- *         {
- *             "Hello world!": "Hallo Welt!",
- *             ...
- *         },
+ *     "messages": {
+ *         "Hello world!": "Hallo Welt!",
+ *         "The dog runs fast.": "Der Hund rennt schnell.",
  *         ...
- *     ],
+ *     },
  * }
  * ```
  *
