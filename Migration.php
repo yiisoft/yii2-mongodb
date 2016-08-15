@@ -64,10 +64,9 @@ abstract class Migration extends Component implements MigrationInterface
             $database = null;
             $collectionName = $collection;
         }
-        echo "    > create collection " . $this->composeCollectionLogName($collection) . " ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > create collection " . $this->composeCollectionLogName($collection) . " ...");
         $this->db->getDatabase($database)->createCollection($collectionName, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -76,10 +75,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropCollection($collection)
     {
-        echo "    > drop collection " . $this->composeCollectionLogName($collection) . " ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > drop collection " . $this->composeCollectionLogName($collection) . " ...");
         $this->db->getCollection($collection)->drop();
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -90,10 +88,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function createIndexes($collection, $indexes)
     {
-        echo "    > create indexes on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . empty($options) ? "" : ", " . Json::encode($options) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > create indexes on " . $this->composeCollectionLogName($collection) . " (" . Json::encode($indexes) . ") ...");
         $this->db->getCollection($collection)->createIndexes($indexes);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -104,10 +101,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropIndexes($collection, $indexes)
     {
-        echo "    > drop indexes '{$indexes}' on " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > drop indexes '{$indexes}' on " . $this->composeCollectionLogName($collection) . ") ...");
         $this->db->getCollection($collection)->dropIndexes($indexes);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -118,10 +114,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function createIndex($collection, $columns, $options = [])
     {
-        echo "    > create index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . empty($options) ? "" : ", " . Json::encode($options) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > create index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . empty($options) ? "" : ", " . Json::encode($options) . ") ...");
         $this->db->getCollection($collection)->createIndex($columns, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -131,10 +126,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropIndex($collection, $columns)
     {
-        echo "    > drop index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > drop index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . ") ...");
         $this->db->getCollection($collection)->dropIndex($columns);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -143,10 +137,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropAllIndexes($collection)
     {
-        echo "    > drop all indexes on " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > drop all indexes on " . $this->composeCollectionLogName($collection) . ") ...");
         $this->db->getCollection($collection)->dropAllIndexes();
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
     }
 
     /**
@@ -154,14 +147,13 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array|string $collection collection name.
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoId new record id instance.
+     * @return \MongoDB\BSON\ObjectID new record id instance.
      */
     public function insert($collection, $data, $options = [])
     {
-        echo "    > insert into " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > insert into " . $this->composeCollectionLogName($collection) . ") ...");
         $id = $this->db->getCollection($collection)->insert($data, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
         return $id;
     }
 
@@ -174,10 +166,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function batchInsert($collection, $rows, $options = [])
     {
-        echo "    > insert into " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > insert into " . $this->composeCollectionLogName($collection) . ") ...");
         $rows = $this->db->getCollection($collection)->batchInsert($rows, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
         return $rows;
     }
 
@@ -193,10 +184,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function update($collection, $condition, $newData, $options = [])
     {
-        echo "    > update " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > update " . $this->composeCollectionLogName($collection) . ") ...");
         $result = $this->db->getCollection($collection)->update($condition, $newData, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
         return $result;
     }
 
@@ -205,14 +195,13 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array|string $collection collection name.
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoId updated/new record id instance.
+     * @return \MongoDB\BSON\ObjectID updated/new record id instance.
      */
     public function save($collection, $data, $options = [])
     {
-        echo "    > save " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > save " . $this->composeCollectionLogName($collection) . ") ...");
         $id = $this->db->getCollection($collection)->save($data, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
         return $id;
     }
 
@@ -225,10 +214,9 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function remove($collection, $condition = [], $options = [])
     {
-        echo "    > remove " . $this->composeCollectionLogName($collection) . ") ...";
-        $time = microtime(true);
+        $this->beginProfile($token = "    > remove " . $this->composeCollectionLogName($collection) . ") ...");
         $result = $this->db->getCollection($collection)->remove($condition, $options);
-        echo " done (time: " . sprintf('%.3f', microtime(true) - $time) . "s)\n";
+        $this->endProfile($token);
         return $result;
     }
 
@@ -245,5 +233,51 @@ abstract class Migration extends Component implements MigrationInterface
         } else {
             return $collection;
         }
+    }
+
+    /**
+     * @var array opened profile tokens.
+     * @since 2.1.1
+     */
+    private $profileTokens = [];
+
+    /**
+     * Logs the incoming message.
+     * By default this method sends message to 'stdout'.
+     * @param string $string message to be logged.
+     * @since 2.1.1
+     */
+    protected function log($string)
+    {
+        echo $string;
+    }
+
+    /**
+     * Marks the beginning of a code block for profiling.
+     * @param string $token token for the code block.
+     * @since 2.1.1
+     */
+    protected function beginProfile($token)
+    {
+        $this->profileTokens[$token] = microtime(true);
+
+        $this->log($token);
+    }
+
+    /**
+     * Marks the end of a code block for profiling.
+     * @param string $token token for the code block.
+     * @since 2.1.1
+     */
+    protected function endProfile($token)
+    {
+        if (isset($this->profileTokens[$token])) {
+            $time = microtime(true) - $this->profileTokens[$token];
+            unset($this->profileTokens[$token]);
+        } else {
+            $time = 0;
+        }
+
+        $this->log(" done (time: " . sprintf('%.3f', $time) . "s)\n");
     }
 }

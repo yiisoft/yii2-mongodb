@@ -135,6 +135,18 @@ class Database extends Object
     }
 
     /**
+     * Returns the list of available collections in this database.
+     * @param array $condition filter condition.
+     * @param array $options options list.
+     * @return array collections information.
+     * @since 2.1.1
+     */
+    public function listCollections($condition = [], $options = [])
+    {
+        return $this->createCommand()->listCollections($condition, $options);
+    }
+
+    /**
      * Clears internal collection lists.
      * This method can be used to break cycle references between [[Database]] and [[Collection]] instances.
      */

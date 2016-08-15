@@ -5,6 +5,8 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #136: Fixed `yii\mongodb\Collection::findOne()` returns `false` instead of `null` on empty result (klimov-paul)
+- Bug #142: Fixed `yii\mongodb\Migration::createIndexes()` triggers E_NOTICE (klimov-paul)
+- Enh: Added `yii\mongodb\Migration::listCollections()` method (klimov-paul)
 
 
 2.1.0 June 27, 2016
