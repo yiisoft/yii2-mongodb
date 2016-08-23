@@ -323,4 +323,21 @@ class ActiveRecordTest extends TestCase
         fclose($fileResource);
         $this->assertEquals($newFileContent, $contents);
     }
+
+    /**
+     * @depends testInsert
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/pull/146
+     */
+    public function testInsertCustomId()
+    {
+        $record = new CustomerFile();
+        $record->_id = 'custom';
+        $record->tag = 'new new';
+        $record->status = 7;
+
+        $record->save(false);
+
+        $this->assertEquals('custom', $record->_id);
+    }
 }

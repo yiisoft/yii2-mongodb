@@ -335,4 +335,23 @@ class ActiveRecordTest extends TestCase
         $this->assertEquals('abcdef', $array['address']);
         $this->assertEquals([], $array['file_id']);
     }
+
+    /**
+     * @depends testInsert
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/pull/146
+     */
+    public function testInsertCustomId()
+    {
+        $record = new Customer();
+        $record->_id = 'custom';
+        $record->name = 'new name';
+        $record->email = 'new email';
+        $record->address = 'new address';
+        $record->status = 7;
+
+        $record->save(false);
+
+        $this->assertEquals('custom', $record->_id);
+    }
 }
