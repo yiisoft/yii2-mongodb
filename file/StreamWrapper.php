@@ -364,41 +364,4 @@ class StreamWrapper extends Object
 
         return $statistics;
     }
-    
-    public function stream_seek($offset, $whence = SEEK_SET)
-    {
-        switch ($whence) {
-            case SEEK_SET:
-                if ($offset < $this->download->getSize() && $offset >= 0) {
-                     $this->pointerOffset = $offset;
-                     return true;
-                } else {
-                     return false;
-                }
-                break;
-            case SEEK_CUR:
-                if ($offset >= 0) {
-                     $this->pointerOffset += $offset;
-                     return true;
-                } else {
-                     return false;
-                }
-                break;
-            case SEEK_END:
-                if ($this->download->getSize() + $offset >= 0) {
-                     $this->pointerOffset = $this->download->getSize() + $offset;
-                     return true;
-                } else {
-                     return false;
-                }
-                break;
-            default:
-                return false;
-        }
-    }
-    
-    public function stream_tell()
-    {
-        return $this->pointerOffset;
-    }
 }
