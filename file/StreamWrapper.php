@@ -364,4 +364,61 @@ class StreamWrapper extends Object
 
         return $statistics;
     }
+    
+    /**
+     * Seeks to specific location in a stream.
+     * This method is called in response to `fseek()`.
+     * @see fseek()
+     * @param integer $offset The stream offset to seek to.
+     * @param integer $whence 
+     * Possible values:
+     * 
+     * - SEEK_SET - Set position equal to offset bytes.
+     * - SEEK_CUR - Set position to current location plus offset.
+     * - SEEK_END - Set position to end-of-file plus offset.
+     * 
+     * @return boolean Return TRUE if the position was updated, FALSE otherwise.
+     */
+    public function stream_seek($offset, $whence = SEEK_SET)
+    {
+        switch ($whence) {
+            case SEEK_SET:
+                if ($offset < $this->download->getSize() && $offset >= 0) {
+                     $this->pointerOffset = $offset;
+                     return true;
+                } else {
+                     return false;
+                }
+                break;
+            case SEEK_CUR:
+                if ($offset >= 0) {
+                     $this->pointerOffset += $offset;
+                     return true;
+                } else {
+                     return false;
+                }
+                break;
+            case SEEK_END:
+                if ($this->download->getSize() + $offset >= 0) {
+                     $this->pointerOffset = $this->download->getSize() + $offset;
+                     return true;
+                } else {
+                     return false;
+                }
+                break;
+            default:
+                return false;
+        }
+    }
+    
+    /**
+     * Retrieve the current position of a stream.
+     * This method is called in response to `fseek()` to determine the current position.
+     * @see fseek()
+     * @return integer Should return the current position of the stream.
+     */
+    public function stream_tell()
+    {
+        return $this->pointerOffset;
+    }
 }
