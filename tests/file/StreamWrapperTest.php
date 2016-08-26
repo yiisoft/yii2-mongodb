@@ -101,14 +101,17 @@ class StreamWrapperTest extends TestCase
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'r');
         $data = fgets($resource);
+        
         fseek($resource, 0);
         $position = ftell($resource);
-        
         $this->assertEquals(0, $position);
+        
+        fseek($resource, 2, SEEK_CUR);
+        $position = ftell($resource);
+        $this->assertEquals(2, $position);
         
         fseek($resource, 0, SEEK_END);
         $position = ftell($resource);
-        
-        $this->assertGreaterThan(1, $position);
+        $this->assertEquals(9, $position);
     }
 }

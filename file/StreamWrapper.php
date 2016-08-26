@@ -384,28 +384,22 @@ class StreamWrapper extends Object
         switch ($whence) {
             case SEEK_SET:
                 if ($offset < $this->download->getSize() && $offset >= 0) {
-                     $this->pointerOffset = $offset;
-                     return true;
-                } else {
-                     return false;
+                    $this->pointerOffset = $offset;
+                    return true;
                 }
-                break;
+                return false;
             case SEEK_CUR:
                 if ($offset >= 0) {
-                     $this->pointerOffset += $offset;
-                     return true;
-                } else {
-                     return false;
+                    $this->pointerOffset += $offset;
+                    return true;
                 }
-                break;
+                return false;
             case SEEK_END:
                 if ($this->download->getSize() + $offset >= 0) {
-                     $this->pointerOffset = $this->download->getSize() + $offset;
-                     return true;
-                } else {
-                     return false;
+                    $this->pointerOffset = $this->download->getSize() + $offset;
+                    return true;
                 }
-                break;
+                return false;
             default:
                 return false;
         }
