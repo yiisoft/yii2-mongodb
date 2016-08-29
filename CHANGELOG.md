@@ -1,15 +1,15 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.1 under development
------------------------
+2.1.1 August 29, 2016
+---------------------
 
 - Bug #136: Fixed `yii\mongodb\Collection::findOne()` returns `false` instead of `null` on empty result (klimov-paul)
 - Bug #142: Fixed `yii\mongodb\Migration::createIndexes()` triggers E_NOTICE (klimov-paul)
 - Bug #145: Fixed `yii\mongodb\ActiveFixture` fails to find default data file if `collectionName` is specified in array format (klimov-paul)
 - Bug #146: Fixed `yii\mongodb\ActiveRecord` and `yii\mongodb\file\ActiveRecord` looses `_id` custom value on insertion (lxyfirst, klimov-paul)
-- Enh: Added `yii\mongodb\Migration::listCollections()` method (klimov-paul)
 - Enh #147: Added unknown methods `stream_seek` and `stream_tell` to `yii\mongodb\file\StreamWrapper` for `fseek()` and `ftell()` (AstRonin)
+- Enh: Added `yii\mongodb\Migration::listCollections()` method (klimov-paul)
 
 
 2.1.0 June 27, 2016

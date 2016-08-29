@@ -370,13 +370,13 @@ class StreamWrapper extends Object
      * This method is called in response to `fseek()`.
      * @see fseek()
      * @param integer $offset The stream offset to seek to.
-     * @param integer $whence 
+     * @param integer $whence
      * Possible values:
-     * 
+     *
      * - SEEK_SET - Set position equal to offset bytes.
      * - SEEK_CUR - Set position to current location plus offset.
      * - SEEK_END - Set position to end-of-file plus offset.
-     * 
+     *
      * @return boolean Return true if the position was updated, false otherwise.
      */
     public function stream_seek($offset, $whence = SEEK_SET)
