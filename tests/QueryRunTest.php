@@ -368,4 +368,26 @@ class QueryRunTest extends TestCase
         $this->assertArrayNotHasKey('address', $row);
         $this->assertArrayNotHasKey('_id', $row);
     }
+    
+    public function testExists()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $result = $query->from('customer')
+            ->where(['name' => 'name1'])
+            ->exists($connection);
+        $this->assertSame(true, $result);
+    }
+    
+    public function testNotExists()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $result = $query->from('customer')
+            ->where(['name' => 'nonexistent'])
+            ->exists($connection);
+        $this->assertSame(false, $result);
+    }
 }
