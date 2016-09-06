@@ -386,7 +386,7 @@ class Query extends Component implements QueryInterface
      */
     public function exists($db = null)
     {
-        return $this->one($db) !== null;
+        return $this->one($db) !== false;
     }
 
     /**
