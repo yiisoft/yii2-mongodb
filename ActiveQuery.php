@@ -156,6 +156,14 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function exists($db = null)
+    {
+        return $this->one($db) !== null;
+    }
+
+    /**
      * Performs 'findAndModify' query and returns a single row of result.
      * Warning: in case 'new' option is set to 'false' (which is by default) usage of this method may lead
      * to unexpected behavior at some Active Record features, because object will be populated by outdated data.

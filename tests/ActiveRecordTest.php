@@ -267,6 +267,19 @@ class ActiveRecordTest extends TestCase
         $this->assertEquals(7, $rowRefreshed->status);
     }
 
+    public function testExists()
+    {
+        $exists = Customer::find()
+            ->where(['name' => 'name1'])
+            ->exists();
+        $this->assertTrue($exists);
+
+        $exists = Customer::find()
+            ->where(['name' => 'not existing name'])
+            ->exists();
+        $this->assertFalse($exists);
+    }
+
     public function testModify()
     {
         $searchName = 'name7';

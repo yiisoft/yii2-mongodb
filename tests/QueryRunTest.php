@@ -289,6 +289,23 @@ class QueryRunTest extends TestCase
         $this->assertEquals(9, count($rows));
     }
 
+    public function testExists()
+    {
+        $connection = $this->getConnection();
+
+        $query = new Query();
+        $exists = $query->from('customer')
+            ->where(['name' => 'name1'])
+            ->exists($connection);
+        $this->assertTrue($exists);
+
+        $query = new Query();
+        $exists = $query->from('customer')
+            ->where(['name' => 'un-existing-name'])
+            ->exists($connection);
+        $this->assertFalse($exists);
+    }
+
     public function testModify()
     {
         $connection = $this->getConnection();
