@@ -50,6 +50,24 @@ use yii\helpers\ArrayHelper;
  * yii mongodb-migrate/down
  * ```
  *
+ * Since 2.1.2, in case of usage Yii version >= 2.0.10, you can use namespaced migrations. In order to enable this
+ * feature you should configure [[migrationNamespaces]] property for the controller at application configuration:
+ *
+ * ```php
+ * return [
+ *     'controllerMap' => [
+ *         'mongodb-migrate' => [
+ *             'class' => 'yii\mongodb\console\controllers\MigrateController',
+ *             'migrationNamespaces' => [
+ *                 'app\migrations',
+ *                 'some\extension\migrations',
+ *             ],
+ *             //'migrationPath' => null, // allows to disable not namespaced migration completely
+ *         ],
+ *     ],
+ * ];
+ * ```
+ *
  * @author Klimov Paul <klimov@zfort.com>
  * @since 2.0
  */
@@ -112,8 +130,11 @@ class MigrateController extends BaseMigrateController
      */
     protected function createMigration($class)
     {
-        $file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
-        require_once($file);
+        $class = trim($class, '\\');
+        if (strpos($class, '\\') === false) {
+            $file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
+            require_once($file);
+        }
 
         return new $class(['db' => $this->db]);
     }
