@@ -6,6 +6,7 @@ Yii Framework 2 mongodb extension Change Log
 
 - Bug #150: Fixed `yii\mongodb\Query::exists()` always returning true (klimov-paul)
 - Enh #152: Added support for namespaced migrations via [[yii\mongodb\console\controllers\MigrateController::migrationNamespaces]] (klimov-paul)
+- Enh #153: Added `yii\mongodb\rbac\MongoDbManager::getChildRoles()` method allowing finding child roles for the given one (githubjeka, klimov-paul)
 - Enh #154: Methods `scalar()` and `column()` added to `yii\mongodb\Query` (klimov-paul)
 
 
