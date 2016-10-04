@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use MongoDB\BSON\ObjectID;
 use yii\mongodb\Query;
 
 class QueryRunTest extends TestCase
@@ -384,5 +385,109 @@ class QueryRunTest extends TestCase
         $this->assertArrayHasKey('name', $row);
         $this->assertArrayNotHasKey('address', $row);
         $this->assertArrayNotHasKey('_id', $row);
+    }
+
+    public function testScalar()
+    {
+        $connection = $this->getConnection();
+
+        $result = (new Query())
+            ->select(['name' => true, '_id' => false])
+            ->from('customer')
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertSame('name1', $result);
+
+        $result = (new Query())
+            ->select(['name' => true, '_id' => false])
+            ->from('customer')
+            ->andWhere(['status' => -1])
+            ->scalar($connection);
+        $this->assertSame(false, $result);
+
+        $result = (new Query())
+            ->select(['name'])
+            ->from('customer')
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertSame('name1', $result);
+
+        $result = (new Query())
+            ->select(['_id'])
+            ->from('customer')
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertTrue($result instanceof ObjectID);
+    }
+
+    public function testColumn()
+    {
+        $connection = $this->getConnection();
+
+        $result = (new Query())->from('customer')
+            ->select(['name' => true, '_id' => false])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals(['name1', 'name10'], $result);
+
+        $result = (new Query())->from('customer')
+            ->select(['name' => true, '_id' => false])
+            ->andWhere(['status' => -1])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals([], $result);
+
+        $result = (new Query())->from('customer')
+            ->select(['name'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals(['name1', 'name10'], $result);
+
+        $result = (new Query())->from('customer')
+            ->select(['_id'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertTrue($result[0] instanceof ObjectID);
+        $this->assertTrue($result[1] instanceof ObjectID);
+    }
+
+    /**
+     * @depends testColumn
+     */
+    public function testColumnIndexBy()
+    {
+        $connection = $this->getConnection();
+
+        $result = (new Query())->from('customer')
+            ->select(['name'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->indexBy('status')
+            ->column($connection);
+        $this->assertEquals([1 => 'name1', 10 => 'name10'], $result);
+
+        $result = (new Query())->from('customer')
+            ->select(['name', 'status'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->indexBy(function ($row) {
+                return $row['status'] * 2;
+            })
+            ->column($connection);
+        $this->assertEquals([2 => 'name1', 20 => 'name10'], $result);
+
+        $result = (new Query())->from('customer')
+            ->select(['name'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->indexBy('name')
+            ->column($connection);
+        $this->assertEquals(['name1' => 'name1', 'name10' => 'name10'], $result);
     }
 }

@@ -347,6 +347,78 @@ class Query extends Component implements QueryInterface
     }
 
     /**
+     * Returns the query result as a scalar value.
+     * The value returned will be the first column in the first row of the query results.
+     * Column `_id` will be automatically excluded from select fields, if [[select]] is not empty and
+     * `_id` is not selected explicitly.
+     * @param Connection $db the MongoDB connection used to generate the query.
+     * If this parameter is not given, the `mongodb` application component will be used.
+     * @return string|null|false the value of the first column in the first row of the query result.
+     * `false` is returned if the query result is empty.
+     * @since 2.1.2
+     */
+    public function scalar($db = null)
+    {
+        $originSelect = (array)$this->select;
+        if (!isset($originSelect['_id']) && array_search('_id', $originSelect, true) === false) {
+            $this->select['_id'] = false;
+        }
+
+        $cursor = $this->buildCursor($db);
+        $row = $this->fetchRows($cursor, false);
+
+        if (empty($row)) {
+            return false;
+        }
+
+        return reset($row);
+    }
+
+    /**
+     * Executes the query and returns the first column of the result.
+     * Column `_id` will be automatically excluded from select fields, if [[select]] is not empty and
+     * `_id` is not selected explicitly.
+     * @param Connection $db the MongoDB connection used to generate the query.
+     * If this parameter is not given, the `mongodb` application component will be used.
+     * @return array the first column of the query result. An empty array is returned if the query results in nothing.
+     * @since 2.1.2
+     */
+    public function column($db = null)
+    {
+        $originSelect = (array)$this->select;
+        if (!isset($originSelect['_id']) && array_search('_id', $originSelect, true) === false) {
+            $this->select['_id'] = false;
+        }
+        if (is_string($this->indexBy) && $originSelect && count($originSelect) === 1) {
+            $this->select[] = $this->indexBy;
+        }
+
+        $cursor = $this->buildCursor($db);
+        $rows = $this->fetchRows($cursor, true);
+
+        if (empty($rows)) {
+            return [];
+        }
+
+        $results = [];
+        foreach ($rows as $row) {
+            $value = reset($row);
+
+            if ($this->indexBy === null) {
+                $results[] = $value;
+            } else {
+                if ($this->indexBy instanceof \Closure) {
+                    $results[call_user_func($this->indexBy, $row)] = $value;
+                } else {
+                    $results[$row[$this->indexBy]] = $value;
+                }
+            }
+        }
+
+        return $results;
+    }
+
+    /**
      * Performs 'findAndModify' query and returns a single row of result.
      * @param array $update update criteria
      * @param array $options list of options in format: optionName => optionValue.

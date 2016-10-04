@@ -280,6 +280,72 @@ class ActiveRecordTest extends TestCase
         $this->assertFalse($exists);
     }
 
+    public function testScalar()
+    {
+        $connection = $this->getConnection();
+
+        $result = Customer::find()
+            ->select(['name' => true, '_id' => false])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertSame('name1', $result);
+
+        $result = Customer::find()
+            ->select(['name' => true, '_id' => false])
+            ->andWhere(['status' => -1])
+            ->scalar($connection);
+        $this->assertSame(false, $result);
+
+        $result = Customer::find()
+            ->select(['name'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertSame('name1', $result);
+
+        $result = Customer::find()
+            ->select(['_id'])
+            ->limit(1)
+            ->scalar($connection);
+        $this->assertTrue($result instanceof ObjectID);
+    }
+
+    public function testColumn()
+    {
+        $connection = $this->getConnection();
+
+        $result = Customer::find()
+            ->select(['name' => true, '_id' => false])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals(['name1', 'name10'], $result);
+
+        $result = Customer::find()
+            ->select(['name' => true, '_id' => false])
+            ->andWhere(['status' => -1])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals([], $result);
+
+        $result = Customer::find()
+            ->select(['name'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertEquals(['name1', 'name10'], $result);
+
+        $result = Customer::find()
+            ->select(['_id'])
+            ->orderBy(['name' => SORT_ASC])
+            ->limit(2)
+            ->column($connection);
+        $this->assertTrue($result[0] instanceof ObjectID);
+        $this->assertTrue($result[1] instanceof ObjectID);
+    }
+
     public function testModify()
     {
         $searchName = 'name7';
