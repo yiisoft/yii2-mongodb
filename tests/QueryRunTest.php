@@ -288,6 +288,12 @@ class QueryRunTest extends TestCase
             ->where(['not', 'name', 'name1'])
             ->all($connection);
         $this->assertEquals(9, count($rows));
+
+        $query = new Query();
+        $rows = $query->from('customer')
+            ->where(['not', 'name', null])
+            ->all($connection);
+        $this->assertEquals(10, count($rows));
     }
 
     public function testExists()

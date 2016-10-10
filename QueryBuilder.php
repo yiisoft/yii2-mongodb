@@ -666,7 +666,7 @@ class QueryBuilder extends Object
      */
     public function buildNotCondition($operator, $operands)
     {
-        if (!isset($operands[0], $operands[1])) {
+        if (count($operands) !== 2) {
             throw new InvalidParamException("Operator '$operator' requires two operands.");
         }
 
