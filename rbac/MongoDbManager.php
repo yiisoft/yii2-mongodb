@@ -472,6 +472,7 @@ class MongoDbManager extends BaseManager
 
     /**
      * @inheritdoc
+     * @since 2.1.2
      */
     public function getChildRoles($roleName)
     {
