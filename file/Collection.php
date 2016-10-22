@@ -254,7 +254,7 @@ class Collection extends \yii\mongodb\Collection
     /**
      * Retrieves the file with given _id.
      * @param mixed $id _id of the file to find.
-     * @return \MongoGridFSFile|null found file, or null if file does not exist
+     * @return Download|null found file, or null if file does not exist
      * @throws Exception on failure.
      */
     public function get($id)
