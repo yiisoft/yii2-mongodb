@@ -118,14 +118,14 @@ class MongoDbManager extends BaseManager
     /**
      * Performs access check for the specified user based on the data loaded from cache.
      * This method is internally called by [[checkAccess()]] when [[cache]] is enabled.
-     * @param string|integer $user the user ID. This should can be either an integer or a string representing
+     * @param string|int $user the user ID. This should can be either an integer or a string representing
      * the unique identifier of a user. See [[\yii\web\User::id]].
      * @param string $itemName the name of the operation that need access check
      * @param array $params name-value pairs that would be passed to rules associated
      * with the tasks and roles assigned to the user. A param with name 'user' is added to this array,
      * which holds the value of `$userId`.
      * @param Assignment[] $assignments the assignments to the specified user
-     * @return boolean whether the operations can be performed by the user.
+     * @return bool whether the operations can be performed by the user.
      */
     protected function checkAccessFromCache($user, $itemName, $params, $assignments)
     {
@@ -159,14 +159,14 @@ class MongoDbManager extends BaseManager
     /**
      * Performs access check for the specified user.
      * This method is internally called by [[checkAccess()]].
-     * @param string|integer $user the user ID. This should can be either an integer or a string representing
+     * @param string|int $user the user ID. This should can be either an integer or a string representing
      * the unique identifier of a user. See [[\yii\web\User::id]].
      * @param string $itemName the name of the operation that need access check
      * @param array $params name-value pairs that would be passed to rules associated
      * with the tasks and roles assigned to the user. A param with name 'user' is added to this array,
      * which holds the value of `$userId`.
      * @param Assignment[] $assignments the assignments to the specified user
-     * @return boolean whether the operations can be performed by the user.
+     * @return bool whether the operations can be performed by the user.
      */
     protected function checkAccessRecursive($user, $itemName, $params, $assignments)
     {
@@ -936,7 +936,7 @@ class MongoDbManager extends BaseManager
 
     /**
      * Removes all auth items of the specified type.
-     * @param integer $type the auth item type (either Item::TYPE_PERMISSION or Item::TYPE_ROLE)
+     * @param int $type the auth item type (either Item::TYPE_PERMISSION or Item::TYPE_ROLE)
      */
     protected function removeAllItems($type)
     {
@@ -1046,7 +1046,7 @@ class MongoDbManager extends BaseManager
      * Checks whether there is a loop in the authorization item hierarchy.
      * @param Item $parent the parent item
      * @param Item $child the child item to be added to the hierarchy
-     * @return boolean whether a loop exists
+     * @return bool whether a loop exists
      */
     protected function detectLoop($parent, $child)
     {

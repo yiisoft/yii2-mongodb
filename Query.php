@@ -189,11 +189,11 @@ class Query extends Component implements QueryInterface
     /**
      * Fetches rows from the given Mongo cursor.
      * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
-     * @param boolean $all whether to fetch all rows or only first one.
+     * @param bool $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy the column name or PHP callback,
      * by which the query results should be indexed by.
      * @throws Exception on failure.
-     * @return array|boolean result.
+     * @return array|bool result.
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
@@ -213,8 +213,8 @@ class Query extends Component implements QueryInterface
 
     /**
      * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
-     * @param boolean $all whether to fetch all rows or only first one.
-     * @return array|boolean result.
+     * @param bool $all whether to fetch all rows or only first one.
+     * @return array|bool result.
      * @see Query::fetchRows()
      */
     protected function fetchRowsInternal($cursor, $all)
@@ -251,7 +251,7 @@ class Query extends Component implements QueryInterface
      * }
      * ```
      *
-     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param int $batchSize the number of records to be fetched in each batch.
      * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
@@ -279,7 +279,7 @@ class Query extends Component implements QueryInterface
      * }
      * ```
      *
-     * @param integer $batchSize the number of records to be fetched in each batch.
+     * @param int $batchSize the number of records to be fetched in each batch.
      * @param Connection $db the MongoDB connection. If not set, the "mongodb" application component will be used.
      * @return BatchQueryResult the batch query result. It implements the `Iterator` interface
      * and can be traversed to retrieve the data in batches.
@@ -337,7 +337,7 @@ class Query extends Component implements QueryInterface
      * Executes the query and returns a single row of result.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return array|boolean the first row (in terms of an array) of the query result. False is returned if the query
+     * @return array|bool the first row (in terms of an array) of the query result. False is returned if the query
      * results in nothing.
      */
     public function one($db = null)
@@ -441,7 +441,7 @@ class Query extends Component implements QueryInterface
      * @param string $q kept to match [[QueryInterface]], its value is ignored.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return integer number of records
+     * @return int number of records
      * @throws Exception on failure.
      */
     public function count($q = '*', $db = null)
@@ -454,7 +454,7 @@ class Query extends Component implements QueryInterface
      * Returns a value indicating whether the query result contains any row of data.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return boolean whether the query result contains any row of data.
+     * @return bool whether the query result contains any row of data.
      */
     public function exists($db = null)
     {
@@ -467,7 +467,7 @@ class Query extends Component implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return integer the sum of the specified column values
+     * @return int the sum of the specified column values
      */
     public function sum($q, $db = null)
     {
@@ -480,7 +480,7 @@ class Query extends Component implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return integer the average of the specified column values.
+     * @return int the average of the specified column values.
      */
     public function average($q, $db = null)
     {
@@ -493,7 +493,7 @@ class Query extends Component implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param Connection $db the database connection used to generate the SQL statement.
      * If this parameter is not given, the `db` application component will be used.
-     * @return integer the minimum of the specified column values.
+     * @return int the minimum of the specified column values.
      */
     public function min($q, $db = null)
     {
@@ -506,7 +506,7 @@ class Query extends Component implements QueryInterface
      * Make sure you properly quote column names in the expression.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return integer the maximum of the specified column values.
+     * @return int the maximum of the specified column values.
      */
     public function max($q, $db = null)
     {
@@ -518,7 +518,7 @@ class Query extends Component implements QueryInterface
      * @param string $column column name.
      * @param string $operator aggregation operator.
      * @param Connection $db the database connection used to execute the query.
-     * @return integer aggregation result.
+     * @return int aggregation result.
      */
     protected function aggregate($column, $operator, $db)
     {

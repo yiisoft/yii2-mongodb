@@ -282,7 +282,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
     /**
      * Writes the the internal file content into the given filename.
      * @param string $filename full filename to be written.
-     * @return boolean whether the operation was successful.
+     * @return bool whether the operation was successful.
      * @throws \yii\base\InvalidParamException on invalid file attribute value.
      */
     public function writeFile($filename)

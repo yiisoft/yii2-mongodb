@@ -67,7 +67,7 @@ use Yii;
  * @property Database $database Database instance. This property is read-only.
  * @property string $defaultDatabaseName Default database name.
  * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
- * @property boolean $isActive Whether the Mongo connection is established. This property is read-only.
+ * @property bool $isActive Whether the Mongo connection is established. This property is read-only.
  * @property LogBuilder $logBuilder The log builder for this connection. Note that the type of this property
  * differs in getter and setter. See [[getLogBuilder()]] and [[setLogBuilder()]] for details.
  * @property QueryBuilder $queryBuilder The query builder for the this MongoDB connection. Note that the type
@@ -256,7 +256,7 @@ class Connection extends Component
     /**
      * Returns the MongoDB database with the given name.
      * @param string|null $name database name, if null default one will be used.
-     * @param boolean $refresh whether to reestablish the database connection even, if it is found in the cache.
+     * @param bool $refresh whether to reestablish the database connection even, if it is found in the cache.
      * @return Database database instance.
      */
     public function getDatabase($name = null, $refresh = false)
@@ -290,7 +290,7 @@ class Connection extends Component
      * @param string|array $name collection name. If string considered as the name of the collection
      * inside the default database. If array - first element considered as the name of the database,
      * second - as name of collection inside that database
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return Collection Mongo collection instance.
      */
     public function getCollection($name, $refresh = false)
@@ -309,7 +309,7 @@ class Connection extends Component
      * collection inside the default database. If array - first element considered as the name of the database,
      * second - as prefix of the GridFS collection inside that database, if no second element present
      * default "fs" prefix will be used.
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return file\Collection Mongo GridFS collection instance.
      */
     public function getFileCollection($prefix = 'fs', $refresh = false)
@@ -328,7 +328,7 @@ class Connection extends Component
 
     /**
      * Returns a value indicating whether the Mongo connection is established.
-     * @return boolean whether the Mongo connection is established
+     * @return bool whether the Mongo connection is established
      */
     public function getIsActive()
     {
@@ -416,7 +416,7 @@ class Connection extends Component
 
     /**
      * Registers GridFS stream wrapper for the [[fileStreamProtocol]] protocol.
-     * @param boolean $force whether to enforce registration even wrapper has been already registered.
+     * @param bool $force whether to enforce registration even wrapper has been already registered.
      * @return string registered stream protocol name.
      */
     public function registerFileStreamWrapper($force = false)

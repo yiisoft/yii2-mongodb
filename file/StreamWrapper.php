@@ -93,7 +93,7 @@ class StreamWrapper extends Object
     /**
      * Registers this steam wrapper.
      * @param string $protocol name of the protocol to be used.
-     * @param boolean $force whether to register wrapper, even if protocol is already taken.
+     * @param bool $force whether to register wrapper, even if protocol is already taken.
      */
     public static function register($protocol = 'gridfs', $force = false)
     {
@@ -134,7 +134,7 @@ class StreamWrapper extends Object
 
     /**
      * Prepares [[Download]] instance for the read operations.
-     * @return boolean success.
+     * @return bool success.
      * @throws InvalidConfigException on invalid context configuration.
      */
     private function prepareDownload()
@@ -164,7 +164,7 @@ class StreamWrapper extends Object
 
     /**
      * Prepares [[Upload]] instance for the write operations.
-     * @return boolean success.
+     * @return bool success.
      * @throws InvalidConfigException on invalid context configuration.
      */
     private function prepareUpload()
@@ -260,7 +260,7 @@ class StreamWrapper extends Object
      * Tests for end-of-file on a file pointer.
      * This method is called in response to `feof()`.
      * @see feof()
-     * @return boolean `true` if the read/write position is at the end of the stream and
+     * @return bool `true` if the read/write position is at the end of the stream and
      * if no more data is available to be read, or `false` otherwise.
      */
     public function stream_eof()
@@ -277,9 +277,9 @@ class StreamWrapper extends Object
      * @see fopen()
      * @param string $path specifies the URL that was passed to the original function.
      * @param string $mode mode used to open the file, as detailed for `fopen()`.
-     * @param integer $options additional flags set by the streams API.
+     * @param int $options additional flags set by the streams API.
      * @param string $openedPath real opened path.
-     * @return boolean whether operation is successful.
+     * @return bool whether operation is successful.
      */
     public function stream_open($path, $mode, $options, &$openedPath)
     {
@@ -302,7 +302,7 @@ class StreamWrapper extends Object
      * Reads from stream.
      * This method is called in response to `fread()` and `fgets()`.
      * @see fread()
-     * @param integer $count count of bytes of data from the current position should be returned.
+     * @param int $count count of bytes of data from the current position should be returned.
      * @return string|false if there are less than count bytes available, return as many as are available.
      * If no more data is available, return `false`.
      */
@@ -321,7 +321,7 @@ class StreamWrapper extends Object
      * This method is called in response to `fwrite()`.
      * @see fwrite()
      * @param string $data string to be stored into the underlying stream.
-     * @return integer the number of bytes that were successfully stored.
+     * @return int the number of bytes that were successfully stored.
      */
     public function stream_write($data)
     {
@@ -338,7 +338,7 @@ class StreamWrapper extends Object
      * This method is called in response to `fflush()` and when the stream is being closed
      * while any unflushed data has been written to it before.
      * @see fflush()
-     * @return boolean whether cached data was successfully stored.
+     * @return bool whether cached data was successfully stored.
      */
     public function stream_flush()
     {
@@ -369,15 +369,15 @@ class StreamWrapper extends Object
      * Seeks to specific location in a stream.
      * This method is called in response to `fseek()`.
      * @see fseek()
-     * @param integer $offset The stream offset to seek to.
-     * @param integer $whence
+     * @param int $offset The stream offset to seek to.
+     * @param int $whence
      * Possible values:
      *
      * - SEEK_SET - Set position equal to offset bytes.
      * - SEEK_CUR - Set position to current location plus offset.
      * - SEEK_END - Set position to end-of-file plus offset.
      *
-     * @return boolean Return true if the position was updated, false otherwise.
+     * @return bool Return true if the position was updated, false otherwise.
      */
     public function stream_seek($offset, $whence = SEEK_SET)
     {
@@ -409,7 +409,7 @@ class StreamWrapper extends Object
      * Retrieve the current position of a stream.
      * This method is called in response to `fseek()` to determine the current position.
      * @see fseek()
-     * @return integer Should return the current position of the stream.
+     * @return int Should return the current position of the stream.
      */
     public function stream_tell()
     {

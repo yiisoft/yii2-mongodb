@@ -104,7 +104,7 @@ class MigrateController extends BaseMigrateController
      * It checks the existence of the [[migrationPath]].
      * @param \yii\base\Action $action the action to be executed.
      * @throws Exception if db component isn't configured
-     * @return boolean whether the action should continue to be executed.
+     * @return bool whether the action should continue to be executed.
      */
     public function beforeAction($action)
     {

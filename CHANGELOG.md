@@ -1,8 +1,8 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.2 under development
------------------------
+2.1.2 October 31, 2016
+----------------------
 
 - Bug #150: Fixed `yii\mongodb\Query::exists()` always returning true (klimov-paul)
 - Bug #155: Fixed `yii\mongodb\Query` unable to process `not` condition with `null` compare value (klimov-paul)

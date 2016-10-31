@@ -48,7 +48,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param array $condition description of the objects to update.
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer the number of documents updated.
+     * @return int the number of documents updated.
      */
     public static function updateAll($attributes, $condition = [], $options = [])
     {
@@ -68,7 +68,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param array $condition description of the objects to update.
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer the number of documents updated.
+     * @return int the number of documents updated.
      */
     public static function updateAllCounters($counters, $condition = [], $options = [])
     {
@@ -88,7 +88,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param array $condition description of the objects to delete.
      * Please refer to [[Query::where()]] on how to specify this parameter.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer the number of documents deleted.
+     * @return int the number of documents deleted.
      */
     public static function deleteAll($condition = [], $options = [])
     {
@@ -196,11 +196,11 @@ abstract class ActiveRecord extends BaseActiveRecord
      * $customer->insert();
      * ```
      *
-     * @param boolean $runValidation whether to perform validation before saving the record.
+     * @param bool $runValidation whether to perform validation before saving the record.
      * If the validation fails, the record will not be inserted into the collection.
      * @param array $attributes list of attributes that need to be saved. Defaults to null,
      * meaning all attributes that are loaded will be saved.
-     * @return boolean whether the attributes are valid and the record is inserted successfully.
+     * @return bool whether the attributes are valid and the record is inserted successfully.
      * @throws \Exception in case insert failed.
      */
     public function insert($runValidation = true, $attributes = null)
@@ -300,7 +300,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * In the above step 1 and 3, events named [[EVENT_BEFORE_DELETE]] and [[EVENT_AFTER_DELETE]]
      * will be raised by the corresponding methods.
      *
-     * @return integer|boolean the number of documents deleted, or false if the deletion is unsuccessful for some reason.
+     * @return int|bool the number of documents deleted, or false if the deletion is unsuccessful for some reason.
      * Note that it is possible the number of documents deleted is 0, even though the deletion execution is successful.
      * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
      * being deleted is outdated.
@@ -344,7 +344,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * The comparison is made by comparing the collection names and the primary key values of the two active records.
      * If one of the records [[isNewRecord|is new]] they are also considered not equal.
      * @param ActiveRecord $record record to compare to
-     * @return boolean whether the two active records refer to the same row in the same Mongo collection.
+     * @return bool whether the two active records refer to the same row in the same Mongo collection.
      */
     public function equals($record)
     {

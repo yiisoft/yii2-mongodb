@@ -98,7 +98,7 @@ class Collection extends \yii\mongodb\Collection
 
     /**
      * Returns the MongoDB collection for the file chunks.
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return \yii\mongodb\Collection mongo collection instance.
      */
     public function getChunkCollection($refresh = false)
@@ -116,7 +116,7 @@ class Collection extends \yii\mongodb\Collection
 
     /**
      * Returns the MongoDB collection for the files.
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return \yii\mongodb\Collection mongo collection instance.
      * @since 2.1
      */
@@ -269,7 +269,7 @@ class Collection extends \yii\mongodb\Collection
     /**
      * Deletes the file with given _id.
      * @param mixed $id _id of the file to find.
-     * @return boolean whether the operation was successful.
+     * @return bool whether the operation was successful.
      * @throws Exception on failure.
      */
     public function delete($id)
@@ -282,7 +282,7 @@ class Collection extends \yii\mongodb\Collection
      * Makes sure that indexes, which are crucial for the file processing,
      * exist at this collection and [[chunkCollection]].
      * The check result is cached per collection instance.
-     * @param boolean $force whether to ignore internal collection instance cache.
+     * @param bool $force whether to ignore internal collection instance cache.
      * @return $this self reference.
      */
     public function ensureIndexes($force = false)

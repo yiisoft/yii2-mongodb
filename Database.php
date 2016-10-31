@@ -42,7 +42,7 @@ class Database extends Object
     /**
      * Returns the Mongo collection with the given name.
      * @param string $name collection name
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return Collection Mongo collection instance.
      */
     public function getCollection($name, $refresh = false)
@@ -57,7 +57,7 @@ class Database extends Object
     /**
      * Returns Mongo GridFS collection with given prefix.
      * @param string $prefix collection prefix.
-     * @param boolean $refresh whether to reload the collection instance even if it is found in the cache.
+     * @param bool $refresh whether to reload the collection instance even if it is found in the cache.
      * @return file\Collection Mongo GridFS collection.
      */
     public function getFileCollection($prefix = 'fs', $refresh = false)
@@ -115,7 +115,7 @@ class Database extends Object
      * you need to create collection with the specific options.
      * @param string $name name of the collection
      * @param array $options collection options in format: "name" => "value"
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      * @throws Exception on failure.
      */
     public function createCollection($name, $options = [])
@@ -126,7 +126,7 @@ class Database extends Object
     /**
      * Drops specified collection.
      * @param string $name name of the collection
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      * @since 2.1
      */
     public function dropCollection($name)

@@ -38,7 +38,7 @@ use yii\helpers\StringHelper;
  * and setter. See [[getDocument()]] and [[setDocument()]] for details.
  * @property string|null $filename File name. This property is read-only.
  * @property resource $resource File stream resource. This property is read-only.
- * @property integer $size File size. This property is read-only.
+ * @property int $size File size. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
@@ -101,7 +101,7 @@ class Download extends Object
 
     /**
      * Returns the size of the associated file.
-     * @return integer file size.
+     * @return int file size.
      */
     public function getSize()
     {
@@ -127,7 +127,7 @@ class Download extends Object
 
     /**
      * Returns file chunks read cursor.
-     * @param boolean $refresh whether to recreate cursor, if it is already exist.
+     * @param bool $refresh whether to recreate cursor, if it is already exist.
      * @return \MongoDB\Driver\Cursor chuck list cursor.
      * @throws InvalidConfigException
      */
@@ -146,7 +146,7 @@ class Download extends Object
 
     /**
      * Returns iterator for the file chunks cursor.
-     * @param boolean $refresh whether to recreate iterator, if it is already exist.
+     * @param bool $refresh whether to recreate iterator, if it is already exist.
      * @return \Iterator chuck cursor iterator.
      */
     public function getChunkIterator($refresh = false)
@@ -161,7 +161,7 @@ class Download extends Object
     /**
      * Saves file into the given stream.
      * @param resource $stream stream, which file should be saved to.
-     * @return integer number of written bytes.
+     * @return int number of written bytes.
      */
     public function toStream($stream)
     {
@@ -175,7 +175,7 @@ class Download extends Object
     /**
      * Saves download to the physical file.
      * @param string $filename name of the physical file.
-     * @return integer number of written bytes.
+     * @return int number of written bytes.
      */
     public function toFile($filename)
     {
@@ -219,10 +219,10 @@ class Download extends Object
 
     /**
      * Return part of a file.
-     * @param integer $start reading start position.
+     * @param int $start reading start position.
      * If non-negative, the returned string will start at the start'th position in file, counting from zero.
      * If negative, the returned string will start at the start'th character from the end of file.
-     * @param integer $length number of bytes to read.
+     * @param int $length number of bytes to read.
      * If given and is positive, the string returned will contain at most length characters beginning from start (depending on the length of file).
      * If given and is negative, then that many characters will be omitted from the end of file (after the start position has been calculated when a start is negative).
      * @return string|false the extracted part of file or `false` on failure
@@ -304,7 +304,7 @@ class Download extends Object
     /**
      * Alias of [[toFile()]] method.
      * @param string $filename name of the physical file.
-     * @return integer number of written bytes.
+     * @return int number of written bytes.
      */
     public function write($filename)
     {

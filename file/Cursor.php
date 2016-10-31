@@ -52,7 +52,7 @@ class Cursor extends \IteratorIterator implements \Countable
     /**
      * Count elements of this cursor.
      * This method is required by the interface [[\Countable]].
-     * @return integer elements count.
+     * @return int elements count.
      */
     public function count()
     {
@@ -129,7 +129,7 @@ class Cursor extends \IteratorIterator implements \Countable
     /**
      * PHP magic method, which is invoked on attempt of checking if a property is set.
      * @param string $name field name.
-     * @return boolean whether field exists or not.
+     * @return bool whether field exists or not.
      */
     public function __isset($name)
     {

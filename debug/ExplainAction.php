@@ -28,7 +28,7 @@ class ExplainAction extends Action
 
     /**
      * Runs the explain action
-     * @param integer $seq
+     * @param int $seq
      * @param string $tag
      * @return string explain result content
      * @throws HttpException if requested log not found

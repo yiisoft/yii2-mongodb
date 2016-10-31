@@ -180,7 +180,7 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array $condition description of the objects to update.
      * @param array $newData the object with which to update the matching records.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer|boolean number of updated documents or whether operation was successful.
+     * @return int|bool number of updated documents or whether operation was successful.
      */
     public function update($collection, $condition, $newData, $options = [])
     {
@@ -210,7 +210,7 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array|string $collection collection name.
      * @param array $condition description of records to remove.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer|boolean number of updated documents or whether operation was successful.
+     * @return int|bool number of updated documents or whether operation was successful.
      */
     public function remove($collection, $condition = [], $options = [])
     {

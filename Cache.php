@@ -72,7 +72,7 @@ class Cache extends \yii\caching\Cache
      * This method should be implemented by child classes to retrieve the data
      * from specific cache storage.
      * @param string $key a unique key identifying the cached value
-     * @return string|boolean the value stored in cache, false if the value is not in the cache or expired.
+     * @return string|bool the value stored in cache, false if the value is not in the cache or expired.
      */
     protected function getValue($key)
     {
@@ -104,8 +104,8 @@ class Cache extends \yii\caching\Cache
      * in specific cache storage.
      * @param string $key the key identifying the value to be cached
      * @param string $value the value to be cached
-     * @param integer $expire the number of seconds in which the cached value will expire. 0 means never expire.
-     * @return boolean true if the value is successfully stored into cache, false otherwise
+     * @param int $expire the number of seconds in which the cached value will expire. 0 means never expire.
+     * @return bool true if the value is successfully stored into cache, false otherwise
      */
     protected function setValue($key, $value, $expire)
     {
@@ -130,8 +130,8 @@ class Cache extends \yii\caching\Cache
      * in specific cache storage.
      * @param string $key the key identifying the value to be cached
      * @param string $value the value to be cached
-     * @param integer $expire the number of seconds in which the cached value will expire. 0 means never expire.
-     * @return boolean true if the value is successfully stored into cache, false otherwise
+     * @param int $expire the number of seconds in which the cached value will expire. 0 means never expire.
+     * @return bool true if the value is successfully stored into cache, false otherwise
      */
     protected function addValue($key, $value, $expire)
     {
@@ -161,7 +161,7 @@ class Cache extends \yii\caching\Cache
      * Deletes a value with the specified key from cache
      * This method should be implemented by child classes to delete the data from actual cache storage.
      * @param string $key the key of the value to be deleted
-     * @return boolean if no error happens during deletion
+     * @return bool if no error happens during deletion
      */
     protected function deleteValue($key)
     {
@@ -174,7 +174,7 @@ class Cache extends \yii\caching\Cache
     /**
      * Deletes all values from cache.
      * Child classes may implement this method to realize the flush operation.
-     * @return boolean whether the flush operation was successful.
+     * @return bool whether the flush operation was successful.
      */
     protected function flushValues()
     {
@@ -186,7 +186,7 @@ class Cache extends \yii\caching\Cache
 
     /**
      * Removes the expired data values.
-     * @param boolean $force whether to enforce the garbage collection regardless of [[gcProbability]].
+     * @param bool $force whether to enforce the garbage collection regardless of [[gcProbability]].
      * Defaults to false, meaning the actual deletion happens with the probability as specified by [[gcProbability]].
      */
     public function gc($force = false)

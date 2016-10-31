@@ -105,7 +105,7 @@ class Command extends Object
 
     /**
      * Sets read preference for this command.
-     * @param ReadPreference|integer|string|null $readPreference read reference, it can be specified as
+     * @param ReadPreference|int|string|null $readPreference read reference, it can be specified as
      * instance of [[ReadPreference]] or scalar mode value, for example: `ReadPreference::RP_PRIMARY`.
      * @return $this self reference.
      */
@@ -131,7 +131,7 @@ class Command extends Object
 
     /**
      * Sets write concern for this command.
-     * @param WriteConcern|integer|string|null $writeConcern write concern, it can be an instance of [[WriteConcern]]
+     * @param WriteConcern|int|string|null $writeConcern write concern, it can be an instance of [[WriteConcern]]
      * or its scalar mode value, for example: `majority`.
      * @return $this self reference
      */
@@ -300,7 +300,7 @@ class Command extends Object
 
     /**
      * Drops database associated with this command.
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      */
     public function dropDatabase()
     {
@@ -313,7 +313,7 @@ class Command extends Object
      * Creates new collection in database associated with this command.s
      * @param string $collectionName collection name
      * @param array $options collection options in format: "name" => "value"
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      */
     public function createCollection($collectionName, array $options = [])
     {
@@ -326,7 +326,7 @@ class Command extends Object
     /**
      * Drops specified collection.
      * @param string $collectionName name of the collection to be dropped.
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      */
     public function dropCollection($collectionName)
     {
@@ -350,7 +350,7 @@ class Command extends Object
      *
      * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
      * for the full list of options.
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      */
     public function createIndexes($collectionName, $indexes)
     {
@@ -407,7 +407,7 @@ class Command extends Object
      * @param string $collectionName collection name
      * @param array $condition filter condition
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer records count
+     * @return int records count
      */
     public function count($collectionName, $condition = [], $options = [])
     {
@@ -488,7 +488,7 @@ class Command extends Object
      * @param string $collectionName collection name
      * @param array $document document content
      * @param array $options list of options in format: optionName => optionValue.
-     * @return ObjectID|boolean inserted record ID, `false` - on failure.
+     * @return ObjectID|bool inserted record ID, `false` - on failure.
      */
     public function insert($collectionName, $document, $options = [])
     {

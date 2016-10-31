@@ -205,7 +205,7 @@ class Upload extends Object
 
     /**
      * Flushes [[buffer]] to the chunk if it is full.
-     * @param boolean $force whether to enforce flushing.
+     * @param bool $force whether to enforce flushing.
      */
     private function flushBuffer($force = false)
     {

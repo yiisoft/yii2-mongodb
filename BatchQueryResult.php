@@ -160,7 +160,7 @@ class BatchQueryResult extends Object implements \Iterator
     /**
      * Returns the index of the current dataset.
      * This method is required by the interface Iterator.
-     * @return integer the index of the current row.
+     * @return int the index of the current row.
      */
     public function key()
     {
@@ -180,7 +180,7 @@ class BatchQueryResult extends Object implements \Iterator
     /**
      * Returns whether there is a valid dataset at the current position.
      * This method is required by the interface Iterator.
-     * @return boolean whether there is a valid dataset at the current position.
+     * @return bool whether there is a valid dataset at the current position.
      */
     public function valid()
     {

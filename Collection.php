@@ -57,7 +57,7 @@ class Collection extends Object
     /**
      * Drops this collection.
      * @throws Exception on failure.
-     * @return boolean whether the operation successful.
+     * @return bool whether the operation successful.
      */
     public function drop()
     {
@@ -107,7 +107,7 @@ class Collection extends Object
      *
      * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
      * for the full list of options.
-     * @return boolean whether operation was successful.
+     * @return bool whether operation was successful.
      * @since 2.1
      */
     public function createIndexes($indexes)
@@ -119,7 +119,7 @@ class Collection extends Object
      * Drops collection indexes by name.
      * @param string $indexes wildcard for name of the indexes to be dropped.
      * You can use `*` to drop all indexes.
-     * @return integer count of dropped indexes.
+     * @return int count of dropped indexes.
      */
     public function dropIndexes($indexes)
     {
@@ -145,7 +145,7 @@ class Collection extends Object
      *
      * @param array $options list of options in format: optionName => optionValue.
      * @throws Exception on failure.
-     * @return boolean whether the operation successful.
+     * @return bool whether the operation successful.
      */
     public function createIndex($columns, $options = [])
     {
@@ -172,7 +172,7 @@ class Collection extends Object
      * ```
      *
      * @throws Exception on failure.
-     * @return boolean whether the operation successful.
+     * @return bool whether the operation successful.
      */
     public function dropIndex($columns)
     {
@@ -193,7 +193,7 @@ class Collection extends Object
     /**
      * Drops all indexes for this collection.
      * @throws Exception on failure.
-     * @return integer count of dropped indexes.
+     * @return int count of dropped indexes.
      */
     public function dropAllIndexes()
     {
@@ -281,7 +281,7 @@ class Collection extends Object
      * @param array $condition description of the objects to update.
      * @param array $newData the object with which to update the matching records.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer|boolean number of updated documents or whether operation was successful.
+     * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
     public function update($condition, $newData, $options = [])
@@ -313,7 +313,7 @@ class Collection extends Object
      * Removes data from the collection.
      * @param array $condition description of records to remove.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer|boolean number of updated documents or whether operation was successful.
+     * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
     public function remove($condition = [], $options = [])
@@ -327,7 +327,7 @@ class Collection extends Object
      * Counts records in this collection.
      * @param array $condition query condition
      * @param array $options list of options in format: optionName => optionValue.
-     * @return integer records count.
+     * @return int records count.
      * @since 2.1
      */
     public function count($condition = [], $options = [])
@@ -340,7 +340,7 @@ class Collection extends Object
      * @param string $column column to use.
      * @param array $condition query parameters.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return array|boolean array of distinct values, or "false" on failure.
+     * @return array|bool array of distinct values, or "false" on failure.
      * @throws Exception on failure.
      */
     public function distinct($column, $condition = [], $options = [])
