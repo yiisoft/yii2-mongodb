@@ -1,8 +1,8 @@
 Использование Gii генератора
 ===================
 
-This extension provides a code generator, which can be integrated with yii 'gii' module. It allows generation of the
-Active Record code. In order to enable it, you should adjust your application configuration in following way:
+Это расширение предоставляет генератор кода, который может быть интегрирован с Yii модулем 'gii'. Он обеспечивает генерацию
+Active Record кода. Для того, чтобы включить его, вы должны настроить конфигурацию приложения следующим образом:
 
 ```php
 return [
@@ -21,6 +21,4 @@ return [
 ];
 ```
 
-> Note: since MongoDB is schemaless, there is not much information, which generated code may base on. So generated code
-  is very basic and definitely requires adjustments.
-
+> Note: поскольку MongoDB это schemaless - БД, существует не так много информации, которая может основываться на генерируеом коде. Таким образом, сгенерированный код очень простой и, безусловно, требует корректировки.

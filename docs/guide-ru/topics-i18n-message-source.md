@@ -1,8 +1,8 @@
 Использование интернационализации I18N
 =============================
 
-You may use [[\yii\mongodb\i18n\MongoDbMessageSource]] for the i18n message translations storage.
-Application configuration example:
+Вы можете использовать [[\yii\mongodb\i18n\MongoDbMessageSource]] для хранения переводов i18n сообщений.
+Пример конфигурации приложения:
 
 ```php
 return [
@@ -20,5 +20,4 @@ return [
 ];
 ```
 
-Please refer to [[\yii\mongodb\i18n\MongoDbMessageSource]] for more details about configuration and translation
-collection data structure.
+Пожалуйста, обратитесь к [[\yii\mongodb\i18n\MongoDbMessageSource]] для получения более подробной информации о конфигурации и перевода структуры коллекции данных.

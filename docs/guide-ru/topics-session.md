@@ -1,8 +1,8 @@
 Использование компонентов сессии
 ===========================
 
-To use the `Session` component, in addition to configuring the connection as described in [Installation](installation.md) section,
-you also have to configure the `session` component to be `yii\mongodb\Session`:
+Для использования компонента `Session`, в дополнительных настройках соединения, как описано в разделе [Installation](installation.md),
+вы должны настроить компонент `session` как `yii\mongodb\Session`:
 
 ```php
 return [

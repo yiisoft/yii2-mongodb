@@ -1,8 +1,8 @@
 Использование компонентов кеширования
 =========================
 
-To use the `Cache` component, in addition to configuring the connection as described in [Installation](installation.md) section,
-you also have to configure the `cache` component to be `yii\mongodb\Cache`:
+Для того чтобы использованить компонент `Cache`, в дополнительных настройках соединения, как описано в разделе  [Установка](installation.md),
+вы должны настроить компонент `cache` как `yii\mongodb\Cache`:
 
 ```php
 return [
