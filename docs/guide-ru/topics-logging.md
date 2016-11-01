@@ -1,8 +1,8 @@
 Логирование и профилирование
 =====================
 
-This extension provides logging for executed commands or queries.
-Logging is optional and can be enabled or disabled at [[\yii\mongodb\Connection]] level:
+Это расширение обеспечивает ведение журнала для выполненных команд и запросов.
+Ведение журнала необязательно и может быть включено или отключено в [[\yii\mongodb\Connection]]:
 
 ```php
 return [
@@ -17,11 +17,7 @@ return [
     ],
 ];
 ```
+> Note: регистрация сообщений, сгенерированных для команд и запросов, не содержат фактических текстов выполняемых запросов, содержат только **близкое приближение** составленное из значений, которые могут быть получены из классов расширения PHP MongoDB.
+  Если вам нужно увидеть текст фактических запросов, вы должны использовать специальные инструменты для этого.
 
-> Note: log messages generated for the commands and queries do not contain actual
-  text of the performed queries, they contains only a **close approximation** of it,
-  composed on the values which can be extracted from PHP MongoDB extension classes.
-  If you need to see actual query text, you should use specific tools for that.
-
-> Tip: Keep in mind that composition of the log messages take some time and program resources.
-  Thus it make sense to disable logging at the production environment.
+> Tip: Имейте в виду, что ведение журнала сообщений занимает какое-то время и программные ресурсы. Таким образом, имеет смысл отключить ведение журнала в продакшене.

@@ -1,11 +1,10 @@
 Использование MongoDB DebugPanel
 ============================
 
-The yii2 MongoDB extensions provides a debug panel that can be integrated with the yii debug module
-and shows the executed MongoDB queries.
+Расширение Yii2 MongoDB предоставляет панель отладки, которая может быть интегрирована с модулем отладки yii
+и отображать выполняемые запросы MongoDB.
 
-Add the following to you application config to enable it (if you already have the debug module
-enabled, it is sufficient to just add the panels configuration):
+Добавьте следующий код в конфигурацию вашего приложения, чтобы включить его (если у вас уже есть включенный модуль отладки, то достаточно просто добавить конфигурацию панели):
 
 ```php
     // ...
@@ -16,7 +15,7 @@ enabled, it is sufficient to just add the panels configuration):
             'panels' => [
                 'mongodb' => [
                     'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
-                    // 'db' => 'mongodb', // MongoDB component ID, defaults to `db`. Uncomment and change this line, if you registered MongoDB component with a different ID.
+                    // 'db' => 'mongodb', // ID MongoDB компонента, по умолчанию `db`. Раскоментируйте и измените эту строку, если вы регистрируете компонент MongoDB с другим ID.
                 ],
             ],
         ],
