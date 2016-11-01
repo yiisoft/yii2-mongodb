@@ -1,13 +1,11 @@
 Использование миграции
 ================
 
-MongoDB is schemaless and will create any missing collection on the first demand. However there are many cases, when
-you may need applying persistent changes to the MongoDB database. For example: you may need to create a collection with
-some specific options or create indexes.
-MongoDB migrations are managed via [[yii\mongodb\console\controllers\MigrateController]], which is an analog of regular
+MongoDB это - schemaless-бд и может создать необходимые коллекции по первому требованию. Однако, есть много случаев когда вам может понадобиться применение постоянных изменений в базу данных MongoDB. Для примера: вам может понадобится создаать коллекцию с некоторыми конкретными вариантами или индексы.
+MongoDB миграции управляются с помощью [[yii\mongodb\console\controllers\MigrateController]], который являетя аналогом регулярного
 [[\yii\console\controllers\MigrateController]].
 
-In order to enable this command you should adjust the configuration of your console application:
+Для того, чтобы включить эту команду, вы должны настроить конфигурацию консольного приложения:
 
 ```php
 return [
@@ -18,15 +16,15 @@ return [
 ];
 ```
 
-Below are some common usages of this command:
+Ниже приведены примеры использовния этой команды:
 
 ```
-# creates a new migration named 'create_user_collection'
+# созадать миграцию с именем 'create_user_collection'
 yii mongodb-migrate/create create_user_collection
 
-# applies ALL new migrations
+# применить ВСЕ новые миграции
 yii mongodb-migrate
 
-# reverts the last applied migration
+# отменить последние примененные миграции
 yii mongodb-migrate/down
 ```
