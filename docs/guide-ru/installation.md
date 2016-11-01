@@ -5,7 +5,7 @@
 
 Это расширение требует [MongoDB PHP Extension](http://us1.php.net/manual/en/set.mongodb.php) версии 1.0.0 или выше.
 
-## Получение Composer пакета
+## Получение с помощью Composer
 
 Предпочтительный способ установки расширения через  [composer](http://getcomposer.org/download/).
 

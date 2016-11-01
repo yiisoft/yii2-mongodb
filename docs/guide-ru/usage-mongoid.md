@@ -3,14 +3,14 @@
 
 ## Получение скаляра из ID документа
 
-Remember: MongoDB document id (поле `_id`) не является скаляром, но представляет собой экземпляр класса [[\MongoDB\BSON\ObjectID]].
-Чтобы получить фактическую Mongo ID строку вы должны привести тип экземпляра [[\MongoDB\BSON\ObjectID]] к строке:
+> Remember: идентификатор документа MongoDB (поле `_id`) не является скаляром, но представляет собой экземпляр класса [[\MongoDB\BSON\ObjectID]].
+Чтобы получить фактическую строку Mongo ID, вы должны привести тип экземпляра [[\MongoDB\BSON\ObjectID]] к строке:
 
 ```php
 $query = new Query();
 $row = $query->from('customer')->one();
 var_dump($row['_id']); // вывод: "object(\MongoDB\BSON\ObjectID)"
-var_dump((string) $row['_id']); // вывод "string 'acdfgdacdhcbdafa'"
+var_dump((string) $row['_id']); // вывод: "string 'acdfgdacdhcbdafa'"
 ```
 Хотя это обстоятельство, иногда, весьма полезно, но часто приводит к некоторым проблемам.
 Вы можете столкнуться с ними составляя URL или при попытке сохранения "_id" в другое хранилище.

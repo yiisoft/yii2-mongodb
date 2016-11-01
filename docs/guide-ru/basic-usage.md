@@ -27,7 +27,7 @@ $collection = Yii::$app->mongodb->getCollection('customer');
 $collection->insert(['name' => 'John Smith', 'status' => 1]);
 ```
 
-Для выполнения "find" запросов, вы должны использовать [[\yii\mongodb\Query]]:
+Для выполнения `find` запросов, вы должны использовать [[\yii\mongodb\Query]]:
 
 ```php
 use yii\mongodb\Query;

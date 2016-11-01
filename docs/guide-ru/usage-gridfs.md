@@ -2,7 +2,7 @@
 ============
 
 Это расширение поддерживает [MongoGridFS](http://docs.mongodb.org/manual/core/gridfs/) с помощью классов в рамках пространства имен "\yii\mongodb\file".
-Там вы найдете Collection, Query и ActiveRecord классы.
+Там вы найдете классы Collection, Query и ActiveRecord.
 
 Вы можете загрузить файл с помощью [[\yii\mongodb\file\Upload]]:
 
@@ -20,7 +20,7 @@ $document = Yii::$app->mongodb->getFileCollection()->createUpload()
 Yii::$app->mongodb->getFileCollection()->createDownload($document['_id'])->toFile('/path/to/file.dat');
 ```
 
-Каждая строка, файла результата запроса, содержит экземпляр [[\yii\mongodb\file\Download]] ключа 'file':
+Каждая строка, файла результата запроса, содержит ключ 'file' экземпляра [[\yii\mongodb\file\Download]]:
 
 ```php
 use yii\mongodb\file\Query;
@@ -59,7 +59,7 @@ echo $row['file']->toString(); // содержание файла вывода
 Вы также можете управлять файлами GridFS через регулярные потоки ресурсов PHP.
 Вам нужно будет зарегистрировать обертку потока предоставленную этим расширением - [[\yii\mongodb\file\StreamWrapper]].
 Это может быть сделано с помощью [[\yii\mongodb\file\Connection::registerFileStreamWrapper()]].
-Once stream wrapper is registered, you may open a stream resource using following format:
+После того как обертка потока зарегистрирована, вы можете открыть поток используя следующий формат:
 
 ```
 'protocol://databaseName.fileCollectionPrefix?file_attribute=value'
