@@ -1,9 +1,8 @@
 Использование MongoDB ActiveRecord
 ==============================
 
-This extension provides ActiveRecord solution similar ot the [[\yii\db\ActiveRecord]].
-To declare an ActiveRecord class you need to extend [[\yii\mongodb\ActiveRecord]] and
-implement the `collectionName` and 'attributes' methods:
+Это расширение предоставляет ActiveRecord решение аналогично [[\yii\db\ActiveRecord]].
+Чтобы объявить класс ActiveRecord вам необходимо расширить [[\yii\mongodb\ActiveRecord]] и реализовать методы `collectionName` и `attributes`:
 
 ```php
 use yii\mongodb\ActiveRecord;
@@ -28,9 +27,9 @@ class Customer extends ActiveRecord
 }
 ```
 
-Note: collection primary key name ('_id') should be always explicitly setup as an attribute.
+Note: первичный ключ названия коллекции ('_id') должен быть всегда установлен в явном виде в качестве атрибута.
 
-You can use [[\yii\data\ActiveDataProvider]] with [[\yii\mongodb\Query]] and [[\yii\mongodb\ActiveQuery]]:
+Вы можете использовать [[\yii\data\ActiveDataProvider]] с [[\yii\mongodb\Query]] и [[\yii\mongodb\ActiveQuery]]:
 
 ```php
 use yii\data\ActiveDataProvider;
