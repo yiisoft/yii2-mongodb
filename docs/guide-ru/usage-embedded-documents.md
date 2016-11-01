@@ -1,9 +1,9 @@
 Работа с вложенными документами
 ===============================
 
-This extension does not provide any special way to work with embedded documents (sub-documents) at the moment.
-General recommendation is avoiding it if possible.
-For example: instead of:
+Это расширение не предусматривает каких-либо специальных способ работы с вложенными документами (суб-документы) на данный момент.
+Общая рекомендация избегать их, если это возможно.
+Для примера: вместо:
 
 ```
 {
@@ -15,7 +15,7 @@ For example: instead of:
 }
 ```
 
-use following:
+используйте следующее:
 
 ```
 {
@@ -25,9 +25,8 @@ use following:
 }
 ```
 
-Yii Model designed assuming single attribute is a scalar. Validation and attribute processing based on this suggestion.
-Still any attribute can be an array of any depth and complexity, however you should handle its validation on your own.
+Yii Model разработана предполагая что единственный атрибут является скаляром. Валидация и обработка атрибутов происходит на основе этого предложения.
+Тем не менее, любой атрибут может быть массивом любой глубины и сложности, однако вы должны обрабатывать его валидацию по своему усмотрению.
 
-While there is no explicit support for embedded documents, there is also no explicit restriction on it.
-You may create your own solution or use third-party extension like [yii2tech/embedded](https://github.com/yii2tech/embedded)
-for this feature.
+Пока не существует явной поддержки вложенных документов, но также никакого явного ограничения на него нет. Вы можете создать собственное решение или использовать расширение сторонних разработчиков, как [yii2tech/embedded](https://github.com/yii2tech/embedded)
+для использования этой функции.
