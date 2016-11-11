@@ -291,4 +291,31 @@ class CommandTest extends TestCase
         $collectionNames = ArrayHelper::getColumn($collections, 'name');
         $this->assertContains('customer', $collectionNames);
     }
+
+    /**
+     * @depends testUpdate
+     * @depends testCount
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/168
+     */
+    public function testUpdateUpsert()
+    {
+        $connection = $this->getConnection();
+
+        $connection->createCommand()->insert('customer', ['name' => 'John']);
+
+        $result = $connection->createCommand()
+            ->update('customer', ['name' => 'Mike'], ['name' => 'Jack']);
+
+        $this->assertEquals(0, $result->getModifiedCount());
+        $this->assertEquals(0, $result->getUpsertedCount());
+        $this->assertEquals(1, $connection->createCommand()->count('customer'));
+
+        $result = $connection->createCommand()
+            ->update('customer', ['name' => 'Mike'], ['name' => 'Jack'], ['upsert' => true]);
+
+        $this->assertEquals(0, $result->getModifiedCount());
+        $this->assertEquals(1, $result->getUpsertedCount());
+        $this->assertEquals(2, $connection->createCommand()->count('customer'));
+    }
 }

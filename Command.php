@@ -445,7 +445,7 @@ class Command extends Object
         $options = array_merge(
             [
                 'multi' => true,
-                'upsert' => true,
+                'upsert' => false,
             ],
             $options
         );
