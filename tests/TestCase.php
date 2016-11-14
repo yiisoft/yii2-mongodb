@@ -197,4 +197,20 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
         $path = $this->getTestFilePath();
         FileHelper::removeDirectory($path);
     }
+
+    /**
+     * Invokes a inaccessible method
+     * @param object $object
+     * @param string $method
+     * @param array $args
+     * @return mixed
+     * @since 2.1.3
+     */
+    protected function invokeMethod($object, $method, $args = [])
+    {
+        $reflection = new \ReflectionClass($object->className());
+        $method = $reflection->getMethod($method);
+        $method->setAccessible(true);
+        return $method->invokeArgs($object, $args);
+    }
 }

@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #168: Fixed `yii\mongodb\Command::update()` uses `upsert` option by default (klimov-paul)
+- Bug #170: Fixed incorrect order of migrations history in case `yii\mongodb\console\controllers\MigrateController::$migrationNamespaces` is in use (klimov-paul)
 
 
 2.1.2 October 31, 2016

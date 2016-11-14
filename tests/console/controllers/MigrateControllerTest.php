@@ -489,4 +489,75 @@ CODE;
 
         $this->assertMigrationHistory(['m*_base', $this->migrationNamespace . '\\M*To1']);
     }
+
+    /**
+     * @depends testNamespaceHistory
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/170
+     */
+    public function testGetMigrationHistory()
+    {
+        $connection = $this->getConnection();
+
+        $controllerConfig = [
+            'migrationPath' => null,
+            'migrationNamespaces' => [$this->migrationNamespace]
+        ];
+
+        $controller = $this->createMigrateController($controllerConfig);
+        $controller->db = $this->getConnection();
+
+        $connection->createCommand()->batchInsert('migration', [
+            [
+                'version' => 'app\migrations\M140506102106One',
+                'apply_time' => 10,
+            ],
+            [
+                'version' => 'app\migrations\M160909083544Two',
+                'apply_time' => 10,
+            ],
+            [
+                'version' => 'app\modules\foo\migrations\M161018124749Three',
+                'apply_time' => 10,
+            ],
+            [
+                'version' => 'app\migrations\M160930135248Four',
+                'apply_time' => 20,
+            ],
+            [
+                'version' => 'app\modules\foo\migrations\M161025123028Five',
+                'apply_time' => 20,
+            ],
+            [
+                'version' => 'app\migrations\M161110133341Six',
+                'apply_time' => 20,
+            ],
+        ]);
+
+        $rows = $this->invokeMethod($controller, 'getMigrationHistory', [10]);
+
+        $this->assertSame(
+            [
+                'app\migrations\M161110133341Six',
+                'app\modules\foo\migrations\M161025123028Five',
+                'app\migrations\M160930135248Four',
+                'app\modules\foo\migrations\M161018124749Three',
+                'app\migrations\M160909083544Two',
+                'app\migrations\M140506102106One',
+            ],
+            array_keys($rows)
+        );
+
+        $rows = $this->invokeMethod($controller, 'getMigrationHistory', [4]);
+
+        $this->assertSame(
+            [
+                'app\migrations\M161110133341Six',
+                'app\modules\foo\migrations\M161025123028Five',
+                'app\migrations\M160930135248Four',
+                'app\modules\foo\migrations\M161018124749Three',
+            ],
+            array_keys($rows)
+        );
+    }
 }
