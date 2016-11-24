@@ -1,4 +1,4 @@
-Yii 2 MongoDb エクステンション
+Yii 2 MongoDB エクステンション
 ==============================
 
 このエクステンションは Yii 2 フレームワークに [MongoDB](http://www.mongodb.org/) との統合を提供します。
