@@ -129,7 +129,7 @@ class Connection extends Component
      */
     public $typeMap = [];
     /**
-     * @var boolean whether to log command and query executions.
+     * @var bool whether to log command and query executions.
      * While enabled this option may reduce performance, since MongoDB commands may contain large data,
      * consuming both CPU and memory.
      * It make sense to disable this option at production environment.
@@ -137,7 +137,7 @@ class Connection extends Component
      */
     public $enableLogging = true;
     /**
-     * @var boolean whether to enable profiling the commands and queries being executed.
+     * @var bool whether to enable profiling the commands and queries being executed.
      * This option will have no effect in case [[enableLogging]] is disabled.
      * @since 2.1
      */
@@ -174,7 +174,7 @@ class Connection extends Component
      */
     private $_logBuilder = 'yii\mongodb\LogBuilder';
     /**
-     * @var boolean whether GridFS stream wrapper has been already registered.
+     * @var bool whether GridFS stream wrapper has been already registered.
      */
     private $fileStreamWrapperRegistered = false;
 

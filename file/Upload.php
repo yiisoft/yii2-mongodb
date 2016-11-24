@@ -55,15 +55,15 @@ class Upload extends Object
      */
     public $document = [];
     /**
-     * @var integer chunk size in bytes.
+     * @var int chunk size in bytes.
      */
     public $chunkSize = 261120;
     /**
-     * @var integer total upload length in bytes.
+     * @var int total upload length in bytes.
      */
     public $length = 0;
     /**
-     * @var integer file chunk counts.
+     * @var int file chunk counts.
      */
     public $chunkCount = 0;
 
@@ -80,7 +80,7 @@ class Upload extends Object
      */
     private $buffer;
     /**
-     * @var boolean indicates whether upload is complete or not.
+     * @var bool indicates whether upload is complete or not.
      */
     private $isComplete = false;
 

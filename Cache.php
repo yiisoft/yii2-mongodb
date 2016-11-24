@@ -49,7 +49,7 @@ class Cache extends \yii\caching\Cache
      */
     public $cacheCollection = 'cache';
     /**
-     * @var integer the probability (parts per million) that garbage collection (GC) should be performed
+     * @var int the probability (parts per million) that garbage collection (GC) should be performed
      * when storing a piece of data in the cache. Defaults to 100, meaning 0.01% chance.
      * This number should be between 0 and 1000000. A value 0 meaning no GC will be performed at all.
      */

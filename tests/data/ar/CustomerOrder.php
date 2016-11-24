@@ -4,7 +4,7 @@ namespace yiiunit\extensions\mongodb\data\ar;
 
 /**
  * @property \MongoDB\BSON\ObjectID|string $_id
- * @property integer $number
+ * @property int $number
  * @property \MongoDB\BSON\ObjectID $customer_id
  * @property array $item_ids
  */

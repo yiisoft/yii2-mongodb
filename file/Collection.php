@@ -46,7 +46,7 @@ class Collection extends \yii\mongodb\Collection
      */
     private $_fileCollection;
     /**
-     * @var boolean whether file related fields indexes are ensured for this collection.
+     * @var bool whether file related fields indexes are ensured for this collection.
      */
     private $indexesEnsured = false;
 

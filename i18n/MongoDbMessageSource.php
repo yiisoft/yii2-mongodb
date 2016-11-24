@@ -73,13 +73,13 @@ class MongoDbMessageSource extends MessageSource
      */
     public $collection = 'message';
     /**
-     * @var integer the time in seconds that the messages can remain valid in cache.
+     * @var int the time in seconds that the messages can remain valid in cache.
      * Use 0 to indicate that the cached data will never expire.
      * @see enableCaching
      */
     public $cachingDuration = 0;
     /**
-     * @var boolean whether to enable caching translated messages
+     * @var bool whether to enable caching translated messages
      */
     public $enableCaching = false;
 

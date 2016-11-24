@@ -95,8 +95,8 @@ abstract class TestCase extends \PHPUnit_Framework_TestCase
     }
 
     /**
-     * @param  boolean                 $reset whether to clean up the test database
-     * @param  boolean                 $open  whether to open test database
+     * @param  bool $reset whether to clean up the test database
+     * @param  bool $open  whether to open test database
      * @return \yii\mongodb\Connection
      */
     public function getConnection($reset = false, $open = true)

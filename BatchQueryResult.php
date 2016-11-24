@@ -42,11 +42,11 @@ class BatchQueryResult extends Object implements \Iterator
      */
     public $query;
     /**
-     * @var integer the number of rows to be returned in each batch.
+     * @var int the number of rows to be returned in each batch.
      */
     public $batchSize = 100;
     /**
-     * @var boolean whether to return a single row during each iteration.
+     * @var bool whether to return a single row during each iteration.
      * If false, a whole batch of rows will be returned in each iteration.
      */
     public $each = false;
@@ -60,7 +60,7 @@ class BatchQueryResult extends Object implements \Iterator
      */
     private $_value;
     /**
-     * @var string|integer the key for the current iteration
+     * @var string|int the key for the current iteration
      */
     private $_key;
     /**

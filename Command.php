@@ -74,11 +74,11 @@ class Command extends Object
     public $document = [];
 
     /**
-     * @var ReadPreference|integer|string|null command read preference.
+     * @var ReadPreference|int|string|null command read preference.
      */
     private $_readPreference;
     /**
-     * @var WriteConcern|integer|string|null write concern to be used by this command.
+     * @var WriteConcern|int|string|null write concern to be used by this command.
      */
     private $_writeConcern;
     /**
@@ -343,10 +343,10 @@ class Command extends Object
      * The main options are:
      *
      * - keys: array, column names with sort order, to be indexed. This option is mandatory.
-     * - unique: boolean, whether to create unique index.
+     * - unique: bool, whether to create unique index.
      * - name: string, the name of the index, if not set it will be generated automatically.
-     * - background: boolean, whether to bind index in the background.
-     * - sparse: boolean, whether index should reference only documents with the specified field.
+     * - background: bool, whether to bind index in the background.
+     * - sparse: bool, whether index should reference only documents with the specified field.
      *
      * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
      * for the full list of options.
@@ -701,11 +701,11 @@ class Command extends Object
      * @param array $options additional optional parameters to the mapReduce command. Valid options include:
      *
      *  - sort: array, key to sort the input documents. The sort key must be in an existing index for this collection.
-     *  - limit: integer, the maximum number of documents to return in the collection.
+     *  - limit: int, the maximum number of documents to return in the collection.
      *  - finalize: \MongoDB\BSON\Javascript|string, function, which follows the reduce method and modifies the output.
      *  - scope: array, specifies global variables that are accessible in the map, reduce and finalize functions.
-     *  - jsMode: boolean, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
-     *  - verbose: boolean, specifies whether to include the timing information in the result information.
+     *  - jsMode: bool, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
+     *  - verbose: bool, specifies whether to include the timing information in the result information.
      *
      * @return string|array the map reduce output collection name or output results.
      */

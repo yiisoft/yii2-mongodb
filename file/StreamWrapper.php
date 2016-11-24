@@ -85,7 +85,7 @@ class StreamWrapper extends Object
      */
     private $download;
     /**
-     * @var integer file pointer offset.
+     * @var int file pointer offset.
      */
     private $pointerOffset = 0;
 
