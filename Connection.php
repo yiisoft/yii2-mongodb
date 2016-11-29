@@ -130,9 +130,9 @@ class Connection extends Component
     public $typeMap = [];
     /**
      * @var bool whether to log command and query executions.
-     * While enabled this option may reduce performance, since MongoDB commands may contain large data,
+     * When enabled this option may reduce performance. MongoDB commands may contain large data,
      * consuming both CPU and memory.
-     * It make sense to disable this option at production environment.
+     * It makes sense to disable this option in the production environment.
      * @since 2.1
      */
     public $enableLogging = true;
