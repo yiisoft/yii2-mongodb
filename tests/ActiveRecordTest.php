@@ -436,6 +436,10 @@ class ActiveRecordTest extends TestCase
 
     public function testEmulateExecution()
     {
+        if (!Customer::find()->hasMethod('emulateExecution')) {
+            $this->markTestSkipped('"yii2" version 2.0.11 or higher required');
+        }
+
         $this->assertGreaterThan(0, Customer::find()->from('customer')->count());
 
         $rows = Customer::find()

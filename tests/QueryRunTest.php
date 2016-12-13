@@ -499,9 +499,14 @@ class QueryRunTest extends TestCase
 
     public function testEmulateExecution()
     {
+        $query = new Query();
+        if (!$query->hasMethod('emulateExecution')) {
+            $this->markTestSkipped('"yii2" version 2.0.11 or higher required');
+        }
+
         $db = $this->getConnection();
 
-        $this->assertGreaterThan(0, (new Query())->from('customer')->count('*', $db));
+        $this->assertGreaterThan(0, $query->from('customer')->count('*', $db));
 
         $rows = (new Query())
             ->from('customer')

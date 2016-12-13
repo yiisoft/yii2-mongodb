@@ -304,7 +304,7 @@ class Query extends Component implements QueryInterface
      */
     public function all($db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return [];
         }
         $cursor = $this->buildCursor($db);
@@ -345,7 +345,7 @@ class Query extends Component implements QueryInterface
      */
     public function one($db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return false;
         }
         $cursor = $this->buildCursor($db);
@@ -365,7 +365,7 @@ class Query extends Component implements QueryInterface
      */
     public function scalar($db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return null;
         }
 
@@ -395,7 +395,7 @@ class Query extends Component implements QueryInterface
      */
     public function column($db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return [];
         }
 
@@ -441,7 +441,7 @@ class Query extends Component implements QueryInterface
      */
     public function modify($update, $options = [], $db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return null;
         }
 
@@ -464,7 +464,7 @@ class Query extends Component implements QueryInterface
      */
     public function count($q = '*', $db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return 0;
         }
         $collection = $this->getCollection($db);
@@ -492,7 +492,7 @@ class Query extends Component implements QueryInterface
      */
     public function sum($q, $db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return 0;
         }
         return $this->aggregate($q, 'sum', $db);
@@ -508,7 +508,7 @@ class Query extends Component implements QueryInterface
      */
     public function average($q, $db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return 0;
         }
         return $this->aggregate($q, 'avg', $db);
@@ -549,7 +549,7 @@ class Query extends Component implements QueryInterface
      */
     protected function aggregate($column, $operator, $db)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return null;
         }
 
@@ -582,7 +582,7 @@ class Query extends Component implements QueryInterface
      */
     public function distinct($q, $db = null)
     {
-        if ($this->emulateExecution) {
+        if (!empty($this->emulateExecution)) {
             return [];
         }
 
