@@ -304,6 +304,9 @@ class Query extends Component implements QueryInterface
      */
     public function all($db = null)
     {
+        if ($this->emulateExecution) {
+            return [];
+        }
         $cursor = $this->buildCursor($db);
         $rows = $this->fetchRows($cursor, true, $this->indexBy);
         return $this->populate($rows);
@@ -337,11 +340,14 @@ class Query extends Component implements QueryInterface
      * Executes the query and returns a single row of result.
      * @param Connection $db the Mongo connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return array|bool the first row (in terms of an array) of the query result. False is returned if the query
+     * @return array|false the first row (in terms of an array) of the query result. `false` is returned if the query
      * results in nothing.
      */
     public function one($db = null)
     {
+        if ($this->emulateExecution) {
+            return false;
+        }
         $cursor = $this->buildCursor($db);
         return $this->fetchRows($cursor, false);
     }
@@ -359,6 +365,10 @@ class Query extends Component implements QueryInterface
      */
     public function scalar($db = null)
     {
+        if ($this->emulateExecution) {
+            return null;
+        }
+
         $originSelect = (array)$this->select;
         if (!isset($originSelect['_id']) && array_search('_id', $originSelect, true) === false) {
             $this->select['_id'] = false;
@@ -385,6 +395,10 @@ class Query extends Component implements QueryInterface
      */
     public function column($db = null)
     {
+        if ($this->emulateExecution) {
+            return [];
+        }
+
         $originSelect = (array)$this->select;
         if (!isset($originSelect['_id']) && array_search('_id', $originSelect, true) === false) {
             $this->select['_id'] = false;
@@ -427,6 +441,10 @@ class Query extends Component implements QueryInterface
      */
     public function modify($update, $options = [], $db = null)
     {
+        if ($this->emulateExecution) {
+            return null;
+        }
+
         $collection = $this->getCollection($db);
         if (!empty($this->orderBy)) {
             $options['sort'] = $this->orderBy;
@@ -446,6 +464,9 @@ class Query extends Component implements QueryInterface
      */
     public function count($q = '*', $db = null)
     {
+        if ($this->emulateExecution) {
+            return 0;
+        }
         $collection = $this->getCollection($db);
         return $collection->count($this->where, $this->options);
     }
@@ -471,6 +492,9 @@ class Query extends Component implements QueryInterface
      */
     public function sum($q, $db = null)
     {
+        if ($this->emulateExecution) {
+            return 0;
+        }
         return $this->aggregate($q, 'sum', $db);
     }
 
@@ -484,6 +508,9 @@ class Query extends Component implements QueryInterface
      */
     public function average($q, $db = null)
     {
+        if ($this->emulateExecution) {
+            return 0;
+        }
         return $this->aggregate($q, 'avg', $db);
     }
 
@@ -522,6 +549,10 @@ class Query extends Component implements QueryInterface
      */
     protected function aggregate($column, $operator, $db)
     {
+        if ($this->emulateExecution) {
+            return null;
+        }
+
         $collection = $this->getCollection($db);
         $pipelines = [];
         if ($this->where !== null) {
@@ -538,9 +569,8 @@ class Query extends Component implements QueryInterface
         $result = $collection->aggregate($pipelines);
         if (array_key_exists(0, $result)) {
             return $result[0]['total'];
-        } else {
-            return 0;
         }
+        return null;
     }
 
     /**
@@ -552,6 +582,10 @@ class Query extends Component implements QueryInterface
      */
     public function distinct($q, $db = null)
     {
+        if ($this->emulateExecution) {
+            return [];
+        }
+
         $collection = $this->getCollection($db);
         if ($this->where !== null) {
             $condition = $this->where;
@@ -561,9 +595,8 @@ class Query extends Component implements QueryInterface
         $result = $collection->distinct($q, $condition);
         if ($result === false) {
             return [];
-        } else {
-            return $result;
         }
+        return $result;
     }
 
     /**
@@ -574,8 +607,7 @@ class Query extends Component implements QueryInterface
     {
         if ($this->where === null) {
             return [];
-        } else {
-            return $this->where;
         }
+        return $this->where;
     }
 }

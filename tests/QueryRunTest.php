@@ -496,4 +496,87 @@ class QueryRunTest extends TestCase
             ->column($connection);
         $this->assertEquals(['name1' => 'name1', 'name10' => 'name10'], $result);
     }
+
+    public function testEmulateExecution()
+    {
+        $db = $this->getConnection();
+
+        $this->assertGreaterThan(0, (new Query())->from('customer')->count('*', $db));
+
+        $rows = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->all($db);
+        $this->assertSame([], $rows);
+
+        $row = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->one($db);
+        $this->assertSame(false, $row);
+
+        $exists = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->exists($db);
+        $this->assertSame(false, $exists);
+
+        $count = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->count('*', $db);
+        $this->assertSame(0, $count);
+
+        $sum = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->sum('id', $db);
+        $this->assertSame(0, $sum);
+
+        $sum = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->average('id', $db);
+        $this->assertSame(0, $sum);
+
+        $max = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->max('id', $db);
+        $this->assertSame(null, $max);
+
+        $min = (new Query())
+            ->from('customer')
+            ->emulateExecution()
+            ->min('id', $db);
+        $this->assertSame(null, $min);
+
+        $scalar = (new Query())
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->scalar($db);
+        $this->assertSame(null, $scalar);
+
+        $column = (new Query())
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->column($db);
+        $this->assertSame([], $column);
+
+        $row = (new Query())
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->modify(['name' => 'new name'], [], $db);
+        $this->assertSame(null, $row);
+
+        $values = (new Query())
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->distinct('name', $db);
+        $this->assertSame([], $values);
+    }
 }
