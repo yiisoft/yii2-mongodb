@@ -433,4 +433,89 @@ class ActiveRecordTest extends TestCase
 
         $this->assertEquals('custom', $record->_id);
     }
+
+    public function testEmulateExecution()
+    {
+        if (!Customer::find()->hasMethod('emulateExecution')) {
+            $this->markTestSkipped('"yii2" version 2.0.11 or higher required');
+        }
+
+        $this->assertGreaterThan(0, Customer::find()->from('customer')->count());
+
+        $rows = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->all();
+        $this->assertSame([], $rows);
+
+        $row = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->one();
+        $this->assertSame(null, $row);
+
+        $exists = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->exists();
+        $this->assertSame(false, $exists);
+
+        $count = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->count();
+        $this->assertSame(0, $count);
+
+        $sum = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->sum('id');
+        $this->assertSame(0, $sum);
+
+        $sum = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->average('id');
+        $this->assertSame(0, $sum);
+
+        $max = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->max('id');
+        $this->assertSame(null, $max);
+
+        $min = Customer::find()
+            ->from('customer')
+            ->emulateExecution()
+            ->min('id');
+        $this->assertSame(null, $min);
+
+        $scalar = Customer::find()
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->scalar();
+        $this->assertSame(null, $scalar);
+
+        $column = Customer::find()
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->column();
+        $this->assertSame([], $column);
+
+        $row = Customer::find()
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->modify(['name' => 'new name']);
+        $this->assertSame(null, $row);
+
+        $values = Customer::find()
+            ->select(['id'])
+            ->from('customer')
+            ->emulateExecution()
+            ->distinct('name');
+        $this->assertSame([], $values);
+    }
 }
