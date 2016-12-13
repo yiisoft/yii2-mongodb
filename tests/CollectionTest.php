@@ -131,6 +131,7 @@ class CollectionTest extends TestCase
         ];
         $newId = $collection->save($data);
 
+        $data['_id'] = $newId;
         $updatedId = $collection->save($data);
         $this->assertEquals($newId, $updatedId, 'Unable to update data!');
 

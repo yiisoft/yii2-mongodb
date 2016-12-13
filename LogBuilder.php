@@ -111,9 +111,14 @@ class LogBuilder extends Object
         $dump = print_r($javascript, true);
         $beginPos = strpos($dump, '[javascript] => ');
         if ($beginPos === false) {
-            return $dump;
+            $beginPos = strpos($dump, '[code] => ');
+            if ($beginPos === false) {
+                return $dump;
+            }
+            $beginPos += strlen('[code] => ');
+        } else {
+            $beginPos += strlen('[javascript] => ');
         }
-        $beginPos += strlen('[javascript] => ');
 
         $endPos = strrpos($dump, '[scope] => ');
         if ($endPos === false || $beginPos > $endPos) {

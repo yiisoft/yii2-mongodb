@@ -412,7 +412,7 @@ class ActiveRecordTest extends TestCase
         $this->assertTrue(is_string($array['_id']));
         $this->assertEquals('/[a-z]@[a-z]/i', $array['email']);
         $this->assertEquals('abcdef', $array['address']);
-        $this->assertEquals([], $array['file_id']);
+        $this->assertEquals('Test Binary', $array['file_id']);
     }
 
     /**

@@ -404,7 +404,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     private function dumpBsonObject(Type $object)
     {
-        if ($object instanceof Binary && in_array($object->getType(), [Binary::TYPE_MD5, Binary::TYPE_UUID, Binary::TYPE_OLD_UUID], true)) {
+        if ($object instanceof Binary) {
             return $object->getData();
         }
         if (method_exists($object, '__toString')) {
