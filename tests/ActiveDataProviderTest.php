@@ -7,9 +7,16 @@ use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
+use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
 
 class ActiveDataProviderTest extends TestCase
 {
+
+    /**
+     * @var array[] list of test rows.
+     */
+    protected $testRows = [];
+    
     protected function setUp()
     {
         parent::setUp();
@@ -21,6 +28,7 @@ class ActiveDataProviderTest extends TestCase
     protected function tearDown()
     {
         $this->dropCollection(Customer::collectionName());
+        $this->dropCollection(CustomerOrder::collectionName());
         parent::tearDown();
     }
 
@@ -39,7 +47,7 @@ class ActiveDataProviderTest extends TestCase
                 'status' => $i,
             ];
         }
-        $collection->batchInsert($rows);
+        $this->testRows = $collection->batchInsert($rows);
     }
 
     // Tests :
@@ -86,5 +94,28 @@ class ActiveDataProviderTest extends TestCase
         ]);
         $models = $provider->getModels();
         $this->assertEquals(5, count($models));
+    }
+
+    public function testRelationActiveQuery()
+    {
+        $orderCollection = $this->getConnection()->getCollection('customer_order');
+        $rows = [];
+        foreach ($this->testRows as $customer) {
+            for($i = 1; $i <= 5; $i++) {
+                $rows[] = [
+                    'customer_id' => $customer['_id'],
+                    'item_ids' => [],
+                ];
+            }   
+        }
+        
+        $orderCollection->batchInsert($rows);
+        
+        $customer = Customer::findOne(['status' => 1]);
+        $provider = new ActiveDataProvider([
+            'query' => $customer->getOrders(),
+        ]);
+        $models = $provider->getModels();
+        $this->assertEquals($provider->getTotalCount(), count($models));
     }
 }

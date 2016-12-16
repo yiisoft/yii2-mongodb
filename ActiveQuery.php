@@ -98,6 +98,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function buildCursor($db = null)
     {
+        $this->prepare();
+        return parent::buildCursor($db);
+    }
+
+    /**
+     * Prepares for building cursor
+     * This method is called when it starts to build a cursor from a query object or before [[count()]].
+     */
+    public function prepare()
+    {
         if ($this->primaryModel !== null) {
             // lazy loading
             if ($this->via instanceof self) {
@@ -121,8 +131,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $this->filterByModels([$this->primaryModel]);
             }
         }
-
-        return parent::buildCursor($db);
     }
 
     /**
@@ -135,6 +143,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     {
         return parent::all($db);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function count($q = '*', $db = null)
+    {
+        $this->prepare();
+        return parent::count($q, $db);
+    }
+
 
     /**
      * Executes query and returns a single row of result.
