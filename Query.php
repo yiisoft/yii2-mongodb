@@ -168,12 +168,26 @@ class Query extends Component implements QueryInterface
     }
 
     /**
-     * Builds the Mongo cursor for this query.
-     * @param Connection $db the database connection used to execute the query.
+     * Prepares for query building.
+     * This method is called before actual query composition, e.g. building cursor, count etc.
+     * You may override this method to do some final preparation work before query execution.
+     * @return $this a prepared query instance.
+     * @since 2.1.3
+     */
+    public function prepare()
+    {
+        return $this;
+    }
+
+    /**
+     * Builds the MongoDB cursor for this query.
+     * @param Connection $db the MongoDB connection used to execute the query.
      * @return \MongoDB\Driver\Cursor mongo cursor instance.
      */
     public function buildCursor($db = null)
     {
+        $this->prepare();
+
         $options = $this->options;
         if (!empty($this->orderBy)) {
             $options['sort'] = $this->orderBy;
@@ -445,6 +459,8 @@ class Query extends Component implements QueryInterface
             return null;
         }
 
+        $this->prepare();
+
         $collection = $this->getCollection($db);
         if (!empty($this->orderBy)) {
             $options['sort'] = $this->orderBy;
@@ -467,6 +483,7 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return 0;
         }
+        $this->prepare();
         $collection = $this->getCollection($db);
         return $collection->count($this->where, $this->options);
     }
@@ -553,6 +570,7 @@ class Query extends Component implements QueryInterface
             return null;
         }
 
+        $this->prepare();
         $collection = $this->getCollection($db);
         $pipelines = [];
         if ($this->where !== null) {
@@ -586,6 +604,7 @@ class Query extends Component implements QueryInterface
             return [];
         }
 
+        $this->prepare();
         $collection = $this->getCollection($db);
         if ($this->where !== null) {
             $condition = $this->where;

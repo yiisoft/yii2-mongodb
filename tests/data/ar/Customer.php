@@ -14,11 +14,17 @@ use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
  */
 class Customer extends ActiveRecord
 {
+    /**
+     * @inheritdoc
+     */
     public static function collectionName()
     {
         return 'customer';
     }
 
+    /**
+     * @inheritdoc
+     */
     public function attributes()
     {
         return [
@@ -31,11 +37,17 @@ class Customer extends ActiveRecord
         ];
     }
 
+    /**
+     * @return \yii\mongodb\ActiveQuery
+     */
     public function getOrders()
     {
         return $this->hasMany(CustomerOrder::className(), ['customer_id' => '_id']);
     }
 
+    /**
+     * @return \yii\mongodb\ActiveQuery
+     */
     public function getFile()
     {
         return $this->hasOne(CustomerFile::className(), ['_id' => 'file_id']);

@@ -96,7 +96,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     /**
      * @inheritdoc
      */
-    public function buildCursor($db = null)
+    public function prepare()
     {
         if ($this->primaryModel !== null) {
             // lazy loading
@@ -122,7 +122,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        return parent::buildCursor($db);
+        return parent::prepare();
     }
 
     /**

@@ -128,4 +128,20 @@ class ActiveRelationTest extends TestCase
         $order = CustomerOrder::find()->where(['number' => 1])->with('items')->one();
         $this->assertNotEmpty($order->items);
     }
+
+    /**
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/173
+     */
+    public function testApplyLink()
+    {
+        /* @var $customer Customer */
+        $customer = Customer::find()->orderBy(['_id' => SORT_DESC])->limit(1)->one();
+
+        $this->assertCount(2, $customer->getOrders()->all());
+        $this->assertEquals(2, $customer->getOrders()->count());
+        $this->assertEquals(110, $customer->getOrders()->sum('number'));
+        $this->assertEquals(55, $customer->getOrders()->average('number'));
+        $this->assertEquals([5, 105], $customer->getOrders()->distinct('number'));
+        $this->assertEquals((string)$customer->_id, (string)$customer->getOrders()->modify(['$set' => ['number' => 5]])->customer_id);
+    }
 }
