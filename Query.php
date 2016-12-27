@@ -496,7 +496,14 @@ class Query extends Component implements QueryInterface
      */
     public function exists($db = null)
     {
-        return $this->one($db) !== false;
+        if (!empty($this->emulateExecution)) {
+            return false;
+        }
+        $cursor = $this->buildCursor($db);
+        foreach ($cursor as $row) {
+            return true;
+        }
+        return false;
     }
 
     /**
