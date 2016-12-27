@@ -20,7 +20,7 @@ class MongoDateValidatorTest extends TestCase
     {
         $validator = new MongoDateValidator();
         $this->assertFalse($validator->validate('string'));
-        $this->assertTrue($validator->validate(new UTCDateTime(time())));
+        $this->assertTrue($validator->validate(new UTCDateTime(time() * 1000)));
     }
 
     public function testValidateAttribute()
@@ -29,7 +29,7 @@ class MongoDateValidatorTest extends TestCase
 
         $model->date = 'string';
         $this->assertFalse($model->validate());
-        $model->date = new UTCDateTime(time());
+        $model->date = new UTCDateTime(time() * 1000);
         $this->assertTrue($model->validate());
     }
 
@@ -40,7 +40,7 @@ class MongoDateValidatorTest extends TestCase
         $model->date = '05/08/2015';
         $this->assertTrue($model->validate());
         $this->assertTrue($model->mongoDate instanceof UTCDateTime);
-        $this->assertEquals(strtotime('2015-05-08'), $model->mongoDate->__toString());
+        $this->assertEquals('2015-05-08', $model->mongoDate->toDateTime()->format('Y-m-d'));
     }
 }
 

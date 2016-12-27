@@ -7,6 +7,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #168: Fixed `yii\mongodb\Command::update()` uses `upsert` option by default (klimov-paul)
 - Bug #170: Fixed incorrect order of migrations history in case `yii\mongodb\console\controllers\MigrateController::$migrationNamespaces` is in use (klimov-paul)
 - Bug #173: Fixed `yii\mongodb\ActiveQuery` does not respects relational link at methods `count()`, `distinct()`, `sum()`, `average()`, `modify()` (tuyakhov, klimov-paul)
+- Bug #176: Fixed `yii\mongodb\validators\MongoDateValidator` uses seconds instead of milliseconds while creating `MongoDB\BSON\UTCDateTime` instance (reza-id, klimov-paul)
 - Enh #171: Added support for `yii\db\QueryInterface::emulateExecution()` to force returning an empty result for a query (klimov-paul)
 
 
