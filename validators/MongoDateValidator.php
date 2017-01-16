@@ -66,7 +66,7 @@ class MongoDateValidator extends DateValidator
                 $mongoDateAttributeValue = $model->{$this->mongoDateAttribute};
                 // ensure "dirty attributes" support :
                 if (!($mongoDateAttributeValue instanceof UTCDateTime) || $mongoDateAttributeValue->sec !== $timestamp) {
-                    $model->{$this->mongoDateAttribute} = new UTCDateTime($timestamp);
+                    $model->{$this->mongoDateAttribute} = new UTCDateTime($timestamp * 1000);
                 }
             }
         }
