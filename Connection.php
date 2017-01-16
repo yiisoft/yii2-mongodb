@@ -167,14 +167,17 @@ class Connection extends Component
     private $_databases = [];
     /**
      * @var QueryBuilder|array|string the query builder for this connection
+     * @since 2.1
      */
     private $_queryBuilder = 'yii\mongodb\QueryBuilder';
     /**
      * @var LogBuilder|array|string log entries builder used for this connecton.
+     * @since 2.1
      */
     private $_logBuilder = 'yii\mongodb\LogBuilder';
     /**
      * @var bool whether GridFS stream wrapper has been already registered.
+     * @since 2.1
      */
     private $fileStreamWrapperRegistered = false;
 
