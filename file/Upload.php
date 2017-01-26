@@ -10,6 +10,7 @@ namespace yii\mongodb\file;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDatetime;
+use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\InvalidParamException;
 use yii\base\Object;
 use yii\helpers\StringHelper;
@@ -104,7 +105,16 @@ class Upload extends Object
         $this->hashContext = hash_init('md5');
 
         if (isset($this->document['_id'])) {
-            $this->documentId = $this->document['_id'] instanceof ObjectID ? $this->document['_id'] : ObjectID($this->document['_id']);
+            if ($this->document['_id'] instanceof ObjectID) {
+                $this->documentId = $this->document['_id'];
+            } else {
+                try {
+                    $this->documentId = new ObjectID($this->document['_id']);
+                } catch (InvalidArgumentException $e) {
+                    // invalid id format
+                    $this->documentId = $this->document['_id'];
+                }
+            }
         } else {
             $this->documentId = new ObjectID();
         }
