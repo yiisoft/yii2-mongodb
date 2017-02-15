@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.3 under development
+2.1.3 February 15, 2017
 -----------------------
 
 - Bug #168: Fixed `yii\mongodb\Command::update()` uses `upsert` option by default (klimov-paul)
