@@ -446,23 +446,25 @@ class MongoDbManager extends BaseManager
             return [];
         }
 
-        $rows = (new Query)->select(['item_name'])
+        $roles = $this->instantiateDefaultRoles();
+
+        $rows = (new Query())
+            ->select(['item_name'])
             ->from($this->assignmentCollection)
             ->where(['user_id' => (string) $userId])
             ->all($this->db);
 
         if (empty($rows)) {
-            return [];
+            return $roles;
         }
 
         $itemNames = ArrayHelper::getColumn($rows, 'item_name');
 
-        $query = (new Query)
+        $query = (new Query())
             ->from($this->itemCollection)
             ->where(['name' => $itemNames])
             ->andWhere(['type' => Item::TYPE_ROLE]);
 
-        $roles = [];
         foreach ($query->all($this->db) as $row) {
             $roles[$row['name']] = $this->populateItem($row);
         }
@@ -1059,5 +1061,21 @@ class MongoDbManager extends BaseManager
             }
         }
         return false;
+    }
+
+    /**
+     * Returns defaultRoles as array of Role objects
+     * @since 2.1.3
+     * @return Role[] default roles. The array is indexed by the role names
+     */
+    private function instantiateDefaultRoles()
+    {
+        // this method can be removed in favor of `yii\rbac\BaseManager::getDefaultRoles()` in case
+        // extension dependency on `yii2` is raised up to 2.0.12
+        $result = [];
+        foreach ($this->defaultRoles as $roleName) {
+            $result[$roleName] = $this->createRole($roleName);
+        }
+        return $result;
     }
 }

@@ -9,6 +9,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #173: Fixed `yii\mongodb\ActiveQuery` does not respects relational link at methods `count()`, `distinct()`, `sum()`, `average()`, `modify()` (tuyakhov, klimov-paul)
 - Bug #176: Fixed `yii\mongodb\validators\MongoDateValidator` uses seconds instead of milliseconds while creating `MongoDB\BSON\UTCDateTime` instance (reza-id, klimov-paul)
 - Bug #179: Fixed `yii\mongodb\file\Upload` unable to handle custom `_id` value, if it does not provided as `\MongoDB\BSON\ObjectID` instance (klimov-paul)
+- Bug #186: Fixed `yii\mongodb\rbac\MongoDbManager::getRolesByUser()` results now includes default roles (klimov-paul)
 - Enh #171: Added support for `yii\db\QueryInterface::emulateExecution()` to force returning an empty result for a query (klimov-paul)
 - Enh #177: Method `yii\mongodb\ActiveQuery::exists()` optimized avoiding redundant ActiveRecord and relations population (klimov-paul)
 

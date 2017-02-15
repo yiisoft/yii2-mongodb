@@ -310,6 +310,12 @@ class MongoDbManagerTest extends TestCase
         $roles = $this->auth->getRolesByUser(123);
         $this->assertTrue(reset($roles) instanceof Role);
         $this->assertEquals($roles['reader']->name, 'reader');
+
+        $this->auth->defaultRoles = ['testDefaultRole'];
+        $roles = $this->auth->getRolesByUser('default');
+
+        $this->assertTrue(reset($roles) instanceof Role);
+        $this->assertEquals($roles['testDefaultRole']->name, 'testDefaultRole');
     }
 
     public function testGetChildRoles()
