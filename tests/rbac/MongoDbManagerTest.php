@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb\rbac;
 
 use Yii;
+use yii\caching\ArrayCache;
 use yii\rbac\Item;
 use yii\rbac\Permission;
 use yii\rbac\Role;
@@ -506,5 +507,18 @@ class MongoDbManagerTest extends TestCase
         $role->ruleName = 'all_rule';
         $auth->update('Reader', $role);
         $this->assertTrue($auth->checkAccess($userId, 'AdminPost', ['action' => 'print']));
+    }
+
+    public function testInvalidateCache()
+    {
+        $auth = $this->auth;
+        $auth->cache = new ArrayCache();
+        $this->prepareData();
+
+        $auth->loadFromCache();
+        $auth->getRule('reader');
+        $auth->invalidateCache();
+
+        $this->assertFalse($auth->cache->exists($auth->cacheKey));
     }
 }

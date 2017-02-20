@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.4 under development
 -----------------------
 
-- no changes in this release.
+- Bug #187: Fixed exception is thrown on `yii\mongodb\rbac\MongoDbManager::invalidateCache()` invocation (jafaripur)
 
 
 2.1.3 February 15, 2017

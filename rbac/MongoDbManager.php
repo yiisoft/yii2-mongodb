@@ -907,7 +907,6 @@ class MongoDbManager extends BaseManager
             $this->cache->delete($this->cacheKey);
             $this->items = null;
             $this->rules = null;
-            $this->parents = null;
         }
     }
 
