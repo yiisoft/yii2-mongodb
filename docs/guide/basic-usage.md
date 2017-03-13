@@ -41,7 +41,7 @@ $query->select(['name', 'status'])
 $rows = $query->all();
 ```
 #### Aggregation
-Originally Mongodb [aggregation](https://docs.mongodb.com/manual/aggregation/) function is accepting a pipeline, pipeline is a group of
+Originally Mongodb [aggregate](https://docs.mongodb.com/manual/aggregation/) is accepting a pipeline, pipeline is a group of
 stages which will executed sequentially, each stage do operation on it's previous stage results to filter the result.
 
 You can use Yii aggregate method to do functions like grouping results by one or more field 
@@ -57,7 +57,7 @@ $authors = $collection->aggregate(
             [
                 [
                     '$group' => [
-                        '_id'         => '$authorId',
+                        '_id' => '$authorId',
                     ],
                 ],
              
@@ -74,8 +74,8 @@ $collection = Yii::$app->mongodb->getCollection('books');
 $authors = $collection->aggregate(
             [
                 [
-                    '$group' => [
-                    '_id' => '$authorId',
+                    '$group'   => [
+                    '_id'      => '$authorId',
                     'category' => '$category',
                     ],
                 ],
