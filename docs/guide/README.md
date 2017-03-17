@@ -15,6 +15,7 @@ Usage
 * [MongoId specifics](usage-mongoid.md)
 * [Using the MongoDB ActiveRecord](usage-ar.md)
 * [Working with embedded documents](usage-embedded-documents.md)
+* [Aggregation](usage-aggregation.md)
 * [Using GridFS](usage-gridfs.md)
 
 Additional topics

@@ -542,7 +542,7 @@ class Query extends Component implements QueryInterface
      * Returns the minimum of the specified column values.
      * @param string $q the column name.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $db the database connection used to generate the SQL statement.
+     * @param Connection $db the MongoDB connection used to execute the query.
      * If this parameter is not given, the `db` application component will be used.
      * @return int the minimum of the specified column values.
      */
@@ -555,7 +555,7 @@ class Query extends Component implements QueryInterface
      * Returns the maximum of the specified column values.
      * @param string $q the column name.
      * Make sure you properly quote column names in the expression.
-     * @param Connection $db the Mongo connection used to execute the query.
+     * @param Connection $db the MongoDB connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
      * @return int the maximum of the specified column values.
      */
@@ -601,7 +601,7 @@ class Query extends Component implements QueryInterface
     /**
      * Returns a list of distinct values for the given column across a collection.
      * @param string $q column to use.
-     * @param Connection $db the Mongo connection used to execute the query.
+     * @param Connection $db the MongoDB connection used to execute the query.
      * If this parameter is not given, the `mongodb` application component will be used.
      * @return array array of distinct values
      */
