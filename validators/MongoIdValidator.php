@@ -14,7 +14,7 @@ use Yii;
 
 /**
  * MongoIdValidator verifies if the attribute is a valid Mongo ID.
- * Attribute will be considered as valid, if it is an instance of [[\MongoId]] or a its string value.
+ * Attribute will be considered as valid, if it is an instance of [[\MongoId]] or its string value.
  *
  * Usage example:
  *
@@ -31,6 +31,7 @@ use Yii;
  * }
  * ```
  *
+ * In order to validate an array of Mongo IDs, enable [[expectArray]] option.
  * This validator may also serve as a filter, allowing conversion of Mongo ID value either to the plain string
  * or to [[\MongoId]] instance. You can enable this feature via [[forceFormat]].
  *
@@ -39,6 +40,16 @@ use Yii;
  */
 class MongoIdValidator extends Validator
 {
+    /**
+     * @var bool whether to expect array type attribute.
+     */
+    public $expectArray = false;
+
+    /**
+     * @var string user-defined error message used when the value is not an array.
+     */
+    public $notArray;
+
     /**
      * @var string|null specifies the format, which validated attribute value should be converted to
      * in case validation was successful.
@@ -56,41 +67,68 @@ class MongoIdValidator extends Validator
     public function init()
     {
         parent::init();
+
+        if ($this->notArray === null) {
+            $this->notArray = Yii::t('yii', '{attribute} must be an array.');
+        }
+
         if ($this->message === null) {
-            $this->message = Yii::t('yii', '{attribute} is invalid.');
+            $this->message = Yii::t('yii', $this->expectArray ? '{attribute} are invalid.' : '{attribute} is invalid.');
         }
     }
 
     /**
-     * @inheritdoc
+     * Validates a single attribute.
+     * Converts the attribute value to string/object according to [[forceFormat]] if specified.
+     * With [[expectArray]] option enabled, checks that the value is traversable and applies format to each element.
+     *
+     * @param \yii\base\Model $model the data model to be validated.
+     * @param string $attribute the name of the attribute to be validated.
+     * @throws InvalidConfigException if [[forceFormat]] is invalid.
      */
     public function validateAttribute($model, $attribute)
     {
         $value = $model->$attribute;
-        $mongoId = $this->parseMongoId($value);
-        if (is_object($mongoId)) {
-            if ($this->forceFormat !== null) {
-                switch ($this->forceFormat) {
-                    case 'string' : {
-                        $model->$attribute = $mongoId->__toString();
-                        break;
-                    }
-                    case 'object' : {
-                        $model->$attribute = $mongoId;
-                        break;
-                    }
-                    default: {
-                        throw new InvalidConfigException("Unrecognized format '{$this->forceFormat}'");
+
+        if (!$this->expectArray) {
+            $list = [$value];
+        } elseif (is_array($value) || $value instanceof \Traversable) {
+            $list = $value;
+        } else {
+            $this->addError($model, $attribute, $this->notArray, []);
+            return;
+        }
+
+        foreach ($list as &$value) {
+            $mongoId = $this->parseMongoId($value);
+            if (is_object($mongoId)) {
+                if ($this->forceFormat !== null) {
+                    switch ($this->forceFormat) {
+                        case 'string' :
+                            $value = $mongoId->__toString();
+                            break;
+                        case 'object' :
+                            $value = $mongoId;
+                            break;
+                        default:
+                            throw new InvalidConfigException("Unrecognized format '{$this->forceFormat}'");
                     }
                 }
+            } else {
+                $this->addError($model, $attribute, $this->message, []);
+                return;
             }
-        } else {
-            $this->addError($model, $attribute, $this->message, []);
         }
+
+        $model->$attribute = $this->expectArray ? $list : $value;
     }
 
     /**
-     * @inheritdoc
+     * Validates a value out of the context of a data model (arrays are not supported).
+     *
+     * @param mixed $value the data value to be validated.
+     * @return array|null the error message and the parameters to be inserted into the error message,
+     * or null if the data is valid.
      */
     protected function validateValue($value)
     {
@@ -98,10 +136,12 @@ class MongoIdValidator extends Validator
     }
 
     /**
-     * @param mixed $value
-     * @return \MongoId|null
+     * Converts a value to Mongo ID.
+     *
+     * @param mixed $value the value to be converted.
+     * @return \ObjectID|null Mongo ID object or null if conversion failed.
      */
-    private function parseMongoId($value)
+    protected function parseMongoId($value)
     {
         if ($value instanceof ObjectID) {
             return $value;

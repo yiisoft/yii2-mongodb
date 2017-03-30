@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #187: Fixed exception is thrown on `yii\mongodb\rbac\MongoDbManager::invalidateCache()` invocation (jafaripur)
+- Enh: Added `yii\mongodb\validators\MongoIdValidator::expectArray` allowing to validate and force format on an array of Mongo IDs (elkesu)
 
 
 2.1.3 February 15, 2017
