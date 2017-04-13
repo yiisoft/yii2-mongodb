@@ -26,8 +26,7 @@ class MongoIdValidatorTest extends TestCase
     public function testValidateAttribute()
     {
         $model = new MongoIdTestModel();
-        $validator = new MongoIdValidator();
-        $validator->attributes = ['id'];
+        $validator = new MongoIdValidator(['attributes' => ['id']]);
         $model->getValidators()->append($validator);
 
         $model->id = 'id';
@@ -44,8 +43,7 @@ class MongoIdValidatorTest extends TestCase
     public function testConvertValue()
     {
         $model = new MongoIdTestModel();
-        $validator = new MongoIdValidator();
-        $validator->attributes = ['id'];
+        $validator = new MongoIdValidator(['attributes' => ['id']]);
         $model->getValidators()->append($validator);
 
         $validator->forceFormat = null;
