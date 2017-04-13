@@ -40,7 +40,7 @@ class ConnectionTest extends TestCase
 
         $connection = new Connection();
         $connection->dsn = 'unknown::memory:';
-        $this->setExpectedException('yii\mongodb\Exception');
+        $this->expectException('yii\mongodb\Exception');
         $connection->open();
     }
 

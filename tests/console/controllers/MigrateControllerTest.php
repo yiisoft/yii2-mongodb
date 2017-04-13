@@ -86,7 +86,11 @@ class MigrateControllerTest extends TestCase
      */
     protected function createMigrateController(array $config = [])
     {
-        $module = $this->getMock('yii\\base\\Module', ['fake'], ['console']);
+        $module = $this->getMockBuilder('yii\\base\\Module')
+            ->setConstructorArgs(['console'])
+            ->setMethods(['fake'])
+            ->getMock();
+
         $class = $this->migrateControllerClass;
         $migrateController = new $class('migrate', $module);
         $migrateController->interactive = false;

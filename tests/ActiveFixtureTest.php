@@ -29,16 +29,15 @@ class ActiveFixtureTest extends TestCase
     public function testLoadCollection()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMock(
-            ActiveFixture::className(),
-            ['getData'],
-            [
+        $fixture = $this->getMockBuilder(ActiveFixture::className())
+            ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),
                     'collectionName' => Customer::collectionName()
                 ]
-            ]
-        );
+            ])
+            ->setMethods(['getData'])
+            ->getMock();
         $fixture->expects($this->any())->method('getData')->will($this->returnValue([
             ['name' => 'name1'],
             ['name' => 'name2'],
@@ -53,16 +52,15 @@ class ActiveFixtureTest extends TestCase
     public function testLoadClass()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMock(
-            ActiveFixture::className(),
-            ['getData'],
-            [
+        $fixture = $this->getMockBuilder(ActiveFixture::className())
+            ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),
-                    'modelClass' => Customer::className()
+                    'collectionName' => Customer::collectionName()
                 ]
-            ]
-        );
+            ])
+            ->setMethods(['getData'])
+            ->getMock();
         $fixture->expects($this->any())->method('getData')->will($this->returnValue([
             ['name' => 'name1'],
             ['name' => 'name2'],
@@ -82,16 +80,15 @@ class ActiveFixtureTest extends TestCase
     public function testLoadEmptyData()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMock(
-            ActiveFixture::className(),
-            ['getData'],
-            [
+        $fixture = $this->getMockBuilder(ActiveFixture::className())
+            ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),
                     'collectionName' => Customer::collectionName()
                 ]
-            ]
-        );
+            ])
+            ->setMethods(['getData'])
+            ->getMock();
         $fixture->expects($this->any())->method('getData')->will($this->returnValue([
             // empty
         ]));

@@ -92,7 +92,8 @@ class CommandTest extends TestCase
         $result = $command->dropIndexes('customer', '*');
         $this->assertEquals(2, $result['nIndexesWas']);
 
-        $this->setExpectedException('yii\mongodb\Exception', 'index not found with name');
+        $this->expectException('yii\mongodb\Exception');
+        $this->expectExceptionMessage('index not found with name');
         $command->dropIndexes('customer', 'desc_index');
     }
 
@@ -216,7 +217,7 @@ class CommandTest extends TestCase
         $this->assertTrue(!isset($result['status']));
 
         // Test exceptions
-        $this->setExpectedException('\yii\mongodb\Exception');
+        $this->expectException('\yii\mongodb\Exception');
         $connection->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
     }
 
