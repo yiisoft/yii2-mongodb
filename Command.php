@@ -182,9 +182,8 @@ class Command extends Object
             $this->beginProfile($token, __METHOD__);
 
             $this->db->open();
-            $server = $this->db->manager->selectServer($this->getReadPreference());
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
-            $cursor = $server->executeCommand($databaseName, $mongoCommand);
+            $cursor = $this->db->manager->executeCommand($databaseName, $mongoCommand, $this->getReadPreference());
             $cursor->setTypeMap($this->db->typeMap);
 
             $this->endProfile($token, __METHOD__);
@@ -237,8 +236,7 @@ class Command extends Object
             }
 
             $this->db->open();
-            $server = $this->db->manager->selectServer($this->getReadPreference());
-            $writeResult = $server->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
+            $writeResult = $this->db->manager->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
 
             $this->endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
@@ -285,8 +283,7 @@ class Command extends Object
 
             $query = new \MongoDB\Driver\Query($this->document, $options);
             $this->db->open();
-            $server = $this->db->manager->selectServer($this->getReadPreference());
-            $cursor = $server->executeQuery($databaseName . '.' . $collectionName, $query);
+            $cursor = $this->db->manager->executeQuery($databaseName . '.' . $collectionName, $query, $this->getReadPreference());
             $cursor->setTypeMap($this->db->typeMap);
 
             $this->endProfile($token, __METHOD__);
