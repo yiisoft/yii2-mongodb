@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #187: Fixed exception is thrown on `yii\mongodb\rbac\MongoDbManager::invalidateCache()` invocation (jafaripur)
+- Bug #201: Fixed selection of master/slave server for read/write operations at `yii\mongodb\Command` (KhristenkoYura)
 
 
 2.1.3 February 15, 2017
