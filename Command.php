@@ -597,7 +597,7 @@ class Command extends Object
         }
 
         if (array_key_exists('limit', $options)) {
-            if ($options['limit'] === null) {
+            if ($options['limit'] === null || $options['limit'] < 1) {
                 unset($options['limit']);
             } else {
                 $options['limit'] = (int)$options['limit'];
