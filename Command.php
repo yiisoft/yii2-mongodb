@@ -597,14 +597,14 @@ class Command extends Object
         }
 
         if (array_key_exists('limit', $options)) {
-            if ($options['limit'] === null) {
+            if ($options['limit'] === null || !ctype_digit((string) $options['limit'])) {
                 unset($options['limit']);
             } else {
                 $options['limit'] = (int)$options['limit'];
             }
         }
         if (array_key_exists('skip', $options)) {
-            if ($options['skip'] === null) {
+            if ($options['skip'] === null || !ctype_digit((string) $options['skip'])) {
                 unset($options['skip']);
             } else {
                 $options['skip'] = (int)$options['skip'];

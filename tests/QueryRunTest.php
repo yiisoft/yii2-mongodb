@@ -584,4 +584,44 @@ class QueryRunTest extends TestCase
             ->distinct('name', $db);
         $this->assertSame([], $values);
     }
+
+    /**
+     * @depends testAll
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/205
+     */
+    public function testOffsetLimit()
+    {
+        $db = $this->getConnection();
+
+        $rows = (new Query())
+            ->from('customer')
+            ->limit(2)
+            ->all($db);
+        $this->assertCount(2, $rows);
+
+        $rows = (new Query())
+            ->from('customer')
+            ->limit(-1)
+            ->all($db);
+        $this->assertCount(10, $rows);
+
+        $rows = (new Query())
+            ->from('customer')
+            ->orderBy(['name' => SORT_ASC])
+            ->offset(2)
+            ->limit(1)
+            ->all($db);
+        $this->assertCount(1, $rows);
+        $this->assertEquals('name2', $rows[0]['name']);
+
+        $rows = (new Query())
+            ->from('customer')
+            ->orderBy(['name' => SORT_ASC])
+            ->offset(-1)
+            ->limit(1)
+            ->all($db);
+        $this->assertCount(1, $rows);
+        $this->assertEquals('name1', $rows[0]['name']);
+    }
 }

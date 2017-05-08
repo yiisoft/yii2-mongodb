@@ -6,6 +6,7 @@ Yii Framework 2 mongodb extension Change Log
 
 - Bug #187: Fixed exception is thrown on `yii\mongodb\rbac\MongoDbManager::invalidateCache()` invocation (jafaripur)
 - Bug #201: Fixed selection of master/slave server for read/write operations at `yii\mongodb\Command` (KhristenkoYura)
+- Bug #205: Fixed negative value passed to `yii\mongodb\Query::limit()` or `yii\mongodb\Query::offset()` does not disables query limit or offset correspondingly (klimov-paul)
 
 
 2.1.3 February 15, 2017
