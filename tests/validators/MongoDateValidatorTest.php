@@ -41,6 +41,10 @@ class MongoDateValidatorTest extends TestCase
         $this->assertTrue($model->validate());
         $this->assertTrue($model->mongoDate instanceof UTCDateTime);
         $this->assertEquals('2015-05-08', $model->mongoDate->toDateTime()->format('Y-m-d'));
+
+        $model->date = $model->mongoDate;
+        $this->assertTrue($model->validate());
+        $this->assertEquals('2015-05-08', $model->mongoDate->toDateTime()->format('Y-m-d'));
     }
 }
 
