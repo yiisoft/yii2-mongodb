@@ -7,6 +7,8 @@
 
 namespace yii\mongodb\debug;
 
+use Yii;
+use yii\debug\models\search\Db;
 use yii\debug\panels\DbPanel;
 use yii\log\Logger;
 
@@ -31,7 +33,7 @@ class MongoDbPanel extends DbPanel
      */
     public function init()
     {
-        $this->actions['db-explain'] = [
+        $this->actions['mongodb-explain'] = [
             'class' => 'yii\\mongodb\\debug\\ExplainAction',
             'panel' => $this,
         ];
@@ -51,6 +53,27 @@ class MongoDbPanel extends DbPanel
     public function getSummaryName()
     {
         return 'MongoDB';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getDetail()
+    {
+        $searchModel = new Db();
+
+        if (!$searchModel->load(Yii::$app->request->getQueryParams())) {
+            $searchModel->load($this->defaultFilter, '');
+        }
+
+        $dataProvider = $searchModel->search($this->getModels());
+        $dataProvider->getSort()->defaultOrder = $this->defaultOrder;
+
+        return Yii::$app->view->render('@yii/mongodb/debug/views/detail', [
+            'panel' => $this,
+            'dataProvider' => $dataProvider,
+            'searchModel' => $searchModel,
+        ]);
     }
 
     /**
