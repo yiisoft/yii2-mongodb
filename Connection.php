@@ -275,6 +275,15 @@ class Connection extends Component
     }
 
     /**
+     * Returns the name of the DB driver for the current [[dsn]].
+     * @return string name of the DB driver
+     */
+    public function getDriverName()
+    {
+        return 'mongodb';
+    }
+	
+    /**
      * Selects the database with given name.
      * @param string $name database name.
      * @return Database database instance.
