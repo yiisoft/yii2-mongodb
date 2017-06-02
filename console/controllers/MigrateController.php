@@ -130,10 +130,16 @@ class MigrateController extends BaseMigrateController
      */
     protected function createMigration($class)
     {
-        $class = trim($class, '\\');
-        if (strpos($class, '\\') === false) {
-            $file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
-            require_once($file);
+        // since Yii 2.0.12 includeMigrationFile() exists, which replaced the code below
+        // remove this construct when composer requirement raises above 2.0.12
+        if (method_exists($this, 'includeMigrationFile')) {
+            $this->includeMigrationFile($class);
+        } else {
+            $class = trim($class, '\\');
+            if (strpos($class, '\\') === false) {
+                $file = $this->migrationPath . DIRECTORY_SEPARATOR . $class . '.php';
+                require_once($file);
+            }
         }
 
         return new $class(['db' => $this->db]);
