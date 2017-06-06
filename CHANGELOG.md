@@ -9,7 +9,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #205: Fixed negative value passed to `yii\mongodb\Query::limit()` or `yii\mongodb\Query::offset()` does not disables query limit or offset correspondingly (klimov-paul)
 - Bug #207: Fixed `yii\mongodb\validators\MongoDateValidator` corrupts date value, while validating existing `MongoDB\BSON\UTCDateTime` instance (klimov-paul)
 - Bug #210: Fixed `yii\mongodb\debug\MongoDbPanel` overrides explain action of `yii\debug\panels\DbPanel` (Liv1020, klimov-paul)
-
+- Bug #213: Made `MigrateController` compatible with Yii 2.0.12 (cebe)
 
 2.1.3 February 15, 2017
 -----------------------
