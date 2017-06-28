@@ -355,6 +355,7 @@ class Connection extends Component
                 Yii::beginProfile($token, __METHOD__);
                 $options = $this->options;
 
+                $this->dsn .= ((strpos('?', $this->dsn) === false) ? '?' : '&') . 'pid=' . posix_getpid();
                 $this->manager = new Manager($this->dsn, $options, $this->driverOptions);
                 $this->manager->selectServer($this->manager->getReadPreference());
 
