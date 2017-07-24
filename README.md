@@ -1,5 +1,10 @@
-MongoDB Extension for Yii 2
-===========================
+<p align="center">
+    <a href="https://www.mongodb.com/" target="_blank" rel="external">
+        <img src="https://webassets.mongodb.com/_com_assets/cms/mongodb-logo-rgb-j6w271g1xn.jpg" height="80px">
+    </a>
+    <h1 align="center">MongoDB Extension for Yii 2</h1>
+    <br>
+</p>
 
 This extension provides the [MongoDB](http://www.mongodb.org/) integration for the [Yii framework 2.0](http://www.yiiframework.com).
 
