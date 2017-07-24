@@ -34,7 +34,7 @@ use yii\web\MultiFieldSession;
  * Session extends [[MultiFieldSession]], thus it allows saving extra fields into the [[sessionCollection]].
  * Refer to [[MultiFieldSession]] for more details.
  *
- * Tip: you can use MongoDB [TTL index](http://docs.mongodb.org/manual/tutorial/expire-data/) for the session garbage
+ * Tip: you can use MongoDB [TTL index](https://docs.mongodb.com/manual/tutorial/expire-data/) for the session garbage
  * collection for performance saving, in this case you should set [[Session::gCProbability]] to `0`.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>

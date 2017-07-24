@@ -1,7 +1,7 @@
 Использование GridFS
 ============
 
-Это расширение поддерживает [MongoGridFS](http://docs.mongodb.org/manual/core/gridfs/) с помощью классов в рамках пространства имен "\yii\mongodb\file".
+Это расширение поддерживает [MongoGridFS](https://docs.mongodb.com/manual/core/gridfs/) с помощью классов в рамках пространства имен "\yii\mongodb\file".
 Там вы найдете классы Collection, Query и ActiveRecord.
 
 Вы можете загрузить файл с помощью [[\yii\mongodb\file\Upload]]:

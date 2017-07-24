@@ -1,7 +1,7 @@
 GridFS を使用する
 =================
 
-このエクステンションは、名前空間 "\yii\mongodb\file" の下にある諸クラスによって [MongoGridFS](http://docs.mongodb.org/manual/core/gridfs/) をサポートしています。
+このエクステンションは、名前空間 "\yii\mongodb\file" の下にある諸クラスによって [MongoGridFS](https://docs.mongodb.com/manual/core/gridfs/) をサポートしています。
 そこに　GridFS のためのコレクション、クエリ、アクティブレコードのクラスがあります。
 
 [[\yii\mongodb\file\Upload]] を使ってファイルをアップロードすることが出来ます。

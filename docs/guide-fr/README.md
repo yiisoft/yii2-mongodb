@@ -1,7 +1,7 @@
 MongoDB Extension for Yii 2
 ===========================
 
-cet extention vous permet l'integration de [MongoDB](http://www.mongodb.org/) pour Yii2 framework.
+cet extention vous permet l'integration de [MongoDB](https://www.mongodb.com/) pour Yii2 framework.
 
 Mise en Route
 ---------------
