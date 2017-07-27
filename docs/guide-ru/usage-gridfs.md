@@ -1,7 +1,7 @@
 Использование GridFS
 ============
 
-Это расширение поддерживает [MongoGridFS](https://docs.mongodb.com/manual/core/gridfs/) с помощью классов в рамках пространства имен "\yii\mongodb\file".
+Расширение поддерживает [MongoGridFS](https://docs.mongodb.com/manual/core/gridfs/) с помощью классов из пространства имен "\yii\mongodb\file".
 Там вы найдете классы Collection, Query и ActiveRecord.
 
 Вы можете загрузить файл с помощью [[\yii\mongodb\file\Upload]]:
@@ -36,7 +36,7 @@ foreach ($rows as $row) {
 }
 ```
 
-Используя [\yii\mongodb\file\ActiveRecord]] вы можете манипулировать файлами используя свойство 'file':
+С помощью [\yii\mongodb\file\ActiveRecord]] вы можете манипулировать файлами используя свойство 'file':
 
 ```php
 use yii\mongodb\file\ActiveRecord;
