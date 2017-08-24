@@ -570,6 +570,10 @@ CODE;
      */
     public function testRefreshMigration()
     {
+        if (!is_callable(['yii\console\controllers\BaseMigrateController', 'actionFresh'])) {
+            $this->markTestSkipped('Method "yii\console\controllers\BaseMigrateController::actionFresh()" does not exist in this Yii framework version.');
+        }
+
         $connection = $this->getConnection();
 
         $collection = $connection->getCollection('hall_of_fame');
