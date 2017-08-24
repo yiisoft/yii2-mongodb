@@ -240,4 +240,33 @@ class MigrateController extends BaseMigrateController
             'version' => $version,
         ]);
     }
+
+    /**
+     * {@inheritdoc}
+     * @since 2.1.5
+     */
+    protected function truncateDatabase()
+    {
+        $collections = $this->db->getDatabase()->createCommand()->listCollections();
+
+        foreach ($collections as $collection) {
+            if (in_array($collection['name'], ['system.roles', 'system.users', 'system.indexes'])) {
+                // prevent deleting database auth data
+                // access to 'system.indexes' is more likely to be restricted, thus indexes will be dropped manually per collection
+                $this->stdout("System collection {$collection['name']} skipped.\n");
+                continue;
+            }
+
+            if (in_array($collection['name'], ['system.profile', 'system.js'])) {
+                // dropping of system collection is unlikely to be permitted, attempt to clear them out instead
+                $this->db->getDatabase()->createCommand()->delete($collection['name'], []);
+                $this->stdout("System collection {$collection['name']} truncated.\n");
+                continue;
+            }
+
+            $this->db->getDatabase()->createCommand()->dropIndexes($collection['name'], '*');
+            $this->db->getDatabase()->dropCollection($collection['name']);
+            $this->stdout("Collection {$collection['name']} dropped.\n");
+        }
+    }
 }

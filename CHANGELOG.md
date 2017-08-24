@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.5 under development
 -----------------------
 
-- no changes in this release.
+- Enh #224: Provided support for 'migrate/fresh' command to truncate database and apply migrations again (klimov-paul)
 
 
 2.1.4 June 23, 2017
