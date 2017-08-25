@@ -39,6 +39,13 @@ abstract class Migration extends Component implements MigrationInterface
      * Starting from version 2.0.2, this can also be a configuration array for creating the object.
      */
     public $db = 'mongodb';
+    /**
+     * @var bool indicates whether the log output should be compacted.
+     * If this is set to true, the individual commands ran within the migration will not be output to the console log.
+     * Default is `false`, in other words the output is fully verbose by default.
+     * @since 2.1.5
+     */
+    public $compact = false;
 
 
     /**
@@ -261,7 +268,9 @@ abstract class Migration extends Component implements MigrationInterface
     {
         $this->profileTokens[$token] = microtime(true);
 
-        $this->log($token);
+        if (!$this->compact) {
+            $this->log($token);
+        }
     }
 
     /**
@@ -278,6 +287,8 @@ abstract class Migration extends Component implements MigrationInterface
             $time = 0;
         }
 
-        $this->log(" done (time: " . sprintf('%.3f', $time) . "s)\n");
+        if (!$this->compact) {
+            $this->log(" done (time: " . sprintf('%.3f', $time) . "s)\n");
+        }
     }
 }

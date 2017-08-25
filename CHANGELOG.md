@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Enh #224: Provided support for 'migrate/fresh' command to truncate database and apply migrations again (klimov-paul)
+- Enh #225: Added `yii\mongodb\Migration::$compact` supporting `yii\console\controllers\BaseMigrateController::$compact` option (klimov-paul)
 
 
 2.1.4 June 23, 2017

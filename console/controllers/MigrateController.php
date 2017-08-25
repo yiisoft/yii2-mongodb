@@ -142,7 +142,7 @@ class MigrateController extends BaseMigrateController
             }
         }
 
-        return new $class(['db' => $this->db]);
+        return new $class(['db' => $this->db, 'compact' => isset($this->compact) ? $this->compact : false]);
     }
 
     /**

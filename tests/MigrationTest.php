@@ -79,6 +79,23 @@ class MigrationTest extends TestCase
 
         $this->assertEquals(3, $migration->remove('customer', []));
     }
+
+    /**
+     * @depends testCollectionOperations
+     */
+    public function testCommandOutput()
+    {
+        $migration = $this->createMigration();
+
+        $migration->compact = false;
+        $migration->createCollection('customer');
+        $this->assertCount(2, $migration->logs);
+
+        $migration->compact = true;
+        $migration->logs = [];
+        $migration->dropCollection('customer');
+        $this->assertEmpty($migration->logs);
+    }
 }
 
 /**
