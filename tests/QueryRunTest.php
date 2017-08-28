@@ -31,6 +31,7 @@ class QueryRunTest extends TestCase
                 'name' => 'name' . $i,
                 'status' => $i,
                 'address' => 'address' . $i,
+                'group' => ($i % 2 === 0) ? 'even' : 'odd',
                 'avatar' => [
                     'width' => 50 + $i,
                     'height' => 100 + $i,
@@ -623,5 +624,16 @@ class QueryRunTest extends TestCase
             ->all($db);
         $this->assertCount(1, $rows);
         $this->assertEquals('name1', $rows[0]['name']);
+    }
+
+    public function testDistinct()
+    {
+        $db = $this->getConnection();
+
+        $rows = (new Query())
+            ->from('customer')
+            ->distinct('group', $db);
+
+        $this->assertSame(['odd', 'even'], $rows);
     }
 }
