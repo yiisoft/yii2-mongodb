@@ -20,4 +20,4 @@ else
   php -i |grep mongodb -4 |grep -2 version
 fi
 
-cat /etc/mongodb.conf
+#cat /etc/mongodb.conf
