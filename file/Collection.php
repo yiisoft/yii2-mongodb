@@ -168,6 +168,7 @@ class Collection extends \yii\mongodb\Collection
         $batchSize = 200;
         $options['batchSize'] = $batchSize;
         $cursor = $fileCollection->find($condition, ['_id'], $options);
+        unset($options['limit']);
         $deleteCount = 0;
         $deleteCallback = function ($ids) use ($fileCollection, $chunkCollection, $options) {
             $chunkCollection->remove(['files_id' => ['$in' => $ids]], $options);

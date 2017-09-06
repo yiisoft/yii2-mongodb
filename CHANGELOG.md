@@ -4,6 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.5 under development
 -----------------------
 
+- Bug #227: Fixed `yii\mongodb\file\Collection::remove()` does not removes all file chunks in case `limit` is specified (klimov-paul)
 - Enh #224: Provided support for 'migrate/fresh' command to truncate database and apply migrations again (klimov-paul)
 - Enh #225: Added `yii\mongodb\Migration::$compact` supporting `yii\console\controllers\BaseMigrateController::$compact` option (klimov-paul)
 
