@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use MongoDB\Driver\Cursor;
 use yii\helpers\ArrayHelper;
 
 class CommandTest extends TestCase
@@ -258,6 +259,58 @@ class CommandTest extends TestCase
         $result = $connection->createCommand()->aggregate('customer', $pipelines);
 
         $this->assertEquals(['_id' => '1', 'total' => 300], $result[0]);
+    }
+
+    /**
+     * @depends testAggregate
+     *
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/228
+     */
+    public function testAggregateCursor()
+    {
+        $connection = $this->getConnection();
+        $rows = [
+            [
+                'name' => 'customer 1',
+                'status' => 1,
+                'amount' => 100,
+            ],
+            [
+                'name' => 'customer 2',
+                'status' => 1,
+                'amount' => 200,
+            ],
+            [
+                'name' => 'customer 3',
+                'status' => 1,
+                'amount' => 100,
+            ],
+            [
+                'name' => 'customer 4',
+                'status' => 1,
+                'amount' => 200,
+            ],
+        ];
+        $command = $connection->createCommand();
+        $command->batchInsert('customer', $rows);
+
+        $pipelines = [
+            [
+                '$match' => ['status' => 1]
+            ],
+            [
+                '$group' => [
+                    '_id' => '1',
+                    'total' => [
+                        '$sum' => '$amount'
+                    ],
+                ]
+            ]
+        ];
+        $result = $connection->createCommand()->aggregate('customer', $pipelines, ['cursor' => ['batchSize' => 2]]);
+        $this->assertTrue($result instanceof Cursor);
+
+        $this->assertEquals(['_id' => '1', 'total' => 600], $result->toArray()[0]);
     }
 
     /**

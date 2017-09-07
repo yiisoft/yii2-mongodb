@@ -718,16 +718,21 @@ class Command extends Object
 
     /**
      * Performs aggregation using MongoDB Aggregation Framework.
+     * In case 'cursor' option is specified [[\MongoDB\Driver\Cursor]] instance is returned,
+     * otherwise - an array of aggregation results.
      * @param string $collectionName collection name
      * @param array $pipelines list of pipeline operators.
      * @param array $options optional parameters.
-     * @return array aggregation result.
+     * @return array|\MongoDB\Driver\Cursor aggregation result.
      */
     public function aggregate($collectionName, $pipelines, $options = [])
     {
         $this->document = $this->db->getQueryBuilder()->aggregate($collectionName, $pipelines, $options);
         $cursor = $this->execute();
 
+        if (!empty($options['cursor'])) {
+            return $cursor;
+        }
         $result = current($cursor->toArray());
 
         return $result['result'];
