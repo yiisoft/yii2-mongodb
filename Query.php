@@ -150,7 +150,7 @@ class Query extends Component implements QueryInterface
      * @param string $value column value
      * @param string $defaultOperator Defaults to =, performing an exact match.
      * For example: use 'LIKE' or 'REGEX' for partial cq regex matching
-     * @see yii\mongodb\Collection::buildCondition()
+     * @see Collection::buildCondition()
      * @return $this the query object itself.
      * @since 2.0.5
      */
