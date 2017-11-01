@@ -177,8 +177,15 @@ class MongoDbMessageSource extends MessageSource
 
         $messages = [];
         foreach ($rows as $row) {
-            $messages = array_merge($messages, $row['messages']);
+            foreach ($row['messages'] as $key => $value) {
+                if (is_array($value)) {
+                    $messages[$value['message']] = $value['translation'];
+                } else {
+                    $messages[$key] = $value;
+                }
+            }
         }
+
         return $messages;
     }
 }
