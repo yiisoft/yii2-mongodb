@@ -38,6 +38,6 @@ class LogBuilderTest extends TestCase
     public function testEncodeData($data, $expectedResult)
     {
         $logBuilder = $this->getConnection()->getLogBuilder();
-        $this->assertEquals($expectedResult, $logBuilder->encodeData($data));
+        $this->assertTrue(strcasecmp($expectedResult, $logBuilder->encodeData($data)) === 0);
     }
 }
