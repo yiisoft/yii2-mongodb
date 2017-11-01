@@ -8,6 +8,7 @@ Yii Framework 2 mongodb extension Change Log
 - Bug #228: Fixed `yii\mongodb\Command::aggregate()` does not support 'cursor' option (klimov-paul)
 - Enh #224: Provided support for 'migrate/fresh' command to truncate database and apply migrations again (klimov-paul)
 - Enh #225: Added `yii\mongodb\Migration::$compact` supporting `yii\console\controllers\BaseMigrateController::$compact` option (klimov-paul)
+- Chg #158: Data structure for `yii\mongodb\i18n\MongoDbMessageSource` changed avoiding usage message key as BSON key (klimov-paul)
 
 
 2.1.4 June 23, 2017

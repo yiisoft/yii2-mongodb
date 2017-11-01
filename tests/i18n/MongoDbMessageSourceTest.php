@@ -47,16 +47,28 @@ class MongoDbMessageSourceTest extends TestCase
                 'language' => 'de-DE',
                 'category' => 'test',
                 'messages' => [
-                    'The dog runs fast.' => 'Der Hund rennt schnell.',
-                    'His speed is about {n} km/h.' => 'Seine Geschwindigkeit beträgt {n} km/h.',
-                    'His name is {name} and his speed is about {n, number} km/h.' => 'Er heißt {name} und ist {n, number} km/h schnell.',
+                    [
+                        'message' => 'The dog runs fast.',
+                        'translation' => 'Der Hund rennt schnell.'
+                    ],
+                    [
+                        'message' => 'His speed is about {n} km/h.',
+                        'translation' => 'Seine Geschwindigkeit beträgt {n} km/h.'
+                    ],
+                    [
+                        'message' => 'His name is {name} and his speed is about {n, number} km/h.',
+                        'translation' => 'Er heißt {name} und ist {n, number} km/h schnell.'
+                    ],
                 ],
             ],
             [
                 'language' => 'en-US',
                 'category' => 'test',
                 'messages' => [
-                    'The dog runs fast.' => 'The dog runs fast (en-US).'
+                    [
+                        'message' => 'The dog runs fast.',
+                        'translation' => 'The dog runs fast (en-US).'
+                    ]
                 ],
             ],
             [
@@ -71,8 +83,14 @@ class MongoDbMessageSourceTest extends TestCase
                 'category' => 'test',
                 'messages' => [
                     'Hello world!' => 'Здравствуй Мир!',
-                    'The dog runs fast.' => 'Собака бегает быстро.',
-                    'There {n, plural, =0{no cats} =1{one cat} other{are # cats}} on lying on the sofa!' => 'На диване {n, plural, =0{нет кошек} =1{лежит одна кошка} one{лежит # кошка} few{лежит # кошки} many{лежит # кошек} other{лежит # кошки}}!',
+                    [
+                        'message' => 'The dog runs fast.',
+                        'translation' => 'Собака бегает быстро.',
+                    ],
+                    [
+                        'message' => 'There {n, plural, =0{no cats} =1{one cat} other{are # cats}} on lying on the sofa!',
+                        'translation' => 'На диване {n, plural, =0{нет кошек} =1{лежит одна кошка} one{лежит # кошка} few{лежит # кошки} many{лежит # кошек} other{лежит # кошки}}!'
+                    ],
                 ],
             ],
         ]);

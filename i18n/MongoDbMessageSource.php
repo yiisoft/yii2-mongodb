@@ -19,12 +19,12 @@ use yii\mongodb\Query;
  * messages in MongoDB collection.
  *
  * This message source uses single collection for the message translations storage, defined via [[collection]].
- * each entry in this collection should have 3 fields:
+ * Each entry in this collection should have 3 fields:
  *
  * - language: string, translation language
  * - category: string, name translation category
- * - messages: array, list of actual message translations, in each element: the key is raw message name
- *   value - message translation.
+ * - messages: array, list of actual message translations, in each element: the 'message' key is raw message name
+ *   and 'translation' key - message translation.
  *
  * For example:
  *
@@ -33,12 +33,35 @@ use yii\mongodb\Query;
  *     "category": "app",
  *     "language": "de",
  *     "messages": {
- *         "Hello world!": "Hallo Welt!",
- *         "The dog runs fast.": "Der Hund rennt schnell.",
+ *         {
+ *             "message": "Hello world!",
+ *             "translation": "Hallo Welt!"
+ *         },
+ *         {
+ *             "message": "The dog runs fast.",
+ *             "translation": "Der Hund rennt schnell.",
+ *         },
  *         ...
  *     },
  * }
  * ```
+ *
+ * You also can specify 'messages' using source message as a direct BSON key, while its value holds the translation.
+ * For example:
+ *
+ * ```json
+ * {
+ *     "category": "app",
+ *     "language": "de",
+ *     "messages": {
+ *         "Hello world!": "Hallo Welt!",
+ *         "See more": "Mehr sehen",
+ *         ...
+ *     },
+ * }
+ * ```
+ *
+ * However such approach is not recommended as BSON keys can not contain symbols like `.` or `$`.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0.5
@@ -124,9 +147,9 @@ class MongoDbMessageSource extends MessageSource
             }
 
             return $messages;
-        } else {
-            return $this->loadMessagesFromDb($category, $language);
         }
+
+        return $this->loadMessagesFromDb($category, $language);
     }
 
     /**
@@ -177,8 +200,16 @@ class MongoDbMessageSource extends MessageSource
 
         $messages = [];
         foreach ($rows as $row) {
-            $messages = array_merge($messages, $row['messages']);
+            foreach ($row['messages'] as $key => $value) {
+                // @todo drop message as key specification at 2.2
+                if (is_array($value)) {
+                    $messages[$value['message']] = $value['translation'];
+                } else {
+                    $messages[$key] = $value;
+                }
+            }
         }
+
         return $messages;
     }
 }
