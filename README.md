@@ -51,7 +51,11 @@ return [
     'components' => [
         'mongodb' => [
             'class' => '\yii\mongodb\Connection',
-            'dsn' => 'mongodb://developer:password@localhost:27017/mydatabase',
+            'dsn' => 'mongodb://@localhost:27017/mydatabase',
+            'options' => [
+                "username" => "Username",
+                "password" => "Password"
+            ]
         ],
     ],
 ];
