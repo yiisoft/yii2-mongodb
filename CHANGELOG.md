@@ -4,6 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.5 under development
 -----------------------
 
+- Bug #223: Usage of deprecated `yii\base\Object` changed to `yii\base\BaseObject` allowing compatibility with PHP 7.2 (klimov-paul)
 - Bug #227: Fixed `yii\mongodb\file\Collection::remove()` does not removes all file chunks in case `limit` is specified (klimov-paul)
 - Bug #228: Fixed `yii\mongodb\Command::aggregate()` does not support 'cursor' option (klimov-paul)
 - Enh #224: Provided support for 'migrate/fresh' command to truncate database and apply migrations again (klimov-paul)
