@@ -16,7 +16,7 @@ use MongoDB\BSON\Regex;
 use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\Type;
 use MongoDB\BSON\UTCDatetime;
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * LogBuilder allows composition and escaping of the log entries.
@@ -24,7 +24,7 @@ use yii\base\Object;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class LogBuilder extends Object
+class LogBuilder extends BaseObject
 {
     /**
      * Generate log/profile token.

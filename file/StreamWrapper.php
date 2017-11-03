@@ -8,7 +8,7 @@
 namespace yii\mongodb\file;
 
 use yii\base\InvalidConfigException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\di\Instance;
 use yii\helpers\StringHelper;
 use yii\mongodb\Connection;
@@ -52,7 +52,7 @@ use yii\mongodb\Connection;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class StreamWrapper extends Object
+class StreamWrapper extends BaseObject
 {
     /**
      * @var resource associated stream resource context.

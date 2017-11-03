@@ -7,18 +7,18 @@
 
 namespace yii\mongodb;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use Yii;
 
 /**
- * Database represents the Mongo database information.
+ * Database represents the MongoDB database information.
  *
  * @property file\Collection $fileCollection Mongo GridFS collection. This property is read-only.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
  */
-class Database extends Object
+class Database extends BaseObject
 {
     /**
      * @var Connection MongoDB connection.

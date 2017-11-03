@@ -12,7 +12,7 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDatetime;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\StringHelper;
 
 /**
@@ -36,7 +36,7 @@ use yii\helpers\StringHelper;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class Upload extends Object
+class Upload extends BaseObject
 {
     /**
      * @var Collection file collection to be used.

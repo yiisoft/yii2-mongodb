@@ -10,7 +10,7 @@ namespace yii\mongodb\file;
 use MongoDB\BSON\ObjectID;
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\FileHelper;
 use yii\helpers\StringHelper;
 
@@ -43,7 +43,7 @@ use yii\helpers\StringHelper;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class Download extends Object
+class Download extends BaseObject
 {
     /**
      * @var Collection file collection to be used.

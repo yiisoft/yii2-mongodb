@@ -12,7 +12,7 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\InvalidParamException;
-use yii\base\Object;
+use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 
 /**
@@ -54,7 +54,7 @@ use yii\helpers\ArrayHelper;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class QueryBuilder extends Object
+class QueryBuilder extends BaseObject
 {
     /**
      * @var Connection the MongoDB connection.

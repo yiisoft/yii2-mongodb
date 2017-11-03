@@ -8,7 +8,7 @@
 namespace yii\mongodb;
 
 use MongoDB\BSON\ObjectID;
-use yii\base\Object;
+use yii\base\BaseObject;
 use Yii;
 
 /**
@@ -34,7 +34,7 @@ use Yii;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
  */
-class Collection extends Object
+class Collection extends BaseObject
 {
     /**
      * @var Database MongoDB database instance.

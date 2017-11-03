@@ -7,7 +7,7 @@
 
 namespace yii\mongodb;
 
-use yii\base\Object;
+use yii\base\BaseObject;
 use Yii;
 
 /**
@@ -29,7 +29,7 @@ use Yii;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class BatchQueryResult extends Object implements \Iterator
+class BatchQueryResult extends BaseObject implements \Iterator
 {
     /**
      * @var Connection the MongoDB connection to be used when performing batch query.

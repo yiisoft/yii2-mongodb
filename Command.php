@@ -16,7 +16,7 @@ use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\WriteResult;
 use Yii;
 use yii\base\InvalidConfigException;
-use yii\base\Object;
+use yii\base\BaseObject;
 
 /**
  * Command represents MongoDB statement such as command or query.
@@ -58,7 +58,7 @@ use yii\base\Object;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
-class Command extends Object
+class Command extends BaseObject
 {
     /**
      * @var Connection the MongoDB connection that this command is associated with.
