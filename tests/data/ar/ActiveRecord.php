@@ -9,8 +9,9 @@ class ActiveRecord extends \yii\mongodb\ActiveRecord
 {
     public static $db;
 
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function getDb()
     {

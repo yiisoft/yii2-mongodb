@@ -51,7 +51,7 @@ class MongoIdValidator extends Validator
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function init()
     {
@@ -62,7 +62,7 @@ class MongoIdValidator extends Validator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function validateAttribute($model, $attribute)
     {
@@ -90,7 +90,7 @@ class MongoIdValidator extends Validator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function validateValue($value)
     {
@@ -99,7 +99,7 @@ class MongoIdValidator extends Validator
 
     /**
      * @param mixed $value
-     * @return \MongoId|null
+     * @return ObjectID|null
      */
     private function parseMongoId($value)
     {

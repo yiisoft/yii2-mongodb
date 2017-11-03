@@ -102,7 +102,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function checkAccess($userId, $permissionName, $params = [])
     {
@@ -196,7 +196,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getItem($name)
     {
@@ -220,7 +220,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getItems($type)
     {
@@ -237,7 +237,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function addItem($item)
     {
@@ -266,7 +266,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function addRule($rule)
     {
@@ -291,7 +291,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function removeItem($item)
     {
@@ -326,7 +326,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function removeRule($rule)
     {
@@ -342,7 +342,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function updateItem($name, $item)
     {
@@ -409,7 +409,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function updateRule($name, $rule)
     {
@@ -438,7 +438,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRolesByUser($userId)
     {
@@ -473,7 +473,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @since 2.1.2
      */
     public function getChildRoles($roleName)
@@ -497,7 +497,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getPermissionsByRole($roleName)
     {
@@ -522,7 +522,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getPermissionsByUser($userId)
     {
@@ -567,7 +567,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRule($name)
     {
@@ -583,7 +583,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getRules()
     {
@@ -602,7 +602,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function canAddChild($parent, $child)
     {
@@ -610,7 +610,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function addChild($parent, $child)
     {
@@ -647,7 +647,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeChild($parent, $child)
     {
@@ -674,7 +674,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeChildren($parent)
     {
@@ -699,7 +699,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function hasChild($parent, $child)
     {
@@ -717,7 +717,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getChildren($name)
     {
@@ -738,7 +738,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function assign($role, $userId)
     {
@@ -759,7 +759,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function revoke($role, $userId)
     {
@@ -772,7 +772,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function revokeAll($userId)
     {
@@ -785,7 +785,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAssignment($roleName, $userId)
     {
@@ -809,7 +809,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getAssignments($userId)
     {
@@ -834,7 +834,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getUserIdsByRole($roleName)
     {
@@ -851,7 +851,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeAll()
     {
@@ -862,7 +862,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeAllPermissions()
     {
@@ -870,7 +870,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeAllRoles()
     {
@@ -878,7 +878,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeAllRules()
     {
@@ -891,7 +891,7 @@ class MongoDbManager extends BaseManager
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function removeAllAssignments()
     {

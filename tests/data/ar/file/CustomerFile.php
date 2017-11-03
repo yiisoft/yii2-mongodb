@@ -5,7 +5,7 @@ namespace yiiunit\extensions\mongodb\data\ar\file;
 class CustomerFile extends ActiveRecord
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function collectionName()
     {
@@ -13,7 +13,7 @@ class CustomerFile extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function attributes()
     {
@@ -27,7 +27,7 @@ class CustomerFile extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @return CustomerFileQuery
      */
     public static function find()

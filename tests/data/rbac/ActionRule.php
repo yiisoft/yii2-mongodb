@@ -9,8 +9,9 @@ class ActionRule extends Rule
     public $name = 'action_rule';
     public $action = 'read';
 
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function execute($user, $item, $params)
     {

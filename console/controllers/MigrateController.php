@@ -78,7 +78,7 @@ class MigrateController extends BaseMigrateController
      */
     public $migrationCollection = 'migration';
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $templateFile = '@yii/mongodb/views/migration.php';
     /**
@@ -89,7 +89,7 @@ class MigrateController extends BaseMigrateController
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function options($actionID)
     {
@@ -146,7 +146,7 @@ class MigrateController extends BaseMigrateController
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getMigrationHistory($limit)
     {
@@ -221,7 +221,7 @@ class MigrateController extends BaseMigrateController
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function addMigrationHistory($version)
     {
@@ -232,7 +232,7 @@ class MigrateController extends BaseMigrateController
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function removeMigrationHistory($version)
     {

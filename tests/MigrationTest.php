@@ -110,7 +110,7 @@ class Migration extends \yii\mongodb\Migration
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function up()
     {
@@ -118,7 +118,7 @@ class Migration extends \yii\mongodb\Migration
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function down()
     {
@@ -126,7 +126,7 @@ class Migration extends \yii\mongodb\Migration
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function log($string)
     {

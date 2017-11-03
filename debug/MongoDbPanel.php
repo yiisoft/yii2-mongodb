@@ -23,13 +23,13 @@ use yii\log\Logger;
 class MongoDbPanel extends DbPanel
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public $db = 'mongodb';
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function init()
     {
@@ -40,7 +40,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getName()
     {
@@ -48,7 +48,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getSummaryName()
     {
@@ -56,7 +56,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function getDetail()
     {
@@ -92,7 +92,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function hasExplain()
     {
@@ -100,7 +100,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function getQueryType($timing)
     {
@@ -112,7 +112,7 @@ class MongoDbPanel extends DbPanel
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function canBeExplained($type)
     {

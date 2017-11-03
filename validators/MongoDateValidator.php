@@ -47,7 +47,7 @@ class MongoDateValidator extends DateValidator
 
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function validateAttribute($model, $attribute)
     {
@@ -73,7 +73,7 @@ class MongoDateValidator extends DateValidator
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function parseDateValue($value)
     {

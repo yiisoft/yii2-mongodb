@@ -134,7 +134,7 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function drop()
     {
@@ -142,7 +142,7 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @return Cursor cursor for the search results
      */
     public function find($condition = [], $fields = [], $options = [])
@@ -151,7 +151,7 @@ class Collection extends \yii\mongodb\Collection
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function remove($condition = [], $options = [])
     {

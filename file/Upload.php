@@ -98,7 +98,7 @@ class Upload extends BaseObject
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function init()
     {

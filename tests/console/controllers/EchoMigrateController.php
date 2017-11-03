@@ -10,7 +10,7 @@ use yii\mongodb\console\controllers\MigrateController;
 class EchoMigrateController extends MigrateController
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function stdout($string)
     {

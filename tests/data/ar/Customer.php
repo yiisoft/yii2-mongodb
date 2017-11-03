@@ -15,7 +15,7 @@ use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 class Customer extends ActiveRecord
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function collectionName()
     {
@@ -23,7 +23,7 @@ class Customer extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function attributes()
     {
@@ -54,7 +54,7 @@ class Customer extends ActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @return CustomerQuery
      */
     public static function find()

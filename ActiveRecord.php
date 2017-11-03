@@ -96,7 +96,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
     public static function find()
@@ -356,7 +356,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function toArray(array $fields = [], array $expand = [], $recursive = true)
     {

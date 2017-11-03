@@ -46,7 +46,7 @@ use yii\web\UploadedFile;
 abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      * @return ActiveQuery the newly created [[ActiveQuery]] instance.
      */
     public static function find()

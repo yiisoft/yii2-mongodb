@@ -10,7 +10,7 @@ namespace yiiunit\extensions\mongodb\data\ar;
 class Dog extends Animal
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public static function populateRecord($record, $row)
     {

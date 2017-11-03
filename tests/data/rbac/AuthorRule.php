@@ -12,8 +12,9 @@ class AuthorRule extends Rule
     public $name = 'isAuthor';
     public $reallyReally = false;
 
+
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function execute($user, $item, $params)
     {
