@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.5 under development
+2.1.5 November 03, 2017
 -----------------------
 
 - Bug #223: Usage of deprecated `yii\base\Object` changed to `yii\base\BaseObject` allowing compatibility with PHP 7.2 (klimov-paul)
