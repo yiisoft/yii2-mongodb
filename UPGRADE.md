@@ -11,7 +11,7 @@ for both A and B.
 Upgrade from Yii 2.0.5
 ----------------------
 
-* PHP [mongodb](http://us1.php.net/manual/en/set.mongodb.php) extension is now used instead of [mongo](http://us1.php.net/manual/en/book.mongo.php).
+* PHP [mongodb](http://php.net/manual/en/set.mongodb.php) extension is now used instead of [mongo](http://php.net/manual/en/book.mongo.php).
   Make sure you have 'mongodb' extension at your environment. Some features based on old driver may become unavailable.
   In particular: fields `Connection::mongoClient`, `Database::mongoDb` and `Collection::mongoCollection` are no longer exist.
   Old driver type classes such as `\MongoId`, `\MongoCode`, `\MongoDate` and so on, are no longer returned or
