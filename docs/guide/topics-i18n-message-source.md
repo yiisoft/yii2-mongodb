@@ -34,7 +34,7 @@ For example:
 {
     "category": "app",
     "language": "de",
-    "messages": {
+    "messages": [
         {
             "message": "Hello world!",
             "translation": "Hallo Welt!"
@@ -44,7 +44,7 @@ For example:
             "translation": "Der Hund rennt schnell.",
         },
         ...
-    },
+    ],
 }
 ```
 

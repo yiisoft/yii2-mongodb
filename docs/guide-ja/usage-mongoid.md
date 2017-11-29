@@ -43,7 +43,7 @@ class ItemController extends Controller
     {
         $query = new Query();
         $row = $query->from('item')
-            where(['_id' => $id]) // [[\MongoDB\BSON\ObjectID]] へ暗黙に型キャスト
+            ->where(['_id' => $id]) // [[\MongoDB\BSON\ObjectID]] へ暗黙に型キャスト
             ->one();
         ...
     }
