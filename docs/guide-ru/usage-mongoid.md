@@ -42,7 +42,7 @@ class ItemController extends Controller
     {
         $query = new Query;
         $row = $query->from('item')
-            where(['_id' => $id]) // неявное приведение типа [[\MongoDB\BSON\ObjectID]]
+            ->where(['_id' => $id]) // неявное приведение типа [[\MongoDB\BSON\ObjectID]]
             ->one();
         ...
     }

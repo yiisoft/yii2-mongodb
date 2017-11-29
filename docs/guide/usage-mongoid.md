@@ -45,7 +45,7 @@ class ItemController extends Controller
     {
         $query = new Query;
         $row = $query->from('item')
-            where(['_id' => $id]) // implicit typecast to [[\MongoDB\BSON\ObjectID]]
+            ->where(['_id' => $id]) // implicit typecast to [[\MongoDB\BSON\ObjectID]]
             ->one();
         ...
     }
