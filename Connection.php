@@ -179,7 +179,7 @@ class Connection extends Component
      * @var bool whether GridFS stream wrapper has been already registered.
      * @since 2.1
      */
-    private $fileStreamWrapperRegistered = false;
+    private $_fileStreamWrapperRegistered = false;
 
 
     /**
@@ -301,9 +301,8 @@ class Connection extends Component
         if (is_array($name)) {
             list ($dbName, $collectionName) = $name;
             return $this->getDatabase($dbName)->getCollection($collectionName, $refresh);
-        } else {
-            return $this->getDatabase()->getCollection($name, $refresh);
         }
+        return $this->getDatabase()->getCollection($name, $refresh);
     }
 
     /**
@@ -324,9 +323,8 @@ class Connection extends Component
             }
 
             return $this->getDatabase($dbName)->getFileCollection($collectionPrefix, $refresh);
-        } else {
-            return $this->getDatabase()->getFileCollection($prefix, $refresh);
         }
+        return $this->getDatabase()->getFileCollection($prefix, $refresh);
     }
 
     /**
@@ -424,12 +422,12 @@ class Connection extends Component
      */
     public function registerFileStreamWrapper($force = false)
     {
-        if ($force || !$this->fileStreamWrapperRegistered) {
+        if ($force || !$this->_fileStreamWrapperRegistered) {
             /* @var $class \yii\mongodb\file\StreamWrapper */
             $class = $this->fileStreamWrapperClass;
             $class::register($this->fileStreamProtocol, $force);
 
-            $this->fileStreamWrapperRegistered = true;
+            $this->_fileStreamWrapperRegistered = true;
         }
 
         return $this->fileStreamProtocol;
