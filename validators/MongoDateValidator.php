@@ -77,9 +77,8 @@ class MongoDateValidator extends DateValidator
      */
     protected function parseDateValue($value)
     {
-        if ($value instanceof UTCDateTime) {
-            return $value->toDateTime()->getTimestamp();
-        }
-        return parent::parseDateValue($value);
+        return $value instanceof UTCDateTime
+            ? $value->toDateTime()->getTimestamp()
+            : parent::parseDateValue($value);
     }
 }

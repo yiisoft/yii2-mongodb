@@ -67,27 +67,27 @@ class StreamWrapper extends BaseObject
     /**
      * @var string protocol associated with stream
      */
-    private $protocol;
+    private $_protocol;
     /**
      * @var string namespace in format 'databaseName.collectionName' associated with stream.
      */
-    private $namespace;
+    private $_namespace;
     /**
      * @var array query parameters passed for the stream.
      */
-    private $queryParams = [];
+    private $_queryParams = [];
     /**
      * @var Upload file upload instance
      */
-    private $upload;
+    private $_upload;
     /**
      * @var Download file upload instance
      */
-    private $download;
+    private $_download;
     /**
      * @var int file pointer offset.
      */
-    private $pointerOffset = 0;
+    private $_pointerOffset = 0;
 
 
     /**
@@ -127,9 +127,9 @@ class StreamWrapper extends BaseObject
     {
         $pathInfo = parse_url($path);
 
-        $this->protocol = $pathInfo['scheme'];
-        $this->namespace = $pathInfo['host'];
-        parse_str($pathInfo['query'], $this->queryParams);
+        $this->_protocol = $pathInfo['scheme'];
+        $this->_namespace = $pathInfo['host'];
+        parse_str($pathInfo['query'], $this->_queryParams);
     }
 
     /**
@@ -140,25 +140,25 @@ class StreamWrapper extends BaseObject
     private function prepareDownload()
     {
         $contextOptions = $this->getContextOptions();
-        if (isset($contextOptions[$this->protocol]['download'])) {
-            $download = $contextOptions[$this->protocol]['download'];
+        if (isset($contextOptions[$this->_protocol]['download'])) {
+            $download = $contextOptions[$this->_protocol]['download'];
             if (!$download instanceof Download) {
                 throw new InvalidConfigException('"download" context option should be an instance of "' . Download::className() . '"');
             }
-            $this->download = $download;
+            $this->_download = $download;
             return true;
         }
 
         $collection = $this->fetchCollection();
-        if (empty($this->queryParams)) {
+        if (empty($this->_queryParams)) {
             return false;
         }
-        $file = $collection->findOne($this->queryParams);
+        $file = $collection->findOne($this->_queryParams);
         if (empty($file)) {
             throw new InvalidConfigException('Requested file does not exits.');
         }
 
-        $this->download = $file['file'];
+        $this->_download = $file['file'];
         return true;
     }
 
@@ -170,17 +170,17 @@ class StreamWrapper extends BaseObject
     private function prepareUpload()
     {
         $contextOptions = $this->getContextOptions();
-        if (isset($contextOptions[$this->protocol]['upload'])) {
-            $upload = $contextOptions[$this->protocol]['upload'];
+        if (isset($contextOptions[$this->_protocol]['upload'])) {
+            $upload = $contextOptions[$this->_protocol]['upload'];
             if (!$upload instanceof Upload) {
                 throw new InvalidConfigException('"upload" context option should be an instance of "' . Upload::className() . '"');
             }
-            $this->upload = $upload;
+            $this->_upload = $upload;
             return true;
         }
 
         $collection = $this->fetchCollection();
-        $this->upload = $collection->createUpload(['document' => $this->queryParams]);
+        $this->_upload = $collection->createUpload(['document' => $this->_queryParams]);
         return true;
     }
 
@@ -193,8 +193,8 @@ class StreamWrapper extends BaseObject
     {
         $contextOptions = $this->getContextOptions();
 
-        if (isset($contextOptions[$this->protocol]['collection'])) {
-            $collection = $contextOptions[$this->protocol]['collection'];
+        if (isset($contextOptions[$this->_protocol]['collection'])) {
+            $collection = $contextOptions[$this->_protocol]['collection'];
             if ($collection instanceof Collection) {
                 throw new InvalidConfigException('"collection" context option should be an instance of "' . Collection::className() . '"');
             }
@@ -202,15 +202,14 @@ class StreamWrapper extends BaseObject
             return $collection;
         }
 
-        if (isset($contextOptions[$this->protocol]['db'])) {
-            $connection = $contextOptions[$this->protocol]['db'];
-        } else {
-            $connection = 'mongodb';
-        }
+        $connection = isset($contextOptions[$this->_protocol]['db'])
+            ? $contextOptions[$this->_protocol]['db']
+            : 'mongodb';
+
         /* @var $connection Connection */
         $connection = Instance::ensure($connection, Connection::className());
 
-        list($databaseName, $collectionPrefix) = explode('.', $this->namespace, 2);
+        list($databaseName, $collectionPrefix) = explode('.', $this->_namespace, 2);
         return $connection->getDatabase($databaseName)->getFileCollection($collectionPrefix);
     }
 
@@ -247,12 +246,12 @@ class StreamWrapper extends BaseObject
      */
     public function stream_close()
     {
-        if ($this->upload !== null) {
-            $this->upload->complete();
-            $this->upload = null;
+        if ($this->_upload !== null) {
+            $this->_upload->complete();
+            $this->_upload = null;
         }
-        if ($this->download !== null) {
-            $this->download = null;
+        if ($this->_download !== null) {
+            $this->_download = null;
         }
     }
 
@@ -265,10 +264,9 @@ class StreamWrapper extends BaseObject
      */
     public function stream_eof()
     {
-        if ($this->download !== null) {
-            return ($this->pointerOffset >= $this->download->getSize());
-        }
-        return true;
+        return $this->_download !== null
+            ? ($this->_pointerOffset >= $this->_download->getSize())
+            : true;
     }
 
     /**
@@ -308,11 +306,11 @@ class StreamWrapper extends BaseObject
      */
     public function stream_read($count)
     {
-        if ($this->download === null) {
+        if ($this->_download === null) {
             return false;
         }
-        $result = $this->download->substr($this->pointerOffset, $count);
-        $this->pointerOffset += $count;
+        $result = $this->_download->substr($this->_pointerOffset, $count);
+        $this->_pointerOffset += $count;
         return $result;
     }
 
@@ -325,12 +323,12 @@ class StreamWrapper extends BaseObject
      */
     public function stream_write($data)
     {
-        if ($this->upload === null) {
+        if ($this->_upload === null) {
             return false;
         }
-        $this->upload->addContent($data);
+        $this->_upload->addContent($data);
         $result = StringHelper::byteLength($data);
-        $this->pointerOffset += $result;
+        $this->_pointerOffset += $result;
         return $result;
     }
 
@@ -355,11 +353,11 @@ class StreamWrapper extends BaseObject
     {
         $statistics = $this->fileStatisticsTemplate();
 
-        if ($this->download !== null) {
-            $statistics[7] = $statistics['size'] = $this->download->getSize();
+        if ($this->_download !== null) {
+            $statistics[7] = $statistics['size'] = $this->_download->getSize();
         }
-        if ($this->upload !== null) {
-            $statistics[7] = $statistics['size'] = $this->pointerOffset;
+        if ($this->_upload !== null) {
+            $statistics[7] = $statistics['size'] = $this->_pointerOffset;
         }
 
         return $statistics;
@@ -383,26 +381,25 @@ class StreamWrapper extends BaseObject
     {
         switch ($whence) {
             case SEEK_SET:
-                if ($offset < $this->download->getSize() && $offset >= 0) {
-                    $this->pointerOffset = $offset;
+                if ($offset < $this->_download->getSize() && $offset >= 0) {
+                    $this->_pointerOffset = $offset;
                     return true;
                 }
                 return false;
             case SEEK_CUR:
                 if ($offset >= 0) {
-                    $this->pointerOffset += $offset;
+                    $this->_pointerOffset += $offset;
                     return true;
                 }
                 return false;
             case SEEK_END:
-                if ($this->download->getSize() + $offset >= 0) {
-                    $this->pointerOffset = $this->download->getSize() + $offset;
+                if ($this->_download->getSize() + $offset >= 0) {
+                    $this->_pointerOffset = $this->_download->getSize() + $offset;
                     return true;
                 }
                 return false;
-            default:
-                return false;
         }
+        return false;
     }
     
     /**
@@ -413,6 +410,6 @@ class StreamWrapper extends BaseObject
      */
     public function stream_tell()
     {
-        return $this->pointerOffset;
+        return $this->_pointerOffset;
     }
 }

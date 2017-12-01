@@ -237,9 +237,8 @@ abstract class Migration extends Component implements MigrationInterface
         if (is_array($collection)) {
             list($database, $collection) = $collection;
             return $database . '.' . $collection;
-        } else {
-            return $collection;
         }
+        return $collection;
     }
 
     /**

@@ -71,19 +71,19 @@ class Upload extends BaseObject
     /**
      * @var ObjectID file document ID.
      */
-    private $documentId;
+    private $_documentId;
     /**
      * @var resource has context for collecting md5 hash
      */
-    private $hashContext;
+    private $_hashContext;
     /**
      * @var string internal data buffer
      */
-    private $buffer;
+    private $_buffer;
     /**
      * @var bool indicates whether upload is complete or not.
      */
-    private $isComplete = false;
+    private $_isComplete = false;
 
 
     /**
@@ -92,7 +92,7 @@ class Upload extends BaseObject
      */
     public function __destruct()
     {
-        if (!$this->isComplete) {
+        if (!$this->_isComplete) {
             $this->cancel();
         }
     }
@@ -102,21 +102,21 @@ class Upload extends BaseObject
      */
     public function init()
     {
-        $this->hashContext = hash_init('md5');
+        $this->_hashContext = hash_init('md5');
 
         if (isset($this->document['_id'])) {
             if ($this->document['_id'] instanceof ObjectID) {
-                $this->documentId = $this->document['_id'];
+                $this->_documentId = $this->document['_id'];
             } else {
                 try {
-                    $this->documentId = new ObjectID($this->document['_id']);
+                    $this->_documentId = new ObjectID($this->document['_id']);
                 } catch (InvalidArgumentException $e) {
                     // invalid id format
-                    $this->documentId = $this->document['_id'];
+                    $this->_documentId = $this->document['_id'];
                 }
             }
         } else {
-            $this->documentId = new ObjectID();
+            $this->_documentId = new ObjectID();
         }
 
         $this->collection->ensureIndexes();
@@ -130,14 +130,14 @@ class Upload extends BaseObject
      */
     public function addContent($content)
     {
-        $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->buffer);
+        $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->_buffer);
         $contentLength = StringHelper::byteLength($content);
         if ($contentLength > $freeBufferLength) {
-            $this->buffer .= StringHelper::byteSubstr($content, 0, $freeBufferLength);
+            $this->_buffer .= StringHelper::byteSubstr($content, 0, $freeBufferLength);
             $this->flushBuffer(true);
             return $this->addContent(StringHelper::byteSubstr($content, $freeBufferLength));
         } else {
-            $this->buffer .= $content;
+            $this->_buffer .= $content;
             $this->flushBuffer();
         }
 
@@ -153,13 +153,13 @@ class Upload extends BaseObject
     public function addStream($stream)
     {
         while (!feof($stream)) {
-            $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->buffer);
+            $freeBufferLength = $this->chunkSize - StringHelper::byteLength($this->_buffer);
 
             $streamChunk = fread($stream, $freeBufferLength);
             if ($streamChunk === false) {
                 break;
             }
-            $this->buffer .= $streamChunk;
+            $this->_buffer .= $streamChunk;
             $this->flushBuffer();
         }
 
@@ -195,7 +195,7 @@ class Upload extends BaseObject
 
         $document = $this->insertFile();
 
-        $this->isComplete = true;
+        $this->_isComplete = true;
 
         return $document;
     }
@@ -205,12 +205,12 @@ class Upload extends BaseObject
      */
     public function cancel()
     {
-        $this->buffer = null;
+        $this->_buffer = null;
 
-        $this->collection->getChunkCollection()->remove(['files_id' => $this->documentId], ['limit' => 0]);
-        $this->collection->remove(['_id' => $this->documentId], ['limit' => 1]);
+        $this->collection->getChunkCollection()->remove(['files_id' => $this->_documentId], ['limit' => 0]);
+        $this->collection->remove(['_id' => $this->_documentId], ['limit' => 1]);
 
-        $this->isComplete = true;
+        $this->_isComplete = true;
     }
 
     /**
@@ -219,13 +219,13 @@ class Upload extends BaseObject
      */
     private function flushBuffer($force = false)
     {
-        if ($this->buffer === null) {
+        if ($this->_buffer === null) {
             return;
         }
 
-        if ($force || StringHelper::byteLength($this->buffer) == $this->chunkSize) {
-            $this->insertChunk($this->buffer);
-            $this->buffer = null;
+        if ($force || StringHelper::byteLength($this->_buffer) == $this->chunkSize) {
+            $this->insertChunk($this->_buffer);
+            $this->_buffer = null;
         }
     }
 
@@ -236,12 +236,12 @@ class Upload extends BaseObject
     private function insertChunk($data)
     {
         $chunkDocument = [
-            'files_id' => $this->documentId,
+            'files_id' => $this->_documentId,
             'n' => $this->chunkCount,
             'data' => new Binary($data, Binary::TYPE_GENERIC),
         ];
 
-        hash_update($this->hashContext, $data);
+        hash_update($this->_hashContext, $data);
 
         $this->collection->getChunkCollection()->insert($chunkDocument);
         $this->length += StringHelper::byteLength($data);
@@ -255,11 +255,11 @@ class Upload extends BaseObject
     private function insertFile()
     {
         $fileDocument = [
-            '_id' => $this->documentId,
+            '_id' => $this->_documentId,
             'uploadDate' => new UTCDateTime(round(microtime(true) * 1000)),
         ];
         if ($this->filename === null) {
-            $fileDocument['filename'] = $this->documentId . '.dat';
+            $fileDocument['filename'] = $this->_documentId . '.dat';
         } else {
             $fileDocument['filename'] = $this->filename;
         }
@@ -270,7 +270,7 @@ class Upload extends BaseObject
             [
                 'chunkSize' => $this->chunkSize,
                 'length' => $this->length,
-                'md5' => hash_final($this->hashContext),
+                'md5' => hash_final($this->_hashContext),
             ]
         );
 

@@ -89,11 +89,10 @@ class Collection extends \yii\mongodb\Collection
      */
     public function createDownload($document)
     {
-        $config = [
+        return new Download([
             'collection' => $this,
             'document' => $document,
-        ];
-        return new Download($config);
+        ]);
     }
 
     /**
@@ -261,10 +260,7 @@ class Collection extends \yii\mongodb\Collection
     public function get($id)
     {
         $document = $this->getFileCollection()->findOne(['_id' => $id]);
-        if (empty($document)) {
-            return null;
-        }
-        return $this->createDownload($document);
+        return empty($document) ? null : $this->createDownload($document);
     }
 
     /**

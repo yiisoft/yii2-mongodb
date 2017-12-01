@@ -91,11 +91,11 @@ class Cache extends \yii\caching\Cache
                 ],
             ])
             ->one($this->db);
+
         if (empty($row)) {
             return false;
-        } else {
-            return $row['data'];
         }
+        return $row['data'];
     }
 
     /**
@@ -117,11 +117,9 @@ class Cache extends \yii\caching\Cache
 
         if ($result) {
             $this->gc();
-
             return true;
-        } else {
-            return $this->addValue($key, $value, $expire);
         }
+        return $this->addValue($key, $value, $expire);
     }
 
     /**
@@ -165,9 +163,7 @@ class Cache extends \yii\caching\Cache
      */
     protected function deleteValue($key)
     {
-        $this->db->getCollection($this->cacheCollection)
-            ->remove(['id' => $key]);
-
+        $this->db->getCollection($this->cacheCollection)->remove(['id' => $key]);
         return true;
     }
 
@@ -178,9 +174,7 @@ class Cache extends \yii\caching\Cache
      */
     protected function flushValues()
     {
-        $this->db->getCollection($this->cacheCollection)
-            ->remove();
-
+        $this->db->getCollection($this->cacheCollection)->remove();
         return true;
     }
 

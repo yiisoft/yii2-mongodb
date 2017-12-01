@@ -113,16 +113,14 @@ class Generator extends \yii\gii\Generator
     public function autoCompleteData()
     {
         $db = $this->getDbConnection();
-        if ($db !== null) {
-            return [
+        return $db !== null
+            ? [
                 'collectionName' => function () use ($db) {
                     $collections = $db->getDatabase()->createCommand()->listCollections();
                     return ArrayHelper::getColumn($collections, 'name');
                 },
-            ];
-        } else {
-            return [];
-        }
+            ]
+            : [];
     }
 
     /**
