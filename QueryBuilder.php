@@ -732,19 +732,20 @@ class QueryBuilder extends BaseObject
         }
         list($column, $value1, $value2) = $operands;
 
-        return strncmp('NOT', $operator, 3) === 0
-            ? [
+        if (strncmp('NOT', $operator, 3) === 0) {
+            return [
                 $column => [
                     '$lt' => $value1,
                     '$gt' => $value2,
                 ]
-            ]
-            : [
-                $column => [
-                    '$gte' => $value1,
-                    '$lte' => $value2,
-                ]
             ];
+        }
+        return [
+            $column => [
+                '$gte' => $value1,
+                '$lte' => $value2,
+            ]
+        ];
     }
 
     /**
