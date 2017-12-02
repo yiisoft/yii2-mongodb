@@ -150,9 +150,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if ($row !== false) {
             $models = $this->populate([$row]);
             return reset($models) ?: null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**
@@ -172,9 +171,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if ($row !== null) {
             $models = $this->populate([$row]);
             return reset($models) ?: null;
-        } else {
-            return null;
         }
+        return null;
     }
 
     /**

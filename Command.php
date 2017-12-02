@@ -302,6 +302,7 @@ class Command extends BaseObject
     public function dropDatabase()
     {
         $this->document = $this->db->getQueryBuilder()->dropDatabase();
+
         $result = current($this->execute()->toArray());
         return $result['ok'] > 0;
     }

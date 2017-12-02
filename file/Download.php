@@ -106,10 +106,7 @@ class Download extends BaseObject
     public function getSize()
     {
         $document = $this->getDocument();
-        if (isset($document['length'])) {
-            return $document['length'];
-        }
-        return 0;
+        return isset($document['length']) ? $document['length'] : 0;
     }
 
     /**
@@ -119,10 +116,7 @@ class Download extends BaseObject
     public function getFilename()
     {
         $document = $this->getDocument();
-        if (isset($document['filename'])) {
-            return $document['filename'];
-        }
-        return null;
+        return isset($document['filename']) ? $document['filename'] : null;
     }
 
     /**

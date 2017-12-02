@@ -301,12 +301,12 @@ class Collection extends BaseObject
     {
         if (empty($data['_id'])) {
             return $this->insert($data, $options);
-        } else {
-            $id = $data['_id'];
-            unset($data['_id']);
-            $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true]);
-            return is_object($id) ? $id : new ObjectID($id);
         }
+        $id = $data['_id'];
+        unset($data['_id']);
+        $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true]);
+
+        return is_object($id) ? $id : new ObjectID($id);
     }
 
     /**

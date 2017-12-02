@@ -226,12 +226,11 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         } elseif (is_string($file)) {
             if (file_exists($file)) {
                 return $file;
-            } else {
-                throw new InvalidParamException("File '{$file}' does not exist.");
             }
-        } else {
-            throw new InvalidParamException('Unsupported type of "file" attribute.');
+            throw new InvalidParamException("File '{$file}' does not exist.");
         }
+
+        throw new InvalidParamException('Unsupported type of "file" attribute.');
     }
 
     /**
@@ -257,26 +256,22 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         if (empty($file) && !$this->getIsNewRecord()) {
             $file = $this->refreshFile();
         }
+
         if (empty($file)) {
             return null;
         } elseif ($file instanceof Download) {
             $fileSize = $file->getSize();
-            if (empty($fileSize)) {
-                return null;
-            } else {
-                return $file->toString();
-            }
+            return empty($fileSize) ? null : $file->toString();
         } elseif ($file instanceof UploadedFile) {
             return file_get_contents($file->tempName);
         } elseif (is_string($file)) {
             if (file_exists($file)) {
                 return file_get_contents($file);
-            } else {
-                throw new InvalidParamException("File '{$file}' does not exist.");
             }
-        } else {
-            throw new InvalidParamException('Unsupported type of "file" attribute.');
+            throw new InvalidParamException("File '{$file}' does not exist.");
         }
+
+        throw new InvalidParamException('Unsupported type of "file" attribute.');
     }
 
     /**
@@ -291,6 +286,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         if (empty($file) && !$this->getIsNewRecord()) {
             $file = $this->refreshFile();
         }
+
         if (empty($file)) {
             throw new InvalidParamException('There is no file associated with this object.');
         } elseif ($file instanceof Download) {
@@ -300,12 +296,11 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         } elseif (is_string($file)) {
             if (file_exists($file)) {
                 return copy($file, $filename);
-            } else {
-                throw new InvalidParamException("File '{$file}' does not exist.");
             }
-        } else {
-            throw new InvalidParamException('Unsupported type of "file" attribute.');
+            throw new InvalidParamException("File '{$file}' does not exist.");
         }
+
+        throw new InvalidParamException('Unsupported type of "file" attribute.');
     }
 
     /**
@@ -321,6 +316,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         if (empty($file) && !$this->getIsNewRecord()) {
             $file = $this->refreshFile();
         }
+
         if (empty($file)) {
             throw new InvalidParamException('There is no file associated with this object.');
         } elseif ($file instanceof Download) {
@@ -330,11 +326,10 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         } elseif (is_string($file)) {
             if (file_exists($file)) {
                 return fopen($file, 'r');
-            } else {
-                throw new InvalidParamException("File '{$file}' does not exist.");
             }
-        } else {
-            throw new InvalidParamException('Unsupported type of "file" attribute.');
+            throw new InvalidParamException("File '{$file}' does not exist.");
         }
+
+        throw new InvalidParamException('Unsupported type of "file" attribute.');
     }
 }

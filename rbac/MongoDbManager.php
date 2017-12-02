@@ -108,11 +108,9 @@ class MongoDbManager extends BaseManager
     {
         $assignments = $this->getAssignments($userId);
         $this->loadFromCache();
-        if ($this->items !== null) {
-            return $this->checkAccessFromCache($userId, $permissionName, $params, $assignments);
-        } else {
-            return $this->checkAccessRecursive($userId, $permissionName, $params, $assignments);
-        }
+        return $this->items !== null
+            ? $this->checkAccessFromCache($userId, $permissionName, $params, $assignments)
+            : $this->checkAccessRecursive($userId, $permissionName, $params, $assignments);
     }
 
     /**

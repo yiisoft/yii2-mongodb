@@ -120,9 +120,8 @@ class Generator extends \yii\gii\Generator
                     return ArrayHelper::getColumn($collections, 'name');
                 },
             ];
-        } else {
-            return [];
         }
+        return [];
     }
 
     /**

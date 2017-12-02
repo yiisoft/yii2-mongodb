@@ -118,9 +118,8 @@ class MigrateController extends BaseMigrateController
                 }
             }
             return true;
-        } else {
-            return false;
         }
+        return false;
     }
 
     /**

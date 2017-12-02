@@ -33,7 +33,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     public static function getDb()
     {
-        return \Yii::$app->get('mongodb');
+        return Yii::$app->get('mongodb');
     }
 
     /**
@@ -391,9 +391,8 @@ abstract class ActiveRecord extends BaseActiveRecord
             return $data;
         } elseif (is_object($data)) {
             return ArrayHelper::toArray($data);
-        } else {
-            return [$data];
         }
+        return [$data];
     }
 
     /**
