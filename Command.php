@@ -728,15 +728,18 @@ class Command extends BaseObject
      */
     public function aggregate($collectionName, $pipelines, $options = [])
     {
-        $this->document = $this->db->getQueryBuilder()->aggregate($collectionName, $pipelines, $options);
+        $opts = $options;
+        if ($opts === [] || !isset($opts['explain'], $opts['cursor'])) {
+            $opts['cursor'] = ['batchSize' => 101];
+        }
+
+        $this->document = $this->db->getQueryBuilder()->aggregate($collectionName, $pipelines, $opts);
         $cursor = $this->execute();
 
         if (!empty($options['cursor'])) {
             return $cursor;
         }
-        $result = current($cursor->toArray());
-
-        return $result['result'];
+        return $cursor->toArray();
     }
 
     /**
