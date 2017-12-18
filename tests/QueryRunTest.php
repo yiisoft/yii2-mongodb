@@ -636,4 +636,39 @@ class QueryRunTest extends TestCase
 
         $this->assertSame(['odd', 'even'], $rows);
     }
+
+    public function testAggregationShortcuts()
+    {
+        $db = $this->getConnection();
+
+        $max = (new Query())
+            ->from('customer')
+            ->where(['group' => 'odd'])
+            ->count('*', $db);
+        $this->assertSame(5, $max);
+
+        $max = (new Query())
+            ->from('customer')
+            ->where(['group' => 'even'])
+            ->max('status', $db);
+        $this->assertSame(10, $max);
+
+        $max = (new Query())
+            ->from('customer')
+            ->where(['group' => 'even'])
+            ->min('status', $db);
+        $this->assertSame(2, $max);
+
+        $max = (new Query())
+            ->from('customer')
+            ->where(['group' => 'even'])
+            ->sum('status', $db);
+        $this->assertSame(30, $max);
+
+        $max = (new Query())
+            ->from('customer')
+            ->where(['group' => 'even'])
+            ->average('status', $db);
+        $this->assertEquals(6, $max);
+    }
 }
