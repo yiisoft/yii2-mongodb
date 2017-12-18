@@ -728,15 +728,21 @@ class Command extends BaseObject
      */
     public function aggregate($collectionName, $pipelines, $options = [])
     {
+        if (empty($options['cursor'])) {
+            $returnCursor = false;
+            $options['cursor'] = new \stdClass();
+        } else {
+            $returnCursor = true;
+        }
+
         $this->document = $this->db->getQueryBuilder()->aggregate($collectionName, $pipelines, $options);
         $cursor = $this->execute();
 
-        if (!empty($options['cursor'])) {
+        if ($returnCursor) {
             return $cursor;
         }
-        $result = current($cursor->toArray());
 
-        return $result['result'];
+        return $cursor->toArray();
     }
 
     /**
