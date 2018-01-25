@@ -171,10 +171,11 @@ class QueryBuilder extends BaseObject
 
     /**
      * Generates index name for the given column orders.
+     * Columns should be normalized using [[buildSortFields()]] before being passed to this method.
      * @param array $columns columns with sort order.
      * @return string index name.
      */
-    private function generateIndexName($columns)
+    public function generateIndexName($columns)
     {
         $parts = [];
         foreach ($columns as $column => $order) {

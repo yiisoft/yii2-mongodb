@@ -179,9 +179,17 @@ class Collection extends BaseObject
         $existingIndexes = $this->listIndexes();
 
         $indexKey = $this->database->connection->getQueryBuilder()->buildSortFields($columns);
-
         foreach ($existingIndexes as $index) {
             if ($index['key'] == $indexKey) {
+                $this->database->createCommand()->dropIndexes($this->name, $index['name']);
+                return true;
+            }
+        }
+
+        // Index plugin usage such as 'text' may cause unpredictable index 'key' structure, thus index name should be used
+        $indexName = $this->database->connection->getQueryBuilder()->generateIndexName($indexKey);
+        foreach ($existingIndexes as $index) {
+            if ($index['name'] === $indexName) {
                 $this->database->createCommand()->dropIndexes($this->name, $index['name']);
                 return true;
             }

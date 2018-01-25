@@ -420,6 +420,24 @@ class CollectionTest extends TestCase
     }
 
     /**
+     * @depends testDropIndex
+     * @see https://github.com/yiisoft/yii2-mongodb/issues/247
+     */
+    public function testDropIndexWithPlugin()
+    {
+        $collection = $this->getConnection()->getCollection('customer');
+
+        $columns = [
+            'name' => 'text'
+        ];
+        $collection->createIndex($columns);
+
+        $this->assertTrue($collection->dropIndex($columns));
+        $indexInfo = $collection->listIndexes();
+        $this->assertEquals(1, count($indexInfo));
+    }
+
+    /**
      * @depends testCreateIndex
      */
     public function testDropAllIndexes()
