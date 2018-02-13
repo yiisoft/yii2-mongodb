@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.6 under development
+2.1.6 February 13, 2018
 -----------------------
 
 - Bug #241: Fixed `yii\mongodb\Command::aggregate()` without 'cursor' option produces error on MongoDB Server 3.6 (Lisio, klimov-paul)
