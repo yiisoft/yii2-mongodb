@@ -24,9 +24,12 @@ use yii\di\Instance;
  *
  * ```php
  * 'cache' => [
- *     'class' => 'yii\mongodb\Cache',
- *     // 'db' => 'mymongodb',
- *     // 'cacheCollection' => 'my_cache',
+ *     'class' => yii\caching\Cache::class,
+ *     'handler' => [
+ *         'class' => yii\mongodb\Cache::class,
+ *         // 'db' => 'mymongodb',
+ *         // 'cacheCollection' => 'my_cache',
+ *     ]
  * ]
  * ```
  *

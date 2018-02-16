@@ -56,7 +56,7 @@ class MongoDbTarget extends Target
     {
         $rows = [];
         foreach ($this->messages as $message) {
-            [$text, $level, $category, $timestamp] = $message;
+            [$level, $text, $context] = $message;
             if (!is_string($text)) {
                 // exceptions may not be serializable if in the call stack somewhere is a Closure
                 if ($text instanceof \Throwable || $text instanceof \Exception) {
@@ -67,8 +67,8 @@ class MongoDbTarget extends Target
             }
             $rows[] = [
                 'level' => $level,
-                'category' => $category,
-                'log_time' => $timestamp,
+                'category' => $context['category'],
+                'log_time' => $context['time'],
                 'prefix' => $this->getMessagePrefix($message),
                 'message' => $text,
             ];

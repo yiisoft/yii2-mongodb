@@ -2,7 +2,7 @@
 
 namespace yiiunit\mongodb\log;
 
-use yii\log\Logger;
+use Psr\Log\LogLevel;
 use yii\mongodb\log\MongoDbTarget;
 use yiiunit\mongodb\TestCase;
 
@@ -33,13 +33,13 @@ class MongoDbTargetTest extends TestCase
         $target->messages = [
             [
                 'test',
-                Logger::LEVEL_WARNING,
+                LogLevel::WARNING,
                 'test',
                 time() - 1,
             ],
             [
                 'info',
-                Logger::LEVEL_INFO,
+                LogLevel::INFO,
                 'test',
                 time(),
             ]
