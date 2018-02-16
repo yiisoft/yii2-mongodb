@@ -78,7 +78,7 @@ class CacheTest extends TestCase
 
         $this->assertTrue($cache->clear(), 'Unable to clear cache!');
 
-        $collection = $cache->db->getCollection($cache->cacheCollection);
+        $collection = $cache->handler->db->getCollection($cache->handler->cacheCollection);
         $rows = $this->findAll($collection);
         $this->assertCount(0, $rows, 'Unable to clear records!');
     }
@@ -93,7 +93,7 @@ class CacheTest extends TestCase
         $cache->set('key1', 'value1');
         $cache->set('key2', 'value2');
 
-        $collection = $cache->db->getCollection($cache->cacheCollection);
+        $collection = $cache->handler->db->getCollection($cache->handler->cacheCollection);
 
         [$row] = $this->findAll($collection);
         $collection->update(['_id' => $row['_id']], ['expire' => time() - 10]);
@@ -115,7 +115,7 @@ class CacheTest extends TestCase
         $value = 'test_value';
         $cache->set($key, $value);
 
-        $collection = $cache->db->getCollection($cache->cacheCollection);
+        $collection = $cache->handler->db->getCollection($cache->handler->cacheCollection);
         [$row] = $this->findAll($collection);
         $collection->update(['_id' => $row['_id']], ['expire' => time() - 10]);
 

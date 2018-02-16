@@ -67,7 +67,7 @@ class MigrateControllerTest extends TestCase
 
     public function setUpMigrationPath()
     {
-        $this->migrationPath = Yii::getAlias('@yiiunit/extensions/mongodb/runtime/test_migrations');
+        $this->migrationPath = Yii::getAlias('@yiiunit/mongodb/runtime/test_migrations');
         FileHelper::createDirectory($this->migrationPath);
         if (!file_exists($this->migrationPath)) {
             $this->markTestIncomplete('Unit tests runtime directory should have writable permissions!');

@@ -32,16 +32,22 @@ class MongoDbTargetTest extends TestCase
 
         $target->messages = [
             [
-                'test',
                 LogLevel::WARNING,
                 'test',
-                time() - 1,
+                [
+                    'category' => 'test',
+                    'time' => time() - 1,
+                    'trace' => [],
+                ]
             ],
             [
-                'info',
                 LogLevel::INFO,
-                'test',
-                time(),
+                'info',
+                [
+                    'category' => 'test',
+                    'time' => time(),
+                    'trace' => [],
+                ],
             ]
         ];
 

@@ -4,6 +4,7 @@ namespace yiiunit\mongodb\rbac;
 
 use Yii;
 use yii\caching\ArrayCache;
+use yii\caching\Cache;
 use yii\rbac\Item;
 use yii\rbac\Permission;
 use yii\rbac\Role;
@@ -512,13 +513,13 @@ class MongoDbManagerTest extends TestCase
     public function testInvalidateCache()
     {
         $auth = $this->auth;
-        $auth->cache = new ArrayCache();
+        $auth->cache = new Cache(['handler' => new ArrayCache()]);;
         $this->prepareData();
 
         $auth->loadFromCache();
         $auth->getRule('reader');
         $auth->invalidateCache();
 
-        $this->assertFalse($auth->cache->exists($auth->cacheKey));
+        $this->assertFalse($auth->cache->has($auth->cacheKey));
     }
 }
