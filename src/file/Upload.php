@@ -10,7 +10,6 @@ namespace yii\mongodb\file;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDatetime;
-use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\InvalidArgumentException;
 use yii\base\BaseObject;
 use yii\helpers\StringHelper;
@@ -110,7 +109,7 @@ class Upload extends BaseObject
             } else {
                 try {
                     $this->_documentId = new ObjectID($this->document['_id']);
-                } catch (InvalidArgumentException $e) {
+                } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
                     // invalid id format
                     $this->_documentId = $this->document['_id'];
                 }
