@@ -98,7 +98,7 @@ class CacheTest extends TestCase
         [$row] = $this->findAll($collection);
         $collection->update(['_id' => $row['_id']], ['expire' => time() - 10]);
 
-        $cache->gc(true);
+        $cache->handler->gc(true);
 
         $rows = $this->findAll($collection);
         $this->assertCount(1, $rows, 'Unable to collect garbage!');
