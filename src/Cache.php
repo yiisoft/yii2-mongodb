@@ -33,7 +33,7 @@ use yii\di\Instance;
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
  */
-class Cache extends \yii\caching\Cache
+class Cache extends \yii\caching\SimpleCache
 {
     /**
      * @var Connection|array|string the MongoDB connection object or the application component ID of the MongoDB connection.
@@ -68,16 +68,36 @@ class Cache extends \yii\caching\Cache
     }
 
     /**
-     * Retrieves a value from cache with a specified key.
-     * This method should be implemented by child classes to retrieve the data
-     * from specific cache storage.
-     * @param string $key a unique key identifying the cached value
-     * @return string|bool the value stored in cache, false if the value is not in the cache or expired.
+     * {@inheritdoc}
+     */
+    public function has($key)
+    {
+        $rowCount = (new Query())
+            ->select(['data'])
+            ->from($this->cacheCollection)
+            ->where([
+                'id' => $key,
+                '$or' => [
+                    [
+                        'expire' => 0
+                    ],
+                    [
+                        'expire' => ['$gt' => time()]
+                    ],
+                ],
+            ])
+            ->count($this->db);
+
+        return $rowCount > 0;
+    }
+
+    /**
+     * {@inheritdoc}
      */
     protected function getValue($key)
     {
-        $query = new Query;
-        $row = $query->select(['data'])
+        $row = (new Query())
+            ->select(['data'])
             ->from($this->cacheCollection)
             ->where([
                 'id' => $key,
@@ -99,19 +119,46 @@ class Cache extends \yii\caching\Cache
     }
 
     /**
-     * Stores a value identified by a key in cache.
-     * This method should be implemented by child classes to store the data
-     * in specific cache storage.
-     * @param string $key the key identifying the value to be cached
-     * @param string $value the value to be cached
-     * @param int $expire the number of seconds in which the cached value will expire. 0 means never expire.
-     * @return bool true if the value is successfully stored into cache, false otherwise
+     * {@inheritdoc}
      */
-    protected function setValue($key, $value, $expire)
+    protected function getValues($keys)
+    {
+        if (empty($keys)) {
+            return [];
+        }
+
+        $rows = (new Query())
+            ->select(['id', 'data'])
+            ->from($this->cacheCollection)
+            ->where([
+                'id' => $keys,
+                '$or' => [
+                    [
+                        'expire' => 0
+                    ],
+                    [
+                        'expire' => ['$gt' => time()]
+                    ],
+                ],
+            ])
+            ->all($this->db);
+
+        $results = array_fill_keys($keys, false);
+        foreach ($rows as $row) {
+            $results[$row['id']] = $row['data'];
+        }
+
+        return $results;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function setValue($key, $value, $ttl)
     {
         $result = $this->db->getCollection($this->cacheCollection)
             ->update(['id' => $key], [
-                'expire' => $expire > 0 ? $expire + time() : 0,
+                'expire' => $ttl > 0 ? $ttl + time() : 0,
                 'data' => $value,
             ]);
 
@@ -119,7 +166,8 @@ class Cache extends \yii\caching\Cache
             $this->gc();
             return true;
         }
-        return $this->addValue($key, $value, $expire);
+
+        return $this->addValue($key, $value, $ttl);
     }
 
     /**
@@ -156,10 +204,7 @@ class Cache extends \yii\caching\Cache
     }
 
     /**
-     * Deletes a value with the specified key from cache
-     * This method should be implemented by child classes to delete the data from actual cache storage.
-     * @param string $key the key of the value to be deleted
-     * @return bool if no error happens during deletion
+     * {@inheritdoc}
      */
     protected function deleteValue($key)
     {
@@ -168,11 +213,9 @@ class Cache extends \yii\caching\Cache
     }
 
     /**
-     * Deletes all values from cache.
-     * Child classes may implement this method to realize the flush operation.
-     * @return bool whether the flush operation was successful.
+     * {@inheritdoc}
      */
-    protected function flushValues()
+    public function clear()
     {
         $this->db->getCollection($this->cacheCollection)->remove();
         return true;

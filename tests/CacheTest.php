@@ -25,10 +25,13 @@ class CacheTest extends TestCase
     protected function createCache()
     {
         return Yii::createObject([
-            'class' => Cache::class,
-            'db' => $this->getConnection(),
-            'cacheCollection' => static::$cacheCollection,
-            'gcProbability' => 0,
+            'class' => \yii\caching\Cache::class,
+            'handler' => [
+                'class' => Cache::class,
+                'db' => $this->getConnection(),
+                'cacheCollection' => static::$cacheCollection,
+                'gcProbability' => 0,
+            ],
         ]);
     }
 
@@ -46,20 +49,6 @@ class CacheTest extends TestCase
         $newValue = 'test_new_value';
         $this->assertTrue($cache->set($key, $newValue), 'Unable to update value!');
         $this->assertEquals($newValue, $cache->get($key), 'Unable to update value correctly!');
-    }
-
-    public function testAdd()
-    {
-        $cache = $this->createCache();
-
-        $key = 'test_key';
-        $value = 'test_value';
-        $this->assertTrue($cache->add($key, $value), 'Unable to add value!');
-        $this->assertEquals($value, $cache->get($key), 'Unable to add value correctly!');
-
-        $newValue = 'test_new_value';
-        $this->assertTrue($cache->add($key, $newValue), 'Unable to re-add value!');
-        $this->assertEquals($value, $cache->get($key), 'Original value is lost!');
     }
 
     /**
@@ -80,18 +69,18 @@ class CacheTest extends TestCase
     /**
      * @depends testSet
      */
-    public function testFlush()
+    public function testClear()
     {
         $cache = $this->createCache();
 
         $cache->set('key1', 'value1');
         $cache->set('key2', 'value2');
 
-        $this->assertTrue($cache->flush(), 'Unable to flush cache!');
+        $this->assertTrue($cache->clear(), 'Unable to clear cache!');
 
         $collection = $cache->db->getCollection($cache->cacheCollection);
         $rows = $this->findAll($collection);
-        $this->assertCount(0, $rows, 'Unable to flush records!');
+        $this->assertCount(0, $rows, 'Unable to clear records!');
     }
 
     /**
