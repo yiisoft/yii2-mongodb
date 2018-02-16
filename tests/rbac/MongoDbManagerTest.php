@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\rbac;
+namespace yiiunit\mongodb\rbac;
 
 use Yii;
 use yii\caching\ArrayCache;
@@ -8,9 +8,9 @@ use yii\rbac\Item;
 use yii\rbac\Permission;
 use yii\rbac\Role;
 use yii\mongodb\rbac\MongoDbManager;
-use yiiunit\extensions\mongodb\data\rbac\ActionRule;
-use yiiunit\extensions\mongodb\data\rbac\AuthorRule;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\data\rbac\ActionRule;
+use yiiunit\mongodb\data\rbac\AuthorRule;
+use yiiunit\mongodb\TestCase;
 
 class MongoDbManagerTest extends TestCase
 {
@@ -325,12 +325,12 @@ class MongoDbManagerTest extends TestCase
 
         $roles = $this->auth->getChildRoles('withoutChildren');
         $this->assertCount(1, $roles);
-        $this->assertInstanceOf(Role::className(), reset($roles));
+        $this->assertInstanceOf(Role::class, reset($roles));
         $this->assertTrue(reset($roles)->name === 'withoutChildren');
 
         $roles = $this->auth->getChildRoles('reader');
         $this->assertCount(1, $roles);
-        $this->assertInstanceOf(Role::className(), reset($roles));
+        $this->assertInstanceOf(Role::class, reset($roles));
         $this->assertTrue(reset($roles)->name === 'reader');
 
         $roles = $this->auth->getChildRoles('author');
@@ -470,16 +470,16 @@ class MongoDbManagerTest extends TestCase
         // using rule class name
         $auth->removeAll();
         $role = $auth->createRole('Reader');
-        $role->ruleName = 'yiiunit\extensions\mongodb\data\rbac\ActionRule';
+        $role->ruleName = 'yiiunit\mongodb\data\rbac\ActionRule';
         $auth->add($role);
         $auth->assign($role, $userId);
         $this->assertTrue($auth->checkAccess($userId, 'Reader', ['action' => 'read']));
         $this->assertFalse($auth->checkAccess($userId, 'Reader', ['action' => 'write']));
 
         // using DI
-        \Yii::$container->set('write_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'write']);
-        \Yii::$container->set('delete_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'delete']);
-        \Yii::$container->set('all_rule', ['class' => 'yiiunit\extensions\mongodb\data\rbac\ActionRule', 'action' => 'all']);
+        \Yii::$container->set('write_rule', ['class' => 'yiiunit\mongodb\data\rbac\ActionRule', 'action' => 'write']);
+        \Yii::$container->set('delete_rule', ['class' => 'yiiunit\mongodb\data\rbac\ActionRule', 'action' => 'delete']);
+        \Yii::$container->set('all_rule', ['class' => 'yiiunit\mongodb\data\rbac\ActionRule', 'action' => 'all']);
 
         $role = $auth->createRole('Writer');
         $role->ruleName = 'write_rule';

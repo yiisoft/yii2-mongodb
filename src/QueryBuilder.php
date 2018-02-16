@@ -11,7 +11,6 @@ use MongoDB\BSON\Javascript;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
 use MongoDB\Driver\Exception\InvalidArgumentException;
-use yii\base\InvalidParamException;
 use yii\base\BaseObject;
 use yii\helpers\ArrayHelper;
 
@@ -144,7 +143,7 @@ class QueryBuilder extends BaseObject
 
         foreach ($indexes as $index) {
             if (!isset($index['key'])) {
-                throw new InvalidParamException('"key" is required for index specification');
+                throw new InvalidArgumentException('"key" is required for index specification');
             }
 
             $index['key'] = $this->buildSortFields($index['key']);
@@ -573,7 +572,7 @@ class QueryBuilder extends BaseObject
         }
         try {
             $mongoId = new ObjectID($rawId);
-        } catch (InvalidArgumentException $e) {
+        } catch (\MongoDB\Driver\Exception\InvalidArgumentException $e) {
             // invalid id format
             $mongoId = $rawId;
         }
@@ -586,7 +585,7 @@ class QueryBuilder extends BaseObject
      * @param array $condition the condition specification. Please refer to [[Query::where()]]
      * on how to specify a condition.
      * @return array the generated Mongo condition
-     * @throws InvalidParamException if the condition is in bad format
+     * @throws InvalidArgumentException if the condition is in bad format
      */
     public function buildCondition($condition)
     {
@@ -603,7 +602,7 @@ class QueryBuilder extends BaseObject
         ];
 
         if (!is_array($condition)) {
-            throw new InvalidParamException('Condition should be an array.');
+            throw new InvalidArgumentException('Condition should be an array.');
         } elseif (empty($condition)) {
             return [];
         }
@@ -661,15 +660,15 @@ class QueryBuilder extends BaseObject
      * @param string $operator the operator to use for connecting the given operands
      * @param array $operands the Mongo conditions to connect.
      * @return array the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildNotCondition($operator, $operands)
     {
         if (count($operands) !== 2) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires two operands.");
         }
 
-        list($name, $value) = $operands;
+        [$name, $value] = $operands;
 
         $result = [];
         if (is_array($value)) {
@@ -724,14 +723,14 @@ class QueryBuilder extends BaseObject
      * @param array $operands the first operand is the column name. The second and third operands
      * describe the interval that column value should be in.
      * @return array the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildBetweenCondition($operator, $operands)
     {
         if (!isset($operands[0], $operands[1], $operands[2])) {
-            throw new InvalidParamException("Operator '$operator' requires three operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires three operands.");
         }
-        list($column, $value1, $value2) = $operands;
+        [$column, $value1, $value2] = $operands;
 
         if (strncmp('NOT', $operator, 3) === 0) {
             return [
@@ -756,15 +755,15 @@ class QueryBuilder extends BaseObject
      * a composite IN condition will be generated.
      * The second operand is an array of values that column value should be among.
      * @return array the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildInCondition($operator, $operands)
     {
         if (!isset($operands[0], $operands[1])) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires two operands.");
         }
 
-        list($column, $values) = $operands;
+        [$column, $values] = $operands;
 
         $values = (array) $values;
         $operator = $this->normalizeConditionKeyword($operator);
@@ -836,14 +835,14 @@ class QueryBuilder extends BaseObject
      * @param array $operands the first operand is the column name.
      * The second operand is a single value that column value should be compared with.
      * @return array the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildRegexCondition($operator, $operands)
     {
         if (!isset($operands[0], $operands[1])) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires two operands.");
         }
-        list($column, $value) = $operands;
+        [$column, $value] = $operands;
         if (!($value instanceof Regex)) {
             if (preg_match('~\/(.+)\/(.*)~', $value, $matches)) {
                 $value = new Regex($matches[1], $matches[2]);
@@ -861,14 +860,14 @@ class QueryBuilder extends BaseObject
      * @param array $operands the first operand is the column name.
      * The second operand is a single value that column value should be compared with.
      * @return array the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildLikeCondition($operator, $operands)
     {
         if (!isset($operands[0], $operands[1])) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires two operands.");
         }
-        list($column, $value) = $operands;
+        [$column, $value] = $operands;
         if (!($value instanceof Regex)) {
             $value = new Regex(preg_quote($value), 'i');
         }
@@ -883,15 +882,15 @@ class QueryBuilder extends BaseObject
      * @param array $operands the first operand is the column name.
      * The second operand is a single value that column value should be compared with.
      * @return string the generated Mongo condition.
-     * @throws InvalidParamException if wrong number of operands have been given.
+     * @throws InvalidArgumentException if wrong number of operands have been given.
      */
     public function buildSimpleCondition($operator, $operands)
     {
         if (count($operands) !== 2) {
-            throw new InvalidParamException("Operator '$operator' requires two operands.");
+            throw new InvalidArgumentException("Operator '$operator' requires two operands.");
         }
 
-        list($column, $value) = $operands;
+        [$column, $value] = $operands;
 
         if (strncmp('$', $operator, 1) !== 0) {
             static $operatorMap = [
@@ -907,7 +906,7 @@ class QueryBuilder extends BaseObject
             if (isset($operatorMap[$operator])) {
                 $operator = $operatorMap[$operator];
             } else {
-                throw new InvalidParamException("Unsupported operator '{$operator}'");
+                throw new InvalidArgumentException("Unsupported operator '{$operator}'");
             }
         }
 

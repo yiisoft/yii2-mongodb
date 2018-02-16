@@ -1,16 +1,16 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
 use yii\mongodb\ActiveQuery;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
-use yiiunit\extensions\mongodb\data\ar\Customer;
-use yiiunit\extensions\mongodb\data\ar\Animal;
-use yiiunit\extensions\mongodb\data\ar\Dog;
-use yiiunit\extensions\mongodb\data\ar\Cat;
+use yiiunit\mongodb\data\ar\ActiveRecord;
+use yiiunit\mongodb\data\ar\Customer;
+use yiiunit\mongodb\data\ar\Animal;
+use yiiunit\mongodb\data\ar\Dog;
+use yiiunit\mongodb\data\ar\Cat;
 
 class ActiveRecordTest extends TestCase
 {
@@ -386,10 +386,10 @@ class ActiveRecordTest extends TestCase
         (new Cat())->save(false);
         (new Dog())->save(false);
 
-        $animal = Animal::find()->where(['type' => Dog::className()])->one();
+        $animal = Animal::find()->where(['type' => Dog::class])->one();
         $this->assertEquals('bark', $animal->getDoes());
 
-        $animal = Animal::find()->where(['type' => Cat::className()])->one();
+        $animal = Animal::find()->where(['type' => Cat::class])->one();
         $this->assertEquals('meow', $animal->getDoes());
     }
 

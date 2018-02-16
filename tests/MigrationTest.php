@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\ObjectID;
 
@@ -64,11 +64,11 @@ class MigrationTest extends TestCase
         $this->assertTrue($id instanceof ObjectID);
 
         $migration->update('customer', ['_id' => $id], ['name' => 'new name']);
-        list($row) = $this->findAll($migration->db->getCollection('customer'));
+        [$row] = $this->findAll($migration->db->getCollection('customer'));
         $this->assertEquals('new name', $row['name']);
 
         $migration->save('customer', ['_id' => $id, 'name' => 'save']);
-        list($row) = $this->findAll($migration->db->getCollection('customer'));
+        [$row] = $this->findAll($migration->db->getCollection('customer'));
         $this->assertEquals('save', $row['name']);
 
         $rows = $migration->batchInsert('customer', [

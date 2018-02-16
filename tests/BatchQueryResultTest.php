@@ -1,12 +1,12 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use yii\mongodb\BatchQueryResult;
 use yii\mongodb\Query;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
-use yiiunit\extensions\mongodb\data\ar\Customer;
-use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
+use yiiunit\mongodb\data\ar\ActiveRecord;
+use yiiunit\mongodb\data\ar\Customer;
+use yiiunit\mongodb\data\ar\CustomerOrder;
 
 class BatchQueryResultTest extends TestCase
 {

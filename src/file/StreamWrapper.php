@@ -143,7 +143,7 @@ class StreamWrapper extends BaseObject
         if (isset($contextOptions[$this->_protocol]['download'])) {
             $download = $contextOptions[$this->_protocol]['download'];
             if (!$download instanceof Download) {
-                throw new InvalidConfigException('"download" context option should be an instance of "' . Download::className() . '"');
+                throw new InvalidConfigException('"download" context option should be an instance of "' . Download::class . '"');
             }
             $this->_download = $download;
             return true;
@@ -173,7 +173,7 @@ class StreamWrapper extends BaseObject
         if (isset($contextOptions[$this->_protocol]['upload'])) {
             $upload = $contextOptions[$this->_protocol]['upload'];
             if (!$upload instanceof Upload) {
-                throw new InvalidConfigException('"upload" context option should be an instance of "' . Upload::className() . '"');
+                throw new InvalidConfigException('"upload" context option should be an instance of "' . Upload::class . '"');
             }
             $this->_upload = $upload;
             return true;
@@ -196,7 +196,7 @@ class StreamWrapper extends BaseObject
         if (isset($contextOptions[$this->_protocol]['collection'])) {
             $collection = $contextOptions[$this->_protocol]['collection'];
             if ($collection instanceof Collection) {
-                throw new InvalidConfigException('"collection" context option should be an instance of "' . Collection::className() . '"');
+                throw new InvalidConfigException('"collection" context option should be an instance of "' . Collection::class . '"');
             }
 
             return $collection;
@@ -207,9 +207,9 @@ class StreamWrapper extends BaseObject
             : 'mongodb';
 
         /* @var $connection Connection */
-        $connection = Instance::ensure($connection, Connection::className());
+        $connection = Instance::ensure($connection, Connection::class);
 
-        list($databaseName, $collectionPrefix) = explode('.', $this->_namespace, 2);
+        [$databaseName, $collectionPrefix] = explode('.', $this->_namespace, 2);
         return $connection->getDatabase($databaseName)->getFileCollection($collectionPrefix);
     }
 

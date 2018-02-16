@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\data\ar;
+namespace yiiunit\mongodb\data\ar;
 
 /**
  * @property \MongoDB\BSON\ObjectID|string $_id
@@ -27,11 +27,11 @@ class CustomerOrder extends ActiveRecord
 
     public function getCustomer()
     {
-        return $this->hasOne(Customer::className(), ['_id' => 'customer_id']);
+        return $this->hasOne(Customer::class, ['_id' => 'customer_id']);
     }
 
     public function getItems()
     {
-        return $this->hasMany(Item::className(), ['_id' => 'item_ids']);
+        return $this->hasMany(Item::class, ['_id' => 'item_ids']);
     }
 }

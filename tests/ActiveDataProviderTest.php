@@ -1,12 +1,12 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
-use yiiunit\extensions\mongodb\data\ar\Customer;
+use yiiunit\mongodb\data\ar\ActiveRecord;
+use yiiunit\mongodb\data\ar\Customer;
 
 class ActiveDataProviderTest extends TestCase
 {

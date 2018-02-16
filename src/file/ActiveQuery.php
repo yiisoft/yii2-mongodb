@@ -83,7 +83,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             } elseif (is_array($this->via)) {
                 // via relation
                 /* @var $viaQuery ActiveQuery */
-                list($viaName, $viaQuery) = $this->via;
+                [$viaName, $viaQuery] = $this->via;
                 if ($viaQuery->multiple) {
                     $viaModels = $viaQuery->all();
                     $this->primaryModel->populateRelation($viaName, $viaModels);

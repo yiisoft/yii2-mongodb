@@ -18,7 +18,7 @@ php composer.phar require --prefer-dist yiisoft/yii2-mongodb
 or add
 
 ```
-"yiisoft/yii2-mongodb": "~2.1.0"
+"yiisoft/yii2-mongodb": "~2.2.0"
 ```
 
 to the require section of your composer.json.
@@ -32,7 +32,7 @@ return [
     //....
     'components' => [
         'mongodb' => [
-            'class' => '\yii\mongodb\Connection',
+            'class' => yii\mongodb\Connection::class,
             'dsn' => 'mongodb://developer:password@localhost:27017/mydatabase',
         ],
     ],

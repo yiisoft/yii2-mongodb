@@ -1,8 +1,8 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\data\ar;
+namespace yiiunit\mongodb\data\ar;
 
-use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
+use yiiunit\mongodb\data\ar\file\CustomerFile;
 
 /**
  * @property \MongoDB\BSON\ObjectID|string $_id
@@ -42,7 +42,7 @@ class Customer extends ActiveRecord
      */
     public function getOrders()
     {
-        return $this->hasMany(CustomerOrder::className(), ['customer_id' => '_id']);
+        return $this->hasMany(CustomerOrder::class, ['customer_id' => '_id']);
     }
 
     /**
@@ -50,7 +50,7 @@ class Customer extends ActiveRecord
      */
     public function getFile()
     {
-        return $this->hasOne(CustomerFile::className(), ['_id' => 'file_id']);
+        return $this->hasOne(CustomerFile::class, ['_id' => 'file_id']);
     }
 
     /**

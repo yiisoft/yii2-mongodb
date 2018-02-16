@@ -11,7 +11,7 @@ use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\UTCDatetime;
 use MongoDB\Driver\Exception\InvalidArgumentException;
-use yii\base\InvalidParamException;
+use yii\base\InvalidArgumentException;
 use yii\base\BaseObject;
 use yii\helpers\StringHelper;
 
@@ -180,7 +180,7 @@ class Upload extends BaseObject
 
         $stream = fopen($filename, 'r+');
         if ($stream === false) {
-            throw new InvalidParamException("Unable to read file '{$filename}'");
+            throw new InvalidArgumentException("Unable to read file '{$filename}'");
         }
         return $this->addStream($stream);
     }

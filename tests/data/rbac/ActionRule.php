@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\data\rbac;
+namespace yiiunit\mongodb\data\rbac;
 
 use yii\rbac\Rule;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\console\controllers;
+namespace yiiunit\mongodb\console\controllers;
 
 use yii\console\controllers\BaseMigrateController;
 use yii\helpers\FileHelper;
@@ -8,7 +8,7 @@ use yii\mongodb\Exception;
 use yii\mongodb\Migration;
 use yii\mongodb\Query;
 use Yii;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 /**
  * Unit test for [[\yii\mongodb\console\controllers\MigrateController]].
@@ -39,12 +39,12 @@ class MigrateControllerTest extends TestCase
 
     public function setUp()
     {
-        $this->migrateControllerClass = EchoMigrateController::className();
-        $this->migrationBaseClass = Migration::className();
+        $this->migrateControllerClass = EchoMigrateController::class;
+        $this->migrationBaseClass = Migration::class;
 
         parent::setUp();
 
-        $this->migrationNamespace = 'yiiunit\extensions\mongodb\runtime\test_migrations';
+        $this->migrationNamespace = 'yiiunit\mongodb\runtime\test_migrations';
 
         $this->setUpMigrationPath();
 

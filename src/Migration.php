@@ -55,7 +55,7 @@ abstract class Migration extends Component implements MigrationInterface
     public function init()
     {
         parent::init();
-        $this->db = Instance::ensure($this->db, Connection::className());
+        $this->db = Instance::ensure($this->db, Connection::class);
     }
 
     /**
@@ -66,7 +66,7 @@ abstract class Migration extends Component implements MigrationInterface
     public function createCollection($collection, $options = [])
     {
         if (is_array($collection)) {
-            list($database, $collectionName) = $collection;
+            [$database, $collectionName] = $collection;
         } else {
             $database = null;
             $collectionName = $collection;
@@ -235,7 +235,7 @@ abstract class Migration extends Component implements MigrationInterface
     protected function composeCollectionLogName($collection)
     {
         if (is_array($collection)) {
-            list($database, $collection) = $collection;
+            [$database, $collection] = $collection;
             return $database . '.' . $collection;
         }
         return $collection;

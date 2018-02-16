@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\data\ar\file;
+namespace yiiunit\mongodb\data\ar\file;
 
 use yii\mongodb\file\ActiveQuery;
 

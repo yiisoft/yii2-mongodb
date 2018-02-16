@@ -1,10 +1,10 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\log;
+namespace yiiunit\mongodb\log;
 
 use yii\log\Logger;
 use yii\mongodb\log\MongoDbTarget;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 class MongoDbTargetTest extends TestCase
 {

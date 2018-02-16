@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use yii\mongodb\Query;

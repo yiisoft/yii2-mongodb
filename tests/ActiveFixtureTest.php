@@ -1,12 +1,12 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use Yii;
 use yii\helpers\FileHelper;
 use yii\helpers\VarDumper;
 use yii\mongodb\ActiveFixture;
-use yiiunit\extensions\mongodb\data\ar\Customer;
+use yiiunit\mongodb\data\ar\Customer;
 
 class ActiveFixtureTest extends TestCase
 {
@@ -29,7 +29,7 @@ class ActiveFixtureTest extends TestCase
     public function testLoadCollection()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMockBuilder(ActiveFixture::className())
+        $fixture = $this->getMockBuilder(ActiveFixture::class)
             ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),
@@ -52,7 +52,7 @@ class ActiveFixtureTest extends TestCase
     public function testLoadClass()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMockBuilder(ActiveFixture::className())
+        $fixture = $this->getMockBuilder(ActiveFixture::class)
             ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),
@@ -80,7 +80,7 @@ class ActiveFixtureTest extends TestCase
     public function testLoadEmptyData()
     {
         /* @var $fixture ActiveFixture|\PHPUnit_Framework_MockObject_MockObject */
-        $fixture = $this->getMockBuilder(ActiveFixture::className())
+        $fixture = $this->getMockBuilder(ActiveFixture::class)
             ->setConstructorArgs([
                 [
                     'db' => $this->getConnection(),

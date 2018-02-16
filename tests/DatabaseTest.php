@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use yii\mongodb\Collection;
 use yii\mongodb\Command;

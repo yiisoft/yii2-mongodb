@@ -1,10 +1,10 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\mongodb\file;
 
-use yiiunit\extensions\mongodb\data\ar\Customer;
-use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\data\ar\Customer;
+use yiiunit\mongodb\data\ar\file\CustomerFile;
+use yiiunit\mongodb\TestCase;
 
 /**
  * @group file
@@ -14,8 +14,8 @@ class ActiveRelationTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        \yiiunit\extensions\mongodb\data\ar\ActiveRecord::$db = $this->getConnection();
-        \yiiunit\extensions\mongodb\data\ar\file\ActiveRecord::$db = $this->getConnection();
+        \yiiunit\mongodb\data\ar\ActiveRecord::$db = $this->getConnection();
+        \yiiunit\mongodb\data\ar\file\ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 

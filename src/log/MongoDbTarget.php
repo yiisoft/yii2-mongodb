@@ -46,7 +46,7 @@ class MongoDbTarget extends Target
     public function init()
     {
         parent::init();
-        $this->db = Instance::ensure($this->db, Connection::className());
+        $this->db = Instance::ensure($this->db, Connection::class);
     }
 
     /**
@@ -56,7 +56,7 @@ class MongoDbTarget extends Target
     {
         $rows = [];
         foreach ($this->messages as $message) {
-            list($text, $level, $category, $timestamp) = $message;
+            [$text, $level, $category, $timestamp] = $message;
             if (!is_string($text)) {
                 // exceptions may not be serializable if in the call stack somewhere is a Closure
                 if ($text instanceof \Throwable || $text instanceof \Exception) {

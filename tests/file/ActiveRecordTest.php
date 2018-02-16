@@ -1,14 +1,14 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
 use Yii;
 use yii\helpers\FileHelper;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 use yii\mongodb\file\ActiveQuery;
-use yiiunit\extensions\mongodb\data\ar\file\ActiveRecord;
-use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
+use yiiunit\mongodb\data\ar\file\ActiveRecord;
+use yiiunit\mongodb\data\ar\file\CustomerFile;
 
 /**
  * @group file

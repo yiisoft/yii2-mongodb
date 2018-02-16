@@ -74,7 +74,7 @@ class ExplainAction extends Action
             return false;
         }
 
-        list($databaseName, $collectionName) = explode('.', $queryInfo['ns'], 2);
+        [$databaseName, $collectionName] = explode('.', $queryInfo['ns'], 2);
         unset($queryInfo['ns']);
 
         if (!empty($queryInfo['filer'])) {

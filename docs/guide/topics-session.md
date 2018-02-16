@@ -10,7 +10,7 @@ return [
     'components' => [
         // ...
         'session' => [
-            'class' => 'yii\mongodb\Session',
+            'class' => yii\mongodb\Session::class,
         ],
     ]
 ];

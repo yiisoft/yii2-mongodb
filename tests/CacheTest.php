@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use Yii;
 use yii\mongodb\Cache;
@@ -25,7 +25,7 @@ class CacheTest extends TestCase
     protected function createCache()
     {
         return Yii::createObject([
-            'class' => Cache::className(),
+            'class' => Cache::class,
             'db' => $this->getConnection(),
             'cacheCollection' => static::$cacheCollection,
             'gcProbability' => 0,
@@ -106,7 +106,7 @@ class CacheTest extends TestCase
 
         $collection = $cache->db->getCollection($cache->cacheCollection);
 
-        list($row) = $this->findAll($collection);
+        [$row] = $this->findAll($collection);
         $collection->update(['_id' => $row['_id']], ['expire' => time() - 10]);
 
         $cache->gc(true);
@@ -127,7 +127,7 @@ class CacheTest extends TestCase
         $cache->set($key, $value);
 
         $collection = $cache->db->getCollection($cache->cacheCollection);
-        list($row) = $this->findAll($collection);
+        [$row] = $this->findAll($collection);
         $collection->update(['_id' => $row['_id']], ['expire' => time() - 10]);
 
         $this->assertEquals(false, $cache->get($key), 'Expired key value returned!');

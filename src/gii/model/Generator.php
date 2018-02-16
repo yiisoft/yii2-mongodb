@@ -66,7 +66,7 @@ class Generator extends \yii\gii\Generator
             [['collectionName'], 'validateCollectionName'],
             [['attributeList'], 'match', 'pattern' => '/^(\w+\,[ ]*)*([\w]+)$/', 'message' => 'Attributes should contain only word characters, and should be separated by coma.'],
             [['modelClass'], 'validateModelClass', 'skipOnEmpty' => false],
-            [['baseClass'], 'validateClass', 'params' => ['extends' => ActiveRecord::className()]],
+            [['baseClass'], 'validateClass', 'params' => ['extends' => ActiveRecord::class]],
             [['enableI18N'], 'boolean'],
             [['messageCategory'], 'validateMessageCategory', 'skipOnEmpty' => false],
         ]);

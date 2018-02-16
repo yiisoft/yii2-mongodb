@@ -1,11 +1,11 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\validators;
+namespace yiiunit\mongodb\validators;
 
 use MongoDB\BSON\ObjectID;
 use yii\base\Model;
 use yii\mongodb\validators\MongoIdValidator;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 class MongoIdValidatorTest extends TestCase
 {

@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\ObjectID;

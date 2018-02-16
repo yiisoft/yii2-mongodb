@@ -8,7 +8,7 @@
 namespace yii\mongodb\file;
 
 use Yii;
-use yii\base\InvalidParamException;
+use yii\base\InvalidArgumentException;
 use yii\db\StaleObjectException;
 use yii\web\UploadedFile;
 
@@ -51,7 +51,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
      */
     public static function find()
     {
-        return Yii::createObject(ActiveQuery::className(), [get_called_class()]);
+        return Yii::createObject(ActiveQuery::class, [get_called_class()]);
     }
 
     /**
@@ -217,7 +217,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
      * Extracts filename from given raw file value.
      * @param mixed $file raw file value.
      * @return string file name.
-     * @throws \yii\base\InvalidParamException on invalid file value.
+     * @throws \yii\base\InvalidArgumentException on invalid file value.
      */
     protected function extractFileName($file)
     {
@@ -227,10 +227,10 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
             if (file_exists($file)) {
                 return $file;
             }
-            throw new InvalidParamException("File '{$file}' does not exist.");
+            throw new InvalidArgumentException("File '{$file}' does not exist.");
         }
 
-        throw new InvalidParamException('Unsupported type of "file" attribute.');
+        throw new InvalidArgumentException('Unsupported type of "file" attribute.');
     }
 
     /**
@@ -248,7 +248,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
     /**
      * Returns the associated file content.
      * @return null|string file content.
-     * @throws \yii\base\InvalidParamException on invalid file attribute value.
+     * @throws \yii\base\InvalidArgumentException on invalid file attribute value.
      */
     public function getFileContent()
     {
@@ -268,17 +268,17 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
             if (file_exists($file)) {
                 return file_get_contents($file);
             }
-            throw new InvalidParamException("File '{$file}' does not exist.");
+            throw new InvalidArgumentException("File '{$file}' does not exist.");
         }
 
-        throw new InvalidParamException('Unsupported type of "file" attribute.');
+        throw new InvalidArgumentException('Unsupported type of "file" attribute.');
     }
 
     /**
      * Writes the the internal file content into the given filename.
      * @param string $filename full filename to be written.
      * @return bool whether the operation was successful.
-     * @throws \yii\base\InvalidParamException on invalid file attribute value.
+     * @throws \yii\base\InvalidArgumentException on invalid file attribute value.
      */
     public function writeFile($filename)
     {
@@ -288,7 +288,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
 
         if (empty($file)) {
-            throw new InvalidParamException('There is no file associated with this object.');
+            throw new InvalidArgumentException('There is no file associated with this object.');
         } elseif ($file instanceof Download) {
             return ($file->toFile($filename) == $file->getSize());
         } elseif ($file instanceof UploadedFile) {
@@ -297,10 +297,10 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
             if (file_exists($file)) {
                 return copy($file, $filename);
             }
-            throw new InvalidParamException("File '{$file}' does not exist.");
+            throw new InvalidArgumentException("File '{$file}' does not exist.");
         }
 
-        throw new InvalidParamException('Unsupported type of "file" attribute.');
+        throw new InvalidArgumentException('Unsupported type of "file" attribute.');
     }
 
     /**
@@ -308,7 +308,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
      * which deal with reading files. The contents of the file are pulled out of MongoDB on the fly,
      * so that the whole file does not have to be loaded into memory first.
      * @return resource file stream resource.
-     * @throws \yii\base\InvalidParamException on invalid file attribute value.
+     * @throws \yii\base\InvalidArgumentException on invalid file attribute value.
      */
     public function getFileResource()
     {
@@ -318,7 +318,7 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
         }
 
         if (empty($file)) {
-            throw new InvalidParamException('There is no file associated with this object.');
+            throw new InvalidArgumentException('There is no file associated with this object.');
         } elseif ($file instanceof Download) {
             return $file->getResource();
         } elseif ($file instanceof UploadedFile) {
@@ -327,9 +327,9 @@ abstract class ActiveRecord extends \yii\mongodb\ActiveRecord
             if (file_exists($file)) {
                 return fopen($file, 'r');
             }
-            throw new InvalidParamException("File '{$file}' does not exist.");
+            throw new InvalidArgumentException("File '{$file}' does not exist.");
         }
 
-        throw new InvalidParamException('Unsupported type of "file" attribute.');
+        throw new InvalidArgumentException('Unsupported type of "file" attribute.');
     }
 }

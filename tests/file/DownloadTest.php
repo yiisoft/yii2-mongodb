@@ -1,8 +1,8 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\mongodb\file;
 
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 /**
  * @group file

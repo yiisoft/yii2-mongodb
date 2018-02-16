@@ -1,11 +1,11 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
 use yii\mongodb\file\Cursor;
 use yii\mongodb\file\Download;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 /**
  * @group file

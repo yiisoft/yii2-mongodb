@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use yii\mongodb\Session;
 use Yii;
@@ -25,7 +25,7 @@ class SessionTest extends TestCase
     protected function createSession()
     {
         return Yii::createObject([
-            'class' => Session::className(),
+            'class' => Session::class,
             'db' => $this->getConnection(),
             'sessionCollection' => static::$sessionCollection,
         ]);
@@ -106,7 +106,7 @@ class SessionTest extends TestCase
         $this->assertEquals($dataSerialized, $sessionData, 'Unable to read session!');
 
         $collection = $session->db->getCollection($session->sessionCollection);
-        list($row) = $this->findAll($collection);
+        [$row] = $this->findAll($collection);
         $newRow = $row;
         $newRow['expire'] = time() - 1;
         unset($newRow['_id']);

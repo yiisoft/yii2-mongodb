@@ -1,6 +1,6 @@
 <?php
 
-namespace yiiunit\extensions\mongodb;
+namespace yiiunit\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\Cursor;
@@ -206,7 +206,7 @@ class CollectionTest extends TestCase
         $count = $collection->update(['_id' => $id], $newData);
         $this->assertEquals(1, $count);
 
-        list($row) = $this->findAll($collection);
+        [$row] = $this->findAll($collection);
         $this->assertEquals($newData['name'], $row['name']);
     }
 

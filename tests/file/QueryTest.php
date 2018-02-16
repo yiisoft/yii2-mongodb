@@ -1,10 +1,10 @@
 <?php
 
-namespace yiiunit\extensions\mongodb\file;
+namespace yiiunit\mongodb\file;
 
 use yii\mongodb\file\Download;
 use yii\mongodb\file\Query;
-use yiiunit\extensions\mongodb\TestCase;
+use yiiunit\mongodb\TestCase;
 
 /**
  * @group file
