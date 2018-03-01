@@ -11,10 +11,10 @@
     'bootstrap' => ['debug'],
     'modules' => [
         'debug' => [
-            'class' => 'yii\\debug\\Module',
+            '__class' => yii\debug\Module::class,
             'panels' => [
                 'mongodb' => [
-                    'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
+                    '__class' => yii\mongodb\debug\MongoDbPanel::class,
                     // 'db' => 'mongodb', // ID MongoDB компонента, по умолчанию `db`. Раскоментируйте и измените эту строку, если вы регистрируете компонент MongoDB с другим ID.
                 ],
             ],

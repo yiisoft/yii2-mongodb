@@ -57,7 +57,7 @@ use Yii;
  * [
  *      'components' => [
  *          'mongodb' => [
- *              'class' => '\yii\mongodb\Connection',
+ *              '__class' => yii\mongodb\Connection::class,
  *              'dsn' => 'mongodb://developer:password@localhost:27017/mydatabase',
  *          ],
  *      ],
@@ -282,7 +282,7 @@ class Connection extends Component
     protected function selectDatabase($name)
     {
         return Yii::createObject([
-            'class' => 'yii\mongodb\Database',
+            '__class' => Database::class,
             'name' => $name,
             'connection' => $this,
         ]);

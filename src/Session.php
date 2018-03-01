@@ -25,7 +25,7 @@ use yii\web\MultiFieldSession;
  *
  * ```php
  * 'session' => [
- *     'class' => 'yii\mongodb\Session',
+ *     '__class' => yii\mongodb\Session::class,
  *     // 'db' => 'mymongodb',
  *     // 'sessionCollection' => 'my_session',
  * ]

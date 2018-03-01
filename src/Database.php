@@ -77,7 +77,7 @@ class Database extends BaseObject
     protected function selectCollection($name)
     {
         return Yii::createObject([
-            'class' => 'yii\mongodb\Collection',
+            '__class' => Collection::class,
             'database' => $this,
             'name' => $name,
         ]);
@@ -91,7 +91,7 @@ class Database extends BaseObject
     protected function selectFileCollection($prefix)
     {
         return Yii::createObject([
-            'class' => 'yii\mongodb\file\Collection',
+            '__class' => file\Collection::class,
             'database' => $this,
             'prefix' => $prefix,
         ]);

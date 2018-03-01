@@ -10,7 +10,7 @@ return [
     'components' => [
         // ...
         'cache' => [
-            'class' => 'yii\mongodb\Cache',
+            '__class' => yii\mongodb\Cache::class,
         ],
     ]
 ];

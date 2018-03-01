@@ -12,7 +12,7 @@ return [
         'i18n' => [
             'translations' => [
                 '*' => [
-                    'class' => 'yii\mongodb\i18n\MongoDbMessageSource'
+                    '__class' => yii\mongodb\i18n\MongoDbMessageSource::class
                 ]
             ]
         ],

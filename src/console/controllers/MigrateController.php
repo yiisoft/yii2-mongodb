@@ -57,7 +57,7 @@ use yii\helpers\ArrayHelper;
  * return [
  *     'controllerMap' => [
  *         'mongodb-migrate' => [
- *             'class' => 'yii\mongodb\console\controllers\MigrateController',
+ *             '__class' => yii\mongodb\console\controllers\MigrateController::class,
  *             'migrationNamespaces' => [
  *                 'app\migrations',
  *                 'some\extension\migrations',

@@ -12,10 +12,10 @@ enabled, it is sufficient to just add the panels configuration):
     'bootstrap' => ['debug'],
     'modules' => [
         'debug' => [
-            'class' => 'yii\\debug\\Module',
+            '__class' => yii\debug\Module::class,
             'panels' => [
                 'mongodb' => [
-                    'class' => 'yii\\mongodb\\debug\\MongoDbPanel',
+                    '__class' => yii\mongodb\debug\MongoDbPanel::class,
                     // 'db' => 'mongodb', // MongoDB component ID, defaults to `db`. Uncomment and change this line, if you registered MongoDB component with a different ID.
                 ],
             ],

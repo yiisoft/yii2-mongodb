@@ -32,7 +32,7 @@ return [
     //....
     'components' => [
         'mongodb' => [
-            'class' => yii\mongodb\Connection::class,
+            '__class' => yii\mongodb\Connection::class,
             'dsn' => 'mongodb://developer:password@localhost:27017/mydatabase',
         ],
     ],
