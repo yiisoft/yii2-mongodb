@@ -217,6 +217,6 @@ class ActiveQuery extends Query implements ActiveQueryInterface
             }
         }
 
-        return $models;
+        return parent::populate($models);
     }
 }
