@@ -1,6 +1,12 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
+2.2.0 under development
+-----------------------
+
+- Chg: Required Yii framework version has been raised to '2.1.0' (klimov-paul)
+
+
 2.1.7 under development
 -----------------------
 
