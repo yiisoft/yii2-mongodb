@@ -145,11 +145,7 @@ class Session extends MultiFieldSession
                 ['upsert' => true]
             );
         } catch (\Exception $e) {
-            $exception = ErrorHandler::convertExceptionToString($e);
-            // its too late to use Yii logging here
-            error_log($exception);
-            echo $exception;
-
+            Yii::$app->errorHandler->handleException($e);
             return false;
         }
 

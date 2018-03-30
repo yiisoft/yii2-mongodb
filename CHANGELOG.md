@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #251: Fixed `yii\mongodb\ActiveQuery::indexBy()` does not apply while using Yii 2.0.14 (klimov-paul)
+- Enh: `yii\mongodb\Session` now relies on error handler to display errors (samdark) 
 
 
 2.1.6 February 13, 2018
