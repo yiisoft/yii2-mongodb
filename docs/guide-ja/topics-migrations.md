@@ -7,7 +7,7 @@ MongoDB はスキーマレスであり、欠落しているコレクションは
 MongoDB のマイグレーションは [[yii\mongodb\console\controllers\MigrateController]] によって管理されます。
 これは通常の [[\yii\console\controllers\MigrateController]] に類似したものです。
 
-このコマンドを有効にするためには、コンソールアプリケーションの構成を次のように修正しなければなりません。
+このコマンドを有効にするためには、コンソール・アプリケーションの構成を次のように修正しなければなりません。
 
 ```php
 return [

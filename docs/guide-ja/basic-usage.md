@@ -1,8 +1,25 @@
 基本的な使用方法
 ================
 
+一旦 MongoDB 接続インスタンスを取得すれば、[[yii\mongodb\Command]] を使って MongoDB のコマンドとクエリを実行することが出来ます。
+
+```php
+// コマンドを実行する
+$result = Yii::$app->mongodb->createCommand(['listIndexes' => 'some_collection'])->execute();
+
+// クエリ (find) を実行する
+$cursor = Yii::$app->mongodb->createCommand(['projection' => ['name' => true]])->query('some_collection');
+
+// バッチ (バルク) オペレーションを実行する
+Yii::$app->mongodb->createCommand()
+    ->addInsert(['name' => 'new'])
+    ->addUpdate(['name' => 'existing'], ['name' => 'updated'])
+    ->addDelete(['name' => 'old'])
+    ->executeBatch('customer');
+```
+
 接続のインスタンスを使用して、データベースとコレクションにアクセスすることが出来ます。
-ほとんどの MongoDB コマンドに [[\yii\mongodb\Collection]] によってアクセスすることが出来ます。
+ほとんどの MongoDB コマンドは [[\yii\mongodb\Collection]] によってアクセスすることが出来ます。
 
 ```php
 $collection = Yii::$app->mongodb->getCollection('customer');
@@ -23,7 +40,3 @@ $query->select(['name', 'status'])
 $rows = $query->all();
 ```
 
-このエクステンションは、ロギングとプロファイリングをサポートしています。
-ただし、ログメッセージは実行されたクエリの実際のテキストを含んでいません。
-ログメッセージは PHP Mongo 拡張のクラスから抽出することが出来る値から構成された、クエリテキストの「近似値」しか含んでいません。
-実際のクエリテキストを見るためには、そのための特別なツールを使用する必要があります。

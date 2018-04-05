@@ -15,15 +15,16 @@ Yii 2 MongoDB エクステンション
 * [MongoId の詳細](usage-mongoid.md)
 * [MongoDB のアクティブレコードを使用する](usage-ar.md)
 * [埋め込みドキュメントを扱う](usage-embedded-documents.md)
+* [Aggregation](usage-aggregation.md)
 * [GridFS を使用する](usage-gridfs.md)
 
 追加のトピック
 --------------
 
 * [ロギングとプロファイリング](topics-logging.md)
-* [キャッシュコンポーネントを使用する](topics-cache.md)
-* [セッションコンポーネントを使用する](topics-session.md)
-* [I18N メッセージソースを使用する](topics-i18n-message-source.md)
+* [キャッシュ・コンポーネントを使用する](topics-cache.md)
+* [セッション・コンポーネントを使用する](topics-session.md)
+* [I18N メッセージ・ソースを使用する](topics-i18n-message-source.md)
 * [Gii ジェネレータを使用する](topics-gii.md)
-* [MongoDB DebugPanel を使用する](topics-debug.md)
+* [MongoDB デバッグ・パネルを使用する](topics-debug.md)
 * [マイグレーションを使用する](topics-migrations.md)
