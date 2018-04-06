@@ -1,26 +1,26 @@
 Aggregation
 ===========
 
-このエクステンションは、対応するコマンドを [[\yii\mongodb\Command]] PHP メソッドにラップして、[MongoDB aggregation 機能](https://docs.mongodb.com/manual/aggregation/) のサポートを提供しています。
+このエクステンションは、対応するコマンドを [[\yii\mongodb\Command]] PHP メソッドにラップして、[MongoDB aggregation 機能](https://docs.mongodb.com/manual/aggregation/) に対するサポートを提供しています。
 
 
-Single Purpose Aggregation Operations
--------------------------------------
+単一目的の Aggregation 操作
+---------------------------
 
-The simplest MongoDB aggregation operations are `count` and `distinct`, which are available via [[\yii\mongodb\Command::count()]]
-and [[\yii\mongodb\Command::distinct()]] correspondingly. For example:
+最も単純な MongoDB の aggregation 操作は `count` と `distinct` です。これらは、それぞれ、[[\yii\mongodb\Command::count()]]
+と [[\yii\mongodb\Command::distinct()]] によって利用可能です。例えば、
 
 ```php
 $booksCount = Yii::$app->mongodb->createCommand()->count('books', ['category' => 'programming']);
 ```
 
-You may as well use [[\yii\mongodb\Collection::count()]] and [[\yii\mongodb\Collection::distinct()]] shortcut methods:
+[[\yii\mongodb\Collection::count()]] および [[\yii\mongodb\Collection::distinct()]] のショートカット・メソッドを使っても構いません。
 
 ```php
 $booksCount = Yii::$app->mongodb->getCollection('books')->count(['category' => 'programming']);
 ```
 
-Methods `count()` and `distinct()` are also available at [[\yii\mongodb\Query]] class:
+`count()` および `distinct()` のメソッドは、[[\yii\mongodb\Query]] クラスでも利用可能です。
 
 ```php
 $booksCount = (new Query())
@@ -30,11 +30,11 @@ $booksCount = (new Query())
 ```
 
 
-Pipeline
---------
+パイプライン
+------------
 
-[Aggregation Pipeline](https://docs.mongodb.com/manual/core/aggregation-pipeline/) can be executed via [[\yii\mongodb\Command::aggregate()]].
-The following example display how you can group books by `authorId` field:
+[Aggregation パイプライン](https://docs.mongodb.com/manual/core/aggregation-pipeline/) を [[\yii\mongodb\Command::aggregate()]] によって実行することが出来ます。
+次のサンプルは、`authorId` フィールドで本をグループ化する方法を示すものです。
 
 ```php
 $authors = Yii::$app->mongodb->createCommand()->aggregate('books', [
@@ -46,8 +46,8 @@ $authors = Yii::$app->mongodb->createCommand()->aggregate('books', [
 ]);
 ```
 
-You may as well use [[\yii\mongodb\Collection::aggregate()]] as shortcut.
-In the following example we are grouping books by both `authorId` and `category` fields:
+ショートカットとして [[\yii\mongodb\Collection::aggregate()]] を使うことも出来ます。
+次の例では、`authorId` と `category` のフィールドで本をグループ化しています。
 
 ```php
 $collection = Yii::$app->mongodb->getCollection('books');
@@ -61,9 +61,9 @@ $authors = $collection->aggregate([
 ]);
 ```
 
-Multiple pipelines can be specified for more sophisticated aggregation.
-In the following example we are grouping books by `authorId` field, sorting them by `createdAt` field descending
-and then we are limiting the result to 100 documents skipping first 300 records.
+さらに洗練された aggregation のために、複数のパイプラインを指定することが出来ます。
+次の例では、本を `authorId` フィールドでグループ化し、`createdAt` フィールドで降順にソートし、
+そして、最初の 300 レコードをスキップして、結果を 100 ドキュメントまでに限定しています。
 
 ```php
 $collection = Yii::$app->mongodb->getCollection('books');
@@ -90,20 +90,19 @@ $authors = $collection->aggregate([
 ]);
 ```
 
-Please refer to [MongoDB Aggregation Pipeline Docs](https://docs.mongodb.com/manual/core/aggregation-pipeline/) for detailed information
-about pipeline specifications.
+パイプラインの仕様についての詳細は [MongoDB Aggregation Pipeline Docs](https://docs.mongodb.com/manual/core/aggregation-pipeline/) を参照して下さい。
 
 
-## Aggregation via [[\yii\mongodb\Query]]
+## [[\yii\mongodb\Query]] による Aggregation
 
-Simple aggregations can be performed via following methods of the [[\yii\mongodb\Query]] class:
+単純な aggregation は [[\yii\mongodb\Query]] クラスの次のメソッドによって実行することが出来ます。
 
- - `sum()` - returns the sum of the specified column values.
- - `average()` - returns the average of the specified column values.
- - `min()` - returns the minimum of the specified column values.
- - `max()` - returns the maximum of the specified column values.
+ - `sum()` - 指定されたカラムの値の合計を返す。
+ - `average()` - 指定されたカラムの値の平均値を返す。
+ - `min()` - 指定されたカラムの値の最小値を返す。
+ - `max()` - 指定されたカラムの値の最大値を返す。
 
-In case of these methods invocation [[\yii\mongodb\Query::$where]] will be used for `$match` pipeline composition.
+これらのメソッドが呼び出されるときは [[\yii\mongodb\Query::$where]] がパイプライン組成時の `$match` として使用されます。
 
 ```php
 use yii\mongodb\Query;
@@ -115,10 +114,10 @@ $maxPrice = (new Query())
 ```
 
 
-Map Reduce
-----------
+マップ・リデュース
+------------------
 
-[Map Reduce](https://docs.mongodb.com/manual/core/map-reduce/) can be executed via [[\yii\mongodb\Command::mapReduce()]].
+[マップ・リデュース](https://docs.mongodb.com/manual/core/map-reduce/) は [[\yii\mongodb\Command::mapReduce()]] によって実行することが出来ます。
 
 ```php
 $result = Yii::$app->mongodb->createCommand()->mapReduce('books',
@@ -129,7 +128,7 @@ $result = Yii::$app->mongodb->createCommand()->mapReduce('books',
 );
 ```
 
-You may as well use [[\yii\mongodb\Collection::mapReduce()]] as shortcut.
+[[\yii\mongodb\Collection::mapReduce()]] をショートカットとして使うことも出来ます。
 
 ```php
 $result = Yii::$app->mongodb->getCollection('books')->mapReduce(
