@@ -90,7 +90,8 @@ $authors = $collection->aggregate([
 ]);
 ```
 
-パイプラインの仕様についての詳細は [MongoDB Aggregation Pipeline Docs](https://docs.mongodb.com/manual/core/aggregation-pipeline/) を参照して下さい。
+パイプラインの仕様についての詳細は [MongoDB Aggregation Pipeline Docs](https://docs.mongodb.com/manual/core/aggregation-pipeline/)
+を参照して下さい。
 
 
 ## [[\yii\mongodb\Query]] による Aggregation
