@@ -2,7 +2,8 @@ MongoDB のアクティブレコードを使用する
 ======================================
 
 このエクステンションは [[\yii\db\ActiveRecord]] と同様なアクティブレコードのソリューションを提供します。
-アクティブレコード・クラスを宣言するためには、[[\yii\mongodb\ActiveRecord]] から拡張して、`collectionName` と 'attributes' のメソッドを実装する必要があります。
+アクティブレコード・クラスを宣言するためには、[[\yii\mongodb\ActiveRecord]] から拡張して、
+`collectionName` と 'attributes' のメソッドを実装する必要があります。
 
 ```php
 use yii\mongodb\ActiveRecord;
@@ -27,7 +28,7 @@ class Customer extends ActiveRecord
 }
 ```
 
->Note|注意: コレクションのプライマリ・キーの名前 ('_id') は、常に属性の一つとしてセットアップしなければなりません。
+>Note: コレクションのプライマリ・キーの名前 ('_id') は、常に属性の一つとしてセットアップしなければなりません。
 
 [[\yii\mongodb\Query]] および [[\yii\mongodb\ActiveQuery]] によって [[\yii\data\ActiveDataProvider]] を使用することが出来ます。
 
