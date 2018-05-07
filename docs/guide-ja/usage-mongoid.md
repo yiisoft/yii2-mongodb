@@ -23,11 +23,13 @@ echo $this->createUrl(['item/update', 'id' => (string) $row['_id']]);
 ```
 
 MongoDB に保存されるユーザ・アイデンティティを実装する場合にも、同じ事があてはまります。
-認証プロセスが働くようにするためには、[[\yii\web\IdentityInterface::getId()]] を実装するときに [[\MongoDB\BSON\ObjectID]] クラスをスカラ値に型キャストしなければなりません。
+認証プロセスが働くようにするためには、[[\yii\web\IdentityInterface::getId()]] を実装するときに 
+[[\MongoDB\BSON\ObjectID]] クラスをスカラ値に型キャストしなければなりません。
 
 ## スカラ値からドキュメント ID を取得する
 
-検索条件を構築する際には、'_id' キーの値は、単純な文字列である場合でも、自動的に [[\MongoDB\BSON\ObjectID]] インスタンスにキャストされます。
+検索条件を構築する際には、'_id' キーの値は、単純な文字列である場合でも、
+自動的に [[\MongoDB\BSON\ObjectID]] インスタンスにキャストされます。
 従って、文字列で表された '_id' をあなたがキャストして戻す必要はありません。
 
 ```php
@@ -50,4 +52,5 @@ class ItemController extends Controller
 }
 ```
 
-ただし、[[\MongoDB\BSON\ObjectID]] を含む他のカラムがある場合は、型キャストが必要になるかもしれない可能性について、あなた自身が面倒を見なければなりません。
+ただし、[[\MongoDB\BSON\ObjectID]] を含む他のカラムがある場合は、型キャストが必要になるかもしれない可能性について、
+あなた自身が面倒を見なければなりません。
