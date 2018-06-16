@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/yii2-mongodb",
+    "name": "harrytang/yii2-mongodb",
     "description": "MongoDB extension for the Yii framework",
     "keywords": ["yii2", "mongo", "mongodb", "active-record", "gridfs"],
     "type": "yii2-extension",
@@ -18,7 +18,7 @@
         }
     ],
     "require": {
-        "yiisoft/yii2": "2.1.x-dev",
+        "yiisoft/yii2": "3.0.x-dev",
         "ext-mongodb": ">=1.0.0"
     },
     "repositories": [
