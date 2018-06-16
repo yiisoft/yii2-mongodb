@@ -1,5 +1,5 @@
 {
-    "name": "yiisoft/yii2-mongodb",
+    "name": "harrytang/yii2-mongodb",
     "description": "MongoDB extension for the Yii framework",
     "keywords": ["yii2", "mongo", "mongodb", "active-record", "gridfs"],
     "type": "yii2-extension",
