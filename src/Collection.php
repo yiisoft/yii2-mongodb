@@ -302,7 +302,7 @@ class Collection extends BaseObject
      * Update the existing database data, otherwise insert this data
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoId updated/new record id instance.
+     * @return \MongoDB\BSON\ObjectID updated/new record id instance.
      * @throws Exception on failure.
      */
     public function save($data, $options = [])
