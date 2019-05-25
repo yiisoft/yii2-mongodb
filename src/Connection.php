@@ -181,6 +181,10 @@ class Connection extends Component
      */
     private $_fileStreamWrapperRegistered = false;
 
+    /**
+     * @var \MongoDB\Driver\Session session
+     */
+    private $_session;
 
     /**
      * Sets default database name.
@@ -408,11 +412,17 @@ class Connection extends Component
      */
     public function createCommand($document = [], $databaseName = null)
     {
-        return new Command([
+        $command = new Command([
             'db' => $this,
             'databaseName' => $databaseName,
             'document' => $document,
         ]);
+
+        if ($this->_session) {
+            $command->setSession($this->_session);
+        }
+
+        return $command;
     }
 
     /**
@@ -431,5 +441,34 @@ class Connection extends Component
         }
 
         return $this->fileStreamProtocol;
+    }
+
+    /**
+     * @see Session::startTransaction()
+     */
+    public function startTransaction($options = [])
+    {
+        $this->_session = $this->manager->startSession();
+        $this->_session->startTransaction($options);
+    }
+
+    /**
+     * @see Session::abortTransaction()
+     */
+    public function abortTransaction()
+    {
+        $this->_session->abortTransaction();
+        $this->_session->endSession();
+        $this->_session = null;
+    }
+
+    /**
+     * @see Session::commitTransaction()
+     */
+    public function commitTransaction()
+    {
+        $this->_session->commitTransaction();
+        $this->_session->endSession();
+        $this->_session = null;
     }
 }
