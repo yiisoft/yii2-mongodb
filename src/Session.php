@@ -56,6 +56,11 @@ class Session extends MultiFieldSession
      */
     public $sessionCollection = 'session';
 
+    /**
+    * @var array Session fields to be written into session table columns
+    * @since 2.1.8
+    */
+    protected $fields = [];
 
     /**
      * Initializes the Session component.
@@ -139,11 +144,35 @@ class Session extends MultiFieldSession
         // exception must be caught in session write handler
         // http://us.php.net/manual/en/function.session-set-save-handler.php
         try {
+
+            // ensure backwards compatability, related to:
+            // https://github.com/yiisoft/yii2/pull/17188
+            // https://github.com/yiisoft/yii2/pull/17559
+            if ($this->writeCallback && !$this->fields) {
+                $this->fields = $this->composeFields();
+            }
+
+            // ensure data consistency
+            if (!isset($this->fields['data'])) {
+                $this->fields['data'] = $data;
+            } else {
+                $_SESSION = $this->fields['data'];
+            }
+
+            // ensure 'id' and 'expire' are never affected by [[writeCallback]]
+            $this->fields = array_merge($this->fields, [
+                'id' => $id,
+                'expire' => time() + $this->getTimeout(),
+            ]);
+
             $this->db->getCollection($this->sessionCollection)->update(
                 ['id' => $id],
-                $this->composeFields($id, $data),
+                $this->fields,
                 ['upsert' => true]
             );
+
+            $this->fields = [];
+
         } catch (\Exception $e) {
             Yii::$app->errorHandler->handleException($e);
             return false;
