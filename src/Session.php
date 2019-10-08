@@ -57,10 +57,11 @@ class Session extends MultiFieldSession
     public $sessionCollection = 'session';
 
     /**
-    * @var array Session fields to be written into session table columns
-    * @since 2.1.8
-    */
+     * @var array Session fields to be written into session table columns
+     * @since 2.1.8
+     */
     protected $fields = [];
+
 
     /**
      * Initializes the Session component.

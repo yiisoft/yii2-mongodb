@@ -1,8 +1,8 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.8 under development
------------------------
+2.1.8 October 08, 2019
+----------------------
 
 - Bug #285: Fix `sessionWrite` callback fields (related to https://github.com/yiisoft/yii2/issues/17559 and https://github.com/yiisoft/yii2/pull/17188) (lubosdz)
 
