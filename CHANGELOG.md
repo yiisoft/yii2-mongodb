@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.9 under development
+2.1.9 November 19, 2019
 -----------------------
 
 - Bug #286: Fix `Collection::dropAllIndexes()` error when no indexes were dropped (samdark)
