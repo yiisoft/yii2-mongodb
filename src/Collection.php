@@ -206,7 +206,7 @@ class Collection extends BaseObject
     public function dropAllIndexes()
     {
         $result = $this->database->createCommand()->dropIndexes($this->name, '*');
-        return $result['nIndexesWas'];
+        return isset($result['nIndexesWas']) ? $result['nIndexesWas'] : 0;
     }
 
     /**
