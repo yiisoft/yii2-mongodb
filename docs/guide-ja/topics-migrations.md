@@ -30,3 +30,26 @@ yii mongodb-migrate
 # 最後に適用されたマイグレーションを取り消す
 yii mongodb-migrate/down
 ```
+## 二つ以上の DB エンジンを使用するアプリケーションのための特殊な構成
+
+アプリケーションが複数のデータベースを使う場合の例です。
+
+- MySQL + MongoDB
+
+マイグレーション・コマンドを実行すると、同時に MySQL と MongoDB の両方のマイグレーション・ファイルが対象として扱われます。これは両者が既定では同じフォルダを共有するためです。
+
+**問題: MongoDB が MySQL のマイグレーション・ファイルを実行しようとし、MySQL が MongoDB のマイグレーション・ファイルを実行しようとする。**
+
+この問題を回避するためには、`migrations` フォルダの下に `mongodb` という新しいフォルダを作って、コンソール・アプリケーションを次のようにセットアップすることが出来ます。
+
+```php
+return [
+    // ...
+    'controllerMap' => [
+        'mongodb-migrate' => [
+          'class' => 'yii\mongodb\console\controllers\MigrateController',
+          'migrationPath' => '@app/migrations/mongodb',
+        ],
+    ],
+];
+```
