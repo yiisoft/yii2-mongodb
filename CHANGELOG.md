@@ -1,10 +1,22 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.8 under development
------------------------
+2.1.10 under development
+------------------------
 
 - no changes in this release.
+
+
+2.1.9 November 19, 2019
+-----------------------
+
+- Bug #286: Fix `Collection::dropAllIndexes()` error when no indexes were dropped (samdark)
+
+
+2.1.8 October 08, 2019
+----------------------
+
+- Bug #285: Fix `sessionWrite` callback fields (related to https://github.com/yiisoft/yii2/issues/17559 and https://github.com/yiisoft/yii2/pull/17188) (lubosdz)
 
 
 2.1.7 March 30, 2018

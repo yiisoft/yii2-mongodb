@@ -30,3 +30,26 @@ yii mongodb-migrate
 # reverts the last applied migration
 yii mongodb-migrate/down
 ```
+## Special configuration for an application that uses more than one DB engine
+
+In case your application uses multiple databases, example:  
+
+- MySQL + MongoDB
+
+If you run the migration commands, it will evaluate both MySQL and MongoDB migration files at the same time since both by default share the same folder.
+
+**Problem: MongoDB will try to run MySQL's migration files and the other way around.**
+
+In order to avoid that behavior, you can create a new folder called `mongodb` under your `migrations` folder, and then setup your console application like this:
+
+```php
+return [
+    // ...
+    'controllerMap' => [
+        'mongodb-migrate' => [
+          'class' => 'yii\mongodb\console\controllers\MigrateController',
+          'migrationPath' => '@app/migrations/mongodb',
+        ],
+    ],
+];
+```
