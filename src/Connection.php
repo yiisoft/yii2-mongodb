@@ -10,6 +10,9 @@ namespace yii\mongodb;
 use MongoDB\Driver\Manager;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use \MongoDB\Driver\ReadConcern;
+use \MongoDB\Driver\WriteConcern;
+use \MongoDB\Driver\ReadPreference;
 use Yii;
 
 /**
@@ -83,6 +86,26 @@ class Connection extends Component
      * @event Event an event that is triggered after a DB connection is established
      */
     const EVENT_AFTER_OPEN = 'afterOpen';
+    /**
+     * @event yii\base\Event an event that is triggered right before a mongo client session is started
+     */
+    const EVENT_START_SESSION = 'startSession';
+    /**
+     * @event yii\base\Event an event that is triggered right after a mongo client session is ended
+     */
+    const EVENT_END_SESSION = 'endSession';
+    /**
+     * @event yii\base\Event an event that is triggered right before a transaction is started
+     */
+    const EVENT_START_TRANSACTION = 'startTransaction';
+    /**
+     * @event yii\base\Event an event that is triggered right after a transaction is committed
+     */
+    const EVENT_COMMIT_TRANSACTION = 'commitTransaction';
+    /**
+     * @event yii\base\Event an event that is triggered right after a transaction is rolled back
+     */
+    const EVENT_ROLLBACK_TRANSACTION = 'rollbackTransaction';
 
     /**
      * @var string host:port
@@ -154,6 +177,8 @@ class Connection extends Component
      * @since 2.1
      */
     public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
+
+    public $globalExecOptions = [];
 
     /**
      * @var string name of the MongoDB database to use by default.
@@ -412,6 +437,7 @@ class Connection extends Component
             'db' => $this,
             'databaseName' => $databaseName,
             'document' => $document,
+            'globalExecOptions' => $this->globalExecOptions
         ]);
     }
 
@@ -431,5 +457,177 @@ class Connection extends Component
         }
 
         return $this->fileStreamProtocol;
+    }
+
+    /**
+     * set global execOptions for Command::execute() and Command::executeBatch() and Command::query()
+     * this options when set if internal $execOptions is not set.
+     * @param array $execOptions see docs of Command::execute() and Command::executeBatch() and Command::query()
+     * @return $this
+     */
+    public function execOptions($execOptions){
+        if(empty($execOptions))
+            $this->globalExecOptions = [];
+        else
+            $this->globalExecOptions = array_merge_recursive($this->globalExecOptions, $execOptions);
+        return $this;
+    }
+
+    /**
+    * preapare execOptions for some purpose
+    * @param array|object by reference
+    * convert string option to object
+    * ['readConcern' => 'snapshot'] > ['readConcern' => new \MongoDB\Driver\ReadConcern('snapshot')]
+    * ['writeConcern' => 'majority'] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority')]
+    * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
+    */
+    public static function prepareExecOptions(&$execOptions){
+
+        #convert readConcern option
+        if(array_key_exists('readConcern', $execOptions) && is_string($execOptions['readConcern']))
+            $execOptions['readConcern'] = new ReadConcern($execOptions['readConcern']);
+
+        #convert writeConcern option
+        if(array_key_exists('writeConcern', $execOptions)){
+            if(is_string($execOptions['writeConcern']))
+                $execOptions['writeConcern'] = new WriteConcern($execOptions['writeConcern']);
+            elseif(is_array($execOptions['writeConcern']))
+                $execOptions['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($execOptions['writeConcern']);
+        }
+
+        #conver readPreference option
+        if(array_key_exists('readPreference', $execOptions)){
+            if(is_string($execOptions['readPreference']))
+                $execOptions['readPreference'] = new ReadPreference($execOptions['readPreference']);
+            elseif(is_array($execOptions['readPreference']))
+                $execOptions['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($execOptions['readPreference']);
+        }
+        
+        #convert session option
+        if(array_key_exists('session',$execOptions))
+            $execOptions['session'] = $execOptions['session']->mongoSession;
+
+        #convert defaultTransactionOptions for MongoDB\Driver\Manager::startSession
+        if(
+            array_key_exists('defaultTransactionOptions',$execOptions) &&
+            array_key_exists('readConcern',$execOptions['defaultTransactionOptions']) &&
+            is_string($execOptions['defaultTransactionOptions']['readConcern'])
+        )
+            $execOptions['defaultTransactionOptions']['readConcern'] = new ReadConcern($execOptions['defaultTransactionOptions']['readConcern']);
+
+        if(array_key_exists('defaultTransactionOptions',$execOptions) && array_key_exists('writeConcern',$execOptions['defaultTransactionOptions'])){
+            if(is_string($execOptions['defaultTransactionOptions']['writeConcern']))
+                $execOptions['defaultTransactionOptions']['writeConcern'] = new WriteConcern($execOptions['defaultTransactionOptions']['writeConcern']);
+            else if(is_array($execOptions['defaultTransactionOptions']['writeConcern']))
+                $execOptions['defaultTransactionOptions']['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($execOptions['defaultTransactionOptions']['writeConcern']);
+        }
+
+        if(array_key_exists('defaultTransactionOptions',$execOptions) && array_key_exists('readPreference',$execOptions['defaultTransactionOptions'])){
+            if(is_string($execOptions['defaultTransactionOptions']['readPreference']))
+                $execOptions['defaultTransactionOptions']['readPreference'] = new ReadPreference($execOptions['defaultTransactionOptions']['readPreference']);
+            else if(is_array($execOptions['defaultTransactionOptions']['readPreference']))
+                $execOptions['defaultTransactionOptions']['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($execOptions['defaultTransactionOptions']['readPreference']);
+        }
+    }
+
+    /**
+     * start new session for current connection
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * return ClientSession
+    */
+    public function startSession($sessionOptions = []){
+        return ClientSession::start($this, $sessionOptions);
+    }
+
+    /**
+     * check if current connection is in session
+     * return bool
+    */
+    public function getInSession(){
+        return array_key_exists('session',$this->globalExecOptions);
+    }
+
+    /**
+     * return current session
+     * return ClientSession|null
+    */
+    public function getSession(){
+        return $this->getInSession() ? $this->globalExecOptions['session'] : null;
+    }
+
+    /**
+     * start transaction with three step :
+     * - start new session
+     * - start transaction of new session
+     * - set new session to current command
+     * @param array $transactionOptions see doc of Transaction::start()
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * return ClientSession
+    */
+    public function startTransaction($transactionOptions = [], $sessionOptions = []){
+        $newClientSession = $this->startSession($sessionOptions);
+        $newClientSession->getTransaction()->start($transactionOptions);
+        $this->withSession($newClientSession);
+        return $newClientSession;
+    }
+
+    /**
+    * commit transaction in current session
+    */
+    public function commitTransaction(){
+        if(!$this->getInSession())
+            throw new Exception('You can\'t commit transaction because current connection is\'t in a session.');
+        if(!$this->getSession()->getHasTransaction())
+            throw new Exception('You can\'t commit transaction because transaction not started in current session.');
+        $this->getSession()->transaction->commit();
+    }
+
+    /**
+    * commit transaction in current session
+    */
+    public function rollBackTransaction(){
+        if(!$this->getInSession())
+            throw new Exception('You can\'t roll back transaction because current connection is\'t in a session.');
+        if(!$this->getSession()->getHasTransaction())
+            throw new Exception('You can\'t roll back transaction because transaction not started in current session.');
+        $this->getSession()->transaction->rollBack();
+    }
+
+    /**
+     * change current session of command (or drop session)
+     * @param ClientSession|null $clientSession new instance of ClientSession for replace
+     * return $this
+    */
+    public function withSession($clientSession){
+        #drop session
+        if(empty($clientSession))
+            unset($this->globalExecOptions['session']);
+        else
+            $this->globalExecOptions['session'] = $clientSession;
+        return $this;
+    }
+
+    /**
+     * easy start and commit transaction
+     * @param callable $actions your block of code must be run after transaction started and before commit
+     * if $actions return false then transaction rolled back.
+     * @param array $transactionOptions see doc of Transaction::start()
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * return $this
+    */
+    public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
+        $newClientSession = $this->startTransaction($transactionOptions, $sessionOptions);
+        try {
+            $result = call_user_func($actions, $newClientSession);
+            if($newClientSession->getTransaction()->getIsActive())
+                if($result === false)
+                    $newClientSession->getTransaction()->rollBack();
+                else
+                    $newClientSession->getTransaction()->commit();
+        } catch (\Exception $e){
+            if($newClientSession->getTransaction()->getIsActive())
+                $newClientSession->getTransaction()->rollBack();
+            throw $e;
+        }
     }
 }

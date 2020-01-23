@@ -56,23 +56,25 @@ class Collection extends BaseObject
 
     /**
      * Drops this collection.
+     * @param array $execOptions -> goto Command::execute()
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
-    public function drop()
+    public function drop($execOptions = [])
     {
-        return $this->database->dropCollection($this->name);
+        return $this->database->dropCollection($this->name, $execOptions);
     }
 
     /**
      * Returns the list of defined indexes.
      * @return array list of indexes info.
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions -> goto Command::execute()
      * @since 2.1
      */
-    public function listIndexes($options = [])
+    public function listIndexes($options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->listIndexes($this->name, $options);
+        return $this->database->createCommand()->listIndexes($this->name, $options, $execOptions);
     }
 
     /**
@@ -107,23 +109,25 @@ class Collection extends BaseObject
      *
      * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
      * for the full list of options.
+     * @param array $execOptions -> goto Command::execute()
      * @return bool whether operation was successful.
      * @since 2.1
      */
-    public function createIndexes($indexes)
+    public function createIndexes($indexes, $execOptions = [])
     {
-        return $this->database->createCommand()->createIndexes($this->name, $indexes);
+        return $this->database->createCommand()->createIndexes($this->name, $indexes, $execOptions);
     }
 
     /**
      * Drops collection indexes by name.
      * @param string $indexes wildcard for name of the indexes to be dropped.
      * You can use `*` to drop all indexes.
+     * @param array $execOptions -> goto Command::execute()
      * @return int count of dropped indexes.
      */
-    public function dropIndexes($indexes)
+    public function dropIndexes($indexes, $execOptions = [])
     {
-        $result = $this->database->createCommand()->dropIndexes($this->name, $indexes);
+        $result = $this->database->createCommand()->dropIndexes($this->name, $indexes, $execOptions);
         return $result['nIndexesWas'];
     }
 
@@ -144,13 +148,14 @@ class Collection extends BaseObject
      * ```
      *
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions -> goto Command::execute()
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
-    public function createIndex($columns, $options = [])
+    public function createIndex($columns, $options = [], $execOptions = [])
     {
         $index = array_merge(['key' => $columns], $options);
-        return $this->database->createCommand()->createIndexes($this->name, [$index]);
+        return $this->database->createCommand()->createIndexes($this->name, [$index], $execOptions);
     }
 
     /**
@@ -171,17 +176,18 @@ class Collection extends BaseObject
      * ]
      * ```
      *
+     * @param array $execOptions -> goto Command::execute()
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
-    public function dropIndex($columns)
+    public function dropIndex($columns, $execOptions = [])
     {
         $existingIndexes = $this->listIndexes();
 
         $indexKey = $this->database->connection->getQueryBuilder()->buildSortFields($columns);
         foreach ($existingIndexes as $index) {
             if ($index['key'] == $indexKey) {
-                $this->database->createCommand()->dropIndexes($this->name, $index['name']);
+                $this->database->createCommand()->dropIndexes($this->name, $index['name'], $execOptions);
                 return true;
             }
         }
@@ -190,7 +196,7 @@ class Collection extends BaseObject
         $indexName = $this->database->connection->getQueryBuilder()->generateIndexName($indexKey);
         foreach ($existingIndexes as $index) {
             if ($index['name'] === $indexName) {
-                $this->database->createCommand()->dropIndexes($this->name, $index['name']);
+                $this->database->createCommand()->dropIndexes($this->name, $index['name'], $execOptions);
                 return true;
             }
         }
@@ -200,12 +206,13 @@ class Collection extends BaseObject
 
     /**
      * Drops all indexes for this collection.
+     * @param array $execOptions -> goto Command::execute()
      * @throws Exception on failure.
      * @return int count of dropped indexes.
      */
-    public function dropAllIndexes()
+    public function dropAllIndexes($execOptions = [])
     {
-        $result = $this->database->createCommand()->dropIndexes($this->name, '*');
+        $result = $this->database->createCommand()->dropIndexes($this->name, '*', $execOptions);
         return isset($result['nIndexesWas']) ? $result['nIndexesWas'] : 0;
     }
 
@@ -215,15 +222,16 @@ class Collection extends BaseObject
      * @param array $condition query condition
      * @param array $fields fields to be selected
      * @param array $options query options (available since 2.1).
+     * @param array $execOptions -> goto Command::executeQuery()
      * @return \MongoDB\Driver\Cursor cursor for the search results
      * @see Query
      */
-    public function find($condition = [], $fields = [], $options = [])
+    public function find($condition = [], $fields = [], $options = [], $execOptions = [])
     {
         if (!empty($fields)) {
             $options['projection'] = $fields;
         }
-        return $this->database->createCommand()->find($this->name, $condition, $options);
+        return $this->database->createCommand()->find($this->name, $condition, $options, $execOptions);
     }
 
     /**
@@ -231,12 +239,13 @@ class Collection extends BaseObject
      * @param array $condition query condition
      * @param array $fields fields to be selected
      * @param array $options query options (available since 2.1).
+     * @param array $execOptions -> goto Command::executeQuery()
      * @return array|null the single document. Null is returned if the query results in nothing.
      */
-    public function findOne($condition = [], $fields = [], $options = [])
+    public function findOne($condition = [], $fields = [], $options = [], $execOptions = [])
     {
         $options['limit'] = 1;
-        $cursor = $this->find($condition, $fields, $options);
+        $cursor = $this->find($condition, $fields, $options, $execOptions);
         $rows = $cursor->toArray();
         return empty($rows) ? null : current($rows);
     }
@@ -249,9 +258,9 @@ class Collection extends BaseObject
      * @return array|null the original document, or the modified document when $options['new'] is set.
      * @throws Exception on failure.
      */
-    public function findAndModify($condition, $update, $options = [])
+    public function findAndModify($condition, $update, $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->findAndModify($this->name, $condition, $update, $options);
+        return $this->database->createCommand()->findAndModify($this->name, $condition, $update, $options, $execOptions);
     }
 
     /**
@@ -259,23 +268,25 @@ class Collection extends BaseObject
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
      * @return \MongoDB\BSON\ObjectID new record ID instance.
+     * @param array $execOptions -> goto Command::executeBatch()
      * @throws Exception on failure.
      */
-    public function insert($data, $options = [])
+    public function insert($data, $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->insert($this->name, $data, $options);
+        return $this->database->createCommand()->insert($this->name, $data, $options, $execOptions);
     }
 
     /**
      * Inserts several new rows into collection.
      * @param array $rows array of arrays or objects to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions -> goto Command::executeBatch()
      * @return array inserted data, each row will have "_id" key assigned to it.
      * @throws Exception on failure.
      */
-    public function batchInsert($rows, $options = [])
+    public function batchInsert($rows, $options = [], $execOptions = [])
     {
-        $insertedIds = $this->database->createCommand()->batchInsert($this->name, $rows, $options);
+        $insertedIds = $this->database->createCommand()->batchInsert($this->name, $rows, $options, $execOptions);
         foreach ($rows as $key => $row) {
             $rows[$key]['_id'] = $insertedIds[$key];
         }
@@ -289,12 +300,13 @@ class Collection extends BaseObject
      * @param array $condition description of the objects to update.
      * @param array $newData the object with which to update the matching records.
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions -> goto Command::executeBatch()
      * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
-    public function update($condition, $newData, $options = [])
+    public function update($condition, $newData, $options = [], $execOptions = [])
     {
-        $writeResult = $this->database->createCommand()->update($this->name, $condition, $newData, $options);
+        $writeResult = $this->database->createCommand()->update($this->name, $condition, $newData, $options, $execOptions);
         return $writeResult->getModifiedCount() + $writeResult->getUpsertedCount();
     }
 
@@ -303,16 +315,17 @@ class Collection extends BaseObject
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
      * @return \MongoDB\BSON\ObjectID updated/new record id instance.
+     * @param array $execOptions -> goto Command::executeBatch()
      * @throws Exception on failure.
      */
-    public function save($data, $options = [])
+    public function save($data, $options = [], $execOptions = [])
     {
         if (empty($data['_id'])) {
-            return $this->insert($data, $options);
+            return $this->insert($data, $options, $execOptions);
         }
         $id = $data['_id'];
         unset($data['_id']);
-        $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true]);
+        $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true], $execOptions);
 
         return is_object($id) ? $id : new ObjectID($id);
     }
@@ -321,13 +334,14 @@ class Collection extends BaseObject
      * Removes data from the collection.
      * @param array $condition description of records to remove.
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions -> goto Command::executeBatch()
      * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
-    public function remove($condition = [], $options = [])
+    public function remove($condition = [], $options = [], $execOptions = [])
     {
         $options = array_merge(['limit' => 0], $options);
-        $writeResult = $this->database->createCommand()->delete($this->name, $condition, $options);
+        $writeResult = $this->database->createCommand()->delete($this->name, $condition, $options, $execOptions);
         return $writeResult->getDeletedCount();
     }
 
@@ -338,9 +352,9 @@ class Collection extends BaseObject
      * @return int records count.
      * @since 2.1
      */
-    public function count($condition = [], $options = [])
+    public function count($condition = [], $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->count($this->name, $condition, $options);
+        return $this->database->createCommand()->count($this->name, $condition, $options, $execOptions);
     }
 
     /**
@@ -351,9 +365,9 @@ class Collection extends BaseObject
      * @return array|bool array of distinct values, or "false" on failure.
      * @throws Exception on failure.
      */
-    public function distinct($column, $condition = [], $options = [])
+    public function distinct($column, $condition = [], $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->distinct($this->name, $column, $condition, $options);
+        return $this->database->createCommand()->distinct($this->name, $column, $condition, $options, $execOptions);
     }
 
     /**
@@ -365,9 +379,9 @@ class Collection extends BaseObject
      * @return array|\MongoDB\Driver\Cursor the result of the aggregation.
      * @throws Exception on failure.
      */
-    public function aggregate($pipelines, $options = [])
+    public function aggregate($pipelines, $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->aggregate($this->name, $pipelines, $options);
+        return $this->database->createCommand()->aggregate($this->name, $pipelines, $options, $execOptions);
     }
 
     /**
@@ -385,9 +399,9 @@ class Collection extends BaseObject
      * @return array the result of the aggregation.
      * @throws Exception on failure.
      */
-    public function group($keys, $initial, $reduce, $options = [])
+    public function group($keys, $initial, $reduce, $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->group($this->name, $keys, $initial, $reduce, $options);
+        return $this->database->createCommand()->group($this->name, $keys, $initial, $reduce, $options, $execOptions);
     }
 
     /**
@@ -429,8 +443,8 @@ class Collection extends BaseObject
      * @return string|array the map reduce output collection name or output results.
      * @throws Exception on failure.
      */
-    public function mapReduce($map, $reduce, $out, $condition = [], $options = [])
+    public function mapReduce($map, $reduce, $out, $condition = [], $options = [], $execOptions = [])
     {
-        return $this->database->createCommand()->mapReduce($this->name, $map, $reduce, $out, $condition, $options);
+        return $this->database->createCommand()->mapReduce($this->name, $map, $reduce, $out, $condition, $options, $execOptions);
     }
 }
