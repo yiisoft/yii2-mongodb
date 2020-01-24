@@ -101,13 +101,13 @@ class ClientSession extends \yii\base\BaseObject
     */
     public static function start($db, $sessionOptions = []){
         self::prepareOptions($sessionOptions);
-        Yii::trace('Starting mongodb session ...', __METHOD__);
+        Yii::debug('Starting mongodb session ...', __METHOD__);
         $db->trigger(Connection::EVENT_START_SESSION);
         $newSession = new self([
             'db' => $db,
             'mongoSession' => $db->manager->startSession($sessionOptions),
         ]);
-        Yii::trace('MongoDB session started.', __METHOD__);
+        Yii::debug('MongoDB session started.', __METHOD__);
         return $newSession;
     }
 

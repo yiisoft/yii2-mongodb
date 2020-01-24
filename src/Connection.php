@@ -371,7 +371,7 @@ class Connection extends Component
             }
             $token = 'Opening MongoDB connection: ' . $this->dsn;
             try {
-                Yii::trace($token, __METHOD__);
+                Yii::debug($token, __METHOD__);
                 Yii::beginProfile($token, __METHOD__);
                 $options = $this->options;
 
@@ -402,7 +402,7 @@ class Connection extends Component
     public function close()
     {
         if ($this->manager !== null) {
-            Yii::trace('Closing MongoDB connection: ' . $this->dsn, __METHOD__);
+            Yii::debug('Closing MongoDB connection: ' . $this->dsn, __METHOD__);
             $this->manager = null;
             foreach ($this->_databases as $database) {
                 $database->clearCollections();

@@ -53,12 +53,12 @@ class Transaction extends \yii\base\BaseObject
     */
     public function start($transactionOptions = []){
         Command::prepareCPOptions($transactionOptions);
-        yii::trace('Starting mongodb transaction ...', __METHOD__);
+        Yii::debug('Starting mongodb transaction ...', __METHOD__);
         if($this->clientSession->mongoSession->isInTransaction())
             throw new Exception('Nested transaction not supported');
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
         $this->clientSession->mongoSession->startTransaction($transactionOptions);
-        yii::trace('MongoDB transaction started.', __METHOD__);
+        Yii::debug('MongoDB transaction started.', __METHOD__);
     }
 
     /**
@@ -66,9 +66,9 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.committransaction.php
      */
     public function commit(){
-        yii::trace('Committing mongodb transaction ...', __METHOD__);
+        Yii::debug('Committing mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->commitTransaction();
-        yii::trace('Commit mongodb transaction.', __METHOD__);
+        Yii::debug('Commit mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
     }
 
@@ -77,9 +77,9 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.aborttransaction.php
      */
     public function rollBack(){
-        yii::trace('Rolling back mongodb transaction ...', __METHOD__);
+        Yii::debug('Rolling back mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->abortTransaction();
-        yii::trace('Roll back mongodb transaction.', __METHOD__);
+        Yii::debug('Roll back mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
     }
 }
