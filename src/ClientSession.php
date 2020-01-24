@@ -8,7 +8,9 @@
 namespace yii\mongodb;
 
 use Yii;
-
+use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\ReadPreference;
 
 /**
  * ClientSession represents a client session and Commands, queries, and write operations may then be associated the session.
@@ -40,6 +42,57 @@ class ClientSession extends \yii\base\BaseObject
     private $_transaction = null;
 
     /**
+    * preapare options for some purpose
+    * @param array by reference
+    * convert string option to object
+    * [
+    *   'defaultTransactionOptions' => [
+    *       'readConcern' => 'snapshot', 
+    *       'writeConcern' => 'majority',
+    *       'writeConcern' => ['majority',true],
+    *       'readPreference' => 'primary',
+    *   ],
+    * ]
+    * convert to :
+    * [
+    *   'defaultTransactionOptions' => [
+    *       'readConcern' => new \MongoDB\Driver\ReadConcern('snapshot'), 
+    *       'writeConcern' => new \MongoDB\Driver\WriteConcern('majority'),
+    *       'writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true),
+    *       'readPreference' => new \MongoDB\Driver\ReadPreference('primary'), 
+    *   ],
+    * ]
+    */
+    public static function prepareOptions(&$options){
+
+        if(array_key_exists('defaultTransactionOptions',$options)){
+
+            #convert readConcern
+            if(
+                array_key_exists('readConcern',$options['defaultTransactionOptions']) &&
+                is_string($options['defaultTransactionOptions']['readConcern'])
+            )
+                $options['defaultTransactionOptions']['readConcern'] = new ReadConcern($options['defaultTransactionOptions']['readConcern']);
+
+            #convert writeConcern
+            if(array_key_exists('writeConcern',$options['defaultTransactionOptions'])){
+                if(is_string($options['defaultTransactionOptions']['writeConcern']))
+                    $options['defaultTransactionOptions']['writeConcern'] = new WriteConcern($options['defaultTransactionOptions']['writeConcern']);
+                else if(is_array($options['defaultTransactionOptions']['writeConcern']))
+                    $options['defaultTransactionOptions']['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['defaultTransactionOptions']['writeConcern']);
+            }
+
+            #convert readPreference
+            if(array_key_exists('readPreference',$options['defaultTransactionOptions'])){
+                if(is_string($options['defaultTransactionOptions']['readPreference']))
+                    $options['defaultTransactionOptions']['readPreference'] = new ReadPreference($options['defaultTransactionOptions']['readPreference']);
+                else if(is_array($options['defaultTransactionOptions']['readPreference']))
+                    $options['defaultTransactionOptions']['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['defaultTransactionOptions']['readPreference']);
+            }
+        }
+    }
+
+    /**
      * Start a new session in a connection.
      * @param Connection $db 
      * @param Array $sessionOptions Creates a ClientSession for the given options
@@ -47,7 +100,7 @@ class ClientSession extends \yii\base\BaseObject
      * @return ClientSession return new session base on a session options for the given connection
     */
     public static function start($db, $sessionOptions = []){
-        Connection::prepareExecOptions($sessionOptions);
+        self::prepareOptions($sessionOptions);
         Yii::trace('Starting mongodb session ...', __METHOD__);
         $db->trigger(Connection::EVENT_START_SESSION);
         $newSession = new self([

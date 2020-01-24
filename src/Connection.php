@@ -10,9 +10,6 @@ namespace yii\mongodb;
 use MongoDB\Driver\Manager;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
-use \MongoDB\Driver\ReadConcern;
-use \MongoDB\Driver\WriteConcern;
-use \MongoDB\Driver\ReadPreference;
 use Yii;
 
 /**
@@ -474,63 +471,6 @@ class Connection extends Component
     }
 
     /**
-    * preapare execOptions for some purpose
-    * @param array|object by reference
-    * convert string option to object
-    * ['readConcern' => 'snapshot'] > ['readConcern' => new \MongoDB\Driver\ReadConcern('snapshot')]
-    * ['writeConcern' => 'majority'] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority')]
-    * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
-    */
-    public static function prepareExecOptions(&$execOptions){
-
-        #convert readConcern option
-        if(array_key_exists('readConcern', $execOptions) && is_string($execOptions['readConcern']))
-            $execOptions['readConcern'] = new ReadConcern($execOptions['readConcern']);
-
-        #convert writeConcern option
-        if(array_key_exists('writeConcern', $execOptions)){
-            if(is_string($execOptions['writeConcern']))
-                $execOptions['writeConcern'] = new WriteConcern($execOptions['writeConcern']);
-            elseif(is_array($execOptions['writeConcern']))
-                $execOptions['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($execOptions['writeConcern']);
-        }
-
-        #conver readPreference option
-        if(array_key_exists('readPreference', $execOptions)){
-            if(is_string($execOptions['readPreference']))
-                $execOptions['readPreference'] = new ReadPreference($execOptions['readPreference']);
-            elseif(is_array($execOptions['readPreference']))
-                $execOptions['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($execOptions['readPreference']);
-        }
-        
-        #convert session option
-        if(array_key_exists('session',$execOptions))
-            $execOptions['session'] = $execOptions['session']->mongoSession;
-
-        #convert defaultTransactionOptions for MongoDB\Driver\Manager::startSession
-        if(
-            array_key_exists('defaultTransactionOptions',$execOptions) &&
-            array_key_exists('readConcern',$execOptions['defaultTransactionOptions']) &&
-            is_string($execOptions['defaultTransactionOptions']['readConcern'])
-        )
-            $execOptions['defaultTransactionOptions']['readConcern'] = new ReadConcern($execOptions['defaultTransactionOptions']['readConcern']);
-
-        if(array_key_exists('defaultTransactionOptions',$execOptions) && array_key_exists('writeConcern',$execOptions['defaultTransactionOptions'])){
-            if(is_string($execOptions['defaultTransactionOptions']['writeConcern']))
-                $execOptions['defaultTransactionOptions']['writeConcern'] = new WriteConcern($execOptions['defaultTransactionOptions']['writeConcern']);
-            else if(is_array($execOptions['defaultTransactionOptions']['writeConcern']))
-                $execOptions['defaultTransactionOptions']['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($execOptions['defaultTransactionOptions']['writeConcern']);
-        }
-
-        if(array_key_exists('defaultTransactionOptions',$execOptions) && array_key_exists('readPreference',$execOptions['defaultTransactionOptions'])){
-            if(is_string($execOptions['defaultTransactionOptions']['readPreference']))
-                $execOptions['defaultTransactionOptions']['readPreference'] = new ReadPreference($execOptions['defaultTransactionOptions']['readPreference']);
-            else if(is_array($execOptions['defaultTransactionOptions']['readPreference']))
-                $execOptions['defaultTransactionOptions']['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($execOptions['defaultTransactionOptions']['readPreference']);
-        }
-    }
-
-    /**
      * start new session for current connection
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
@@ -559,7 +499,7 @@ class Connection extends Component
      * start transaction with three step :
      * - start new session
      * - start transaction of new session
-     * - set new session to current command
+     * - set new session to current connection
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
@@ -583,7 +523,7 @@ class Connection extends Component
     }
 
     /**
-    * commit transaction in current session
+    * rollback transaction in current session
     */
     public function rollBackTransaction(){
         if(!$this->getInSession())

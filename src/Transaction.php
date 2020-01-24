@@ -52,7 +52,7 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.starttransaction.php#refsect1-mongodb-driver-session.starttransaction-parameters
     */
     public function start($transactionOptions = []){
-        Connection::prepareExecOptions($transactionOptions);
+        Command::prepareCPOptions($transactionOptions);
         yii::trace('Starting mongodb transaction ...', __METHOD__);
         if($this->clientSession->mongoSession->isInTransaction())
             throw new Exception('Nested transaction not supported');

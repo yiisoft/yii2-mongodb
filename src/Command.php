@@ -11,6 +11,9 @@ use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\WriteResult;
+use MongoDB\Driver\ReadConcern;
+use MongoDB\Driver\WriteConcern;
+use MongoDB\Driver\ReadPreference;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\BaseObject;
@@ -78,7 +81,44 @@ class Command extends BaseObject
     */
     private function prepareExecOptions(&$execOptions){
         $execOptions = empty($execOptions) ? $this->globalExecOptions : $execOptions;
-        $this->db->prepareExecOptions($execOptions);
+
+        self::prepareCPOptions($execOptions);
+
+        #convert session option
+        if(array_key_exists('session',$execOptions) && $execOptions['session'] instanceof ClientSession)
+            $execOptions['session'] = $execOptions['session']->mongoSession;
+    }
+
+    /**
+    * preapare Concern and Preference options for easy use
+    * @param array|object by reference
+    * convert string option to object
+    * ['readConcern' => 'snapshot'] > ['readConcern' => new \MongoDB\Driver\ReadConcern('snapshot')]
+    * ['writeConcern' => 'majority'] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority')]
+    * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
+    * ['readPreference' => 'snapshot'] > ['readPreference' => new \MongoDB\Driver\ReadPreference('primary')]
+    */
+    public static function prepareCPOptions(&$options){
+
+        #convert readConcern option
+        if(array_key_exists('readConcern', $options) && is_string($options['readConcern']))
+            $options['readConcern'] = new ReadConcern($options['readConcern']);
+
+        #convert writeConcern option
+        if(array_key_exists('writeConcern', $options)){
+            if(is_string($options['writeConcern']))
+                $options['writeConcern'] = new WriteConcern($options['writeConcern']);
+            elseif(is_array($options['writeConcern']))
+                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);
+        }
+
+        #conver readPreference option
+        if(array_key_exists('readPreference', $options)){
+            if(is_string($options['readPreference']))
+                $options['readPreference'] = new ReadPreference($options['readPreference']);
+            elseif(is_array($options['readPreference']))
+                $options['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['readPreference']);
+        }
     }
 
     /**
