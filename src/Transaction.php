@@ -57,6 +57,8 @@ class Transaction extends \yii\base\BaseObject
         if($this->clientSession->mongoSession->isInTransaction())
             throw new Exception('Nested transaction not supported');
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
+        if($this->mongoSession->db->enableLogging)
+            Yii::beginProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
         $this->clientSession->mongoSession->startTransaction($transactionOptions);
         Yii::debug('MongoDB transaction started.', __METHOD__);
     }
@@ -68,6 +70,8 @@ class Transaction extends \yii\base\BaseObject
     public function commit(){
         Yii::debug('Committing mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->commitTransaction();
+        if($this->mongoSession->db->enableLogging)
+            Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
         Yii::debug('Commit mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
     }
@@ -79,6 +83,8 @@ class Transaction extends \yii\base\BaseObject
     public function rollBack(){
         Yii::debug('Rolling back mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->abortTransaction();
+        if($this->mongoSession->db->enableLogging)
+            Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
         Yii::debug('Roll back mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
     }

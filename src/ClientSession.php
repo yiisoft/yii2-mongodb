@@ -93,6 +93,15 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
+     * Returns the logical session ID as string for this session, which may be used to identify this session's operations on the server. 
+     * @see https://www.php.net/manual/en/mongodb-driver-session.getlogicalsessionid.php
+     * @return string
+    */
+    public function getId(){
+        return $this->mongoSession->getLogicalSessionId()->id->jsonSerialize()['$binary'];
+    }
+
+    /**
      * Start a new session in a connection.
      * @param Connection $db 
      * @param Array $sessionOptions Creates a ClientSession for the given options
