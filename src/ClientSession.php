@@ -139,6 +139,14 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
+     * Returns whether a multi-document transaction is in progress
+     * @return bool
+    */
+    public function getInTransaction(){
+        return $this->mongoSession->isInTransaction();
+    }
+
+    /**
      * End current session
     */
     public function end(){

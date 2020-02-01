@@ -40,7 +40,7 @@ class Transaction extends \yii\base\BaseObject
      * can [[commit()]] or [[rollBack()]].
      */
     public function getIsActive(){
-        return $this->clientSession->db->getIsActive() && $this->clientSession->GetHasTransaction();
+        return $this->clientSession->db->getIsActive() && $this->clientSession->getInTransaction();
     }
 
     /**
@@ -54,7 +54,7 @@ class Transaction extends \yii\base\BaseObject
     public function start($transactionOptions = []){
         Command::prepareCPOptions($transactionOptions);
         Yii::debug('Starting mongodb transaction ...', __METHOD__);
-        if($this->clientSession->GetHasTransaction())
+        if($this->clientSession->getInTransaction())
             throw new Exception('Nested transaction not supported');
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
         if($this->clientSession->db->enableLogging)
