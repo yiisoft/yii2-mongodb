@@ -124,11 +124,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
     protected function fetchData()
     {
         if ($this->_iterator === null) {
-            if (empty($this->query->orderBy)) {
-                // setting cursor batch size may setup implicit limit on the query with 'sort'
-                // @see https://jira.mongodb.org/browse/PHP-457
-                $this->query->addOptions(['batchSize' => $this->batchSize]);
-            }
+            $this->query->addOptions(['batchSize' => $this->batchSize]);
             $cursor = $this->query->buildCursor($this->db);
             $token = 'fetch cursor id = ' . $cursor->getId();
             Yii::info($token, __METHOD__);
