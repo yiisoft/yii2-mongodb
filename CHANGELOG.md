@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.10 under development
 ------------------------
 
-- no changes in this release.
+- Feature #294 : now , yii2 support mongodb transaction (ziaratban)
 
 
 2.1.9 November 19, 2019
