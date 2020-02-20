@@ -1,6 +1,12 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
+2.2.0 under development
+------------------------
+
+- Bug #297 : Fixed zero-index key problem in `ActiveQuery::Each()` (ziaratban)
+
+
 2.1.10 under development
 ------------------------
 
