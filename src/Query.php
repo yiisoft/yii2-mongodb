@@ -496,7 +496,11 @@ class Query extends Component implements QueryInterface
             return false;
         }
 
-        #better performance
+        /**
+         * better performance
+         * please read this article : Checking if a document exists – MongoDB slow findOne vs find
+         * https://blog.serverdensity.com/checking-if-a-document-exists-mongodb-slow-findone-vs-find/
+         */
         #save last options
         $tmpOrderBy = $this->orderBy;
         $tmpLimit = $this->limit;
