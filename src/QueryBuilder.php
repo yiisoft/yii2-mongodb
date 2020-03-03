@@ -247,8 +247,19 @@ class QueryBuilder extends BaseObject
             $options['query'] = $this->buildCondition($condition);
         }
 
+        /**
+         * structure of update changed after mongodb 4.2
+         * Must specify either the remove or the update field. Performs an update of the selected document.
+         *   If passed a document with update operator expressions, db.collection.findAndModify() performs the specified modification.
+         *   If passed a replacement document { <field1>: <value1>, ...}, the db.collection.findAndModify() performs a replacement.
+         *   Starting in MongoDB 4.2, if passed an aggregation pipeline [ <stage1>, <stage2>, ... ], db.collection.findAndModify() modifies the document per the pipeline.
+         *     The pipeline can consist of the following stages:
+         *      $addFields and its alias $set
+         *      $project and its alias $unset
+         *      $replaceRoot and its alias $replaceWith.
+        */
         if (!empty($update)) {
-            $options['update'] = $update;
+            $options['update'] = ['$set' => $update];
         }
 
         if (isset($options['fields'])) {
