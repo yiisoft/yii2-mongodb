@@ -208,8 +208,14 @@ abstract class ActiveRecord extends BaseActiveRecord
         if ($runValidation && !$this->validate($attributes)) {
             return false;
         }
-        $result = $this->insertInternal($attributes);
 
+        if(!$this->isTransactional(self::OP_INSERT))
+            return $this->insertInternal($attributes);
+
+        $result = null;
+        static::getDb()->transaction(function()use($attribute,&$result){
+            $result = $this->insertInternal($attributes);
+        });
         return $result;
     }
 
@@ -241,6 +247,75 @@ abstract class ActiveRecord extends BaseActiveRecord
         $this->afterSave(true, $changedAttributes);
 
         return true;
+    }
+
+    /**
+     * Saves the changes to this active record into the associated database table.
+     *
+     * This method performs the following steps in order:
+     *
+     * 1. call [[beforeValidate()]] when `$runValidation` is `true`. If [[beforeValidate()]]
+     *    returns `false`, the rest of the steps will be skipped;
+     * 2. call [[afterValidate()]] when `$runValidation` is `true`. If validation
+     *    failed, the rest of the steps will be skipped;
+     * 3. call [[beforeSave()]]. If [[beforeSave()]] returns `false`,
+     *    the rest of the steps will be skipped;
+     * 4. save the record into database. If this fails, it will skip the rest of the steps;
+     * 5. call [[afterSave()]];
+     *
+     * In the above step 1, 2, 3 and 5, events [[EVENT_BEFORE_VALIDATE]],
+     * [[EVENT_AFTER_VALIDATE]], [[EVENT_BEFORE_UPDATE]], and [[EVENT_AFTER_UPDATE]]
+     * will be raised by the corresponding methods.
+     *
+     * Only the [[dirtyAttributes|changed attribute values]] will be saved into database.
+     *
+     * For example, to update a customer record:
+     *
+     * ```php
+     * $customer = Customer::findOne($id);
+     * $customer->name = $name;
+     * $customer->email = $email;
+     * $customer->update();
+     * ```
+     *
+     * Note that it is possible the update does not affect any row in the table.
+     * In this case, this method will return 0. For this reason, you should use the following
+     * code to check if update() is successful or not:
+     *
+     * ```php
+     * if ($customer->update() !== false) {
+     *     // update successful
+     * } else {
+     *     // update failed
+     * }
+     * ```
+     *
+     * @param bool $runValidation whether to perform validation (calling [[validate()]])
+     * before saving the record. Defaults to `true`. If the validation fails, the record
+     * will not be saved to the database and this method will return `false`.
+     * @param array $attributeNames list of attributes that need to be saved. Defaults to `null`,
+     * meaning all attributes that are loaded from DB will be saved.
+     * @return int|false the number of rows affected, or false if validation fails
+     * or [[beforeSave()]] stops the updating process.
+     * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
+     * being updated is outdated.
+     * @throws \Exception|\Throwable in case update failed.
+     */
+    public function update($runValidation = true, $attributeNames = null)
+    {
+        if ($runValidation && !$this->validate($attributeNames)) {
+            Yii::info('Model not updated due to validation error.', __METHOD__);
+            return false;
+        }
+
+        if(!$this->isTransactional(self::OP_UPDATE))
+            return $this->updateInternal($attributeNames);
+
+        $result = null;
+        static::getDb()->transaction(function()use($attributeNames,&$result){
+            $result = $this->updateInternal($attributeNames);
+        });
+        return $result;
     }
 
     /**
@@ -308,12 +383,13 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     public function delete()
     {
-        $result = false;
-        if ($this->beforeDelete()) {
-            $result = $this->deleteInternal();
-            $this->afterDelete();
-        }
+        if(!$this->isTransactional(self::OP_DELETE))
+            return $this->deleteInternal();
 
+        $result = null;
+        static::getDb()->transaction(function()use(&$result){
+            $result = $this->deleteInternal();
+        });
         return $result;
     }
 
@@ -323,6 +399,8 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     protected function deleteInternal()
     {
+        if(!$this->beforeDelete())
+            return false;
         // we do not check the return value of deleteAll() because it's possible
         // the record is already deleted in the database and thus the method will return 0
         $condition = $this->getOldPrimaryKey(true);
@@ -335,6 +413,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             throw new StaleObjectException('The object being deleted is outdated.');
         }
         $this->setOldAttributes(null);
+        $this->afterDelete()
 
         return $result;
     }
