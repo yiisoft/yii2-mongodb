@@ -25,6 +25,25 @@ use yii\helpers\StringHelper;
  */
 abstract class ActiveRecord extends BaseActiveRecord
 {
+
+    private static $batchInsertCommand;
+    private static $batchInsertQueue = 0;
+    private static $batchInsertDocuments = [];
+    private static $batchInsertInit = false;
+    public  static $batchInsertSize = 500;
+
+    private static $batchUpdateCommand;
+    private static $batchUpdateQueue = 0;
+    private static $batchUpdateDocuments = [];
+    private static $batchUpdateInit = false;
+    public  static $batchUpdateSize = 500;
+
+    private static $batchDeleteCommand;
+    private static $batchDeleteQueue = 0;
+    private static $batchDeleteDocuments = [];
+    private static $batchDeleteInit = false;
+    public  static $batchDeleteSize = 500;
+
     /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
@@ -411,4 +430,126 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
         return ArrayHelper::toArray($object);
     }
+
+    public function batchSave():void{
+        if($this->getIsNewRecord())
+            return $this->batchInsert();
+        return $this->batchUpdate();
+    }
+
+    public static function hasBatchInsert(){
+        return self::$batchInsertQueue > 0;
+    }
+
+    private static function batchInsertInit():void{
+        if(self::$batchInsertInit)
+            return;
+        self::$batchInsertInit = true;
+        $db = static::getDb();
+        self::$batchInsertCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        register_shutdown_function(function(){
+            if(self::hasBatchInsert())
+                yii::warning(self::className().' : batch insert mode not completed!');
+        });
+    }
+
+    public function batchInsert():void{
+        self::batchInsertInit();
+        $values = $this->getDirtyAttributes($attributes);
+        if (empty($values)) {
+            $currentAttributes = $this->getAttributes();
+            foreach ($this->primaryKey() as $key) {
+                if (isset($currentAttributes[$key])) {
+                    $values[$key] = $currentAttributes[$key];
+                }
+            }
+        }
+        self::$batchInsertCommand->AddInsert($values);
+        self::$batchInsertQueue++;
+        if(self::$batchInsertQueue >= self::$batchInsertSize)
+            self::flushBatchInsert();
+    }
+
+    public static function flushBatchInsert(){
+        if(self::$batchInsertQueue === 0)
+            return;
+        self::$batchInsertQueue = 0;
+        $result = self::$batchInsertCommand->executeBatch(self::collectionName());
+        self::$batchInsertCommand->document = [];
+        return $result;
+    }
+
+    public static function hasBatchUpdate(){
+        return self::$batchUpdateQueue > 0;
+    }
+
+    private static function batchUpdateInit():void{
+        if(self::$batchUpdateInit)
+            return;
+        self::$batchUpdateInit = true;
+        $db = static::getDb();
+        self::$batchUpdateCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        register_shutdown_function(function(){
+            if(self::hasBatchUpdate())
+                yii::warning(self::className().' : batch update mode not completed!');
+        });
+    }
+
+    public function batchUpdate():void{
+        self::batchUpdateInit();
+        $values = $this->getDirtyAttributes($attributes);
+        if (empty($values)) {
+            $this->afterSave(false, $values);
+            return 0;
+        }
+        $condition = $this->getOldPrimaryKey(true);
+        self::$batchUpdateCommand->AddUpdate($condition, $values);
+        self::$batchUpdateQueue++;
+        if(self::$batchUpdateQueue >= self::$batchUpdateSize)
+            self::flushBatchUpdate();
+    }
+
+    public static function flushBatchUpdate(){
+        if(self::$batchUpdateQueue === 0)
+            return;
+        self::$batchUpdateQueue = 0;
+        $result = self::$batchUpdateCommand->executeBatch(self::collectionName());
+        self::$batchUpdateCommand->document = [];
+        return $result;
+    }
+
+    public static function hasBatchDelete(){
+        return self::$batchDeleteQueue > 0;
+    }
+
+    private static function batchDeleteInit():void{
+        if(self::$batchDeleteInit)
+            return;
+        self::$batchDeleteInit = true;
+        $db = static::getDb();
+        self::$batchDeleteCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        register_shutdown_function(function(){
+            if(self::hasBatchDelete())
+                yii::warning(self::className().' : batch update mode not completed!');
+        });
+    }
+
+    public function batchDelete():void{
+        self::batchDeleteInit();
+        $condition = $this->getOldPrimaryKey(true);
+        self::$batchDeleteCommand->AddDelete($condition);
+        self::$batchDeleteQueue++;
+        if(self::$batchDeleteQueue >= self::$batchDeleteSize)
+            self::flushBatchDelete();
+    }
+
+    public static function flushBatchDelete(){
+        if(self::$batchDeleteQueue === 0)
+            return;
+        self::$batchDeleteQueue = 0;
+        $result = self::$batchDeleteCommand->executeBatch(self::collectionName());
+        self::$batchDeleteCommand->document = [];
+        return $result;
+    }
+
 }
