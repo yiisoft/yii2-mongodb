@@ -27,6 +27,12 @@ use yii\helpers\StringHelper;
 abstract class ActiveRecord extends BaseActiveRecord
 {
     /**
+     * @var string default lock field name in LockDocument() method
+     * this property can be define by end user
+    */
+    public static $lockField = '_lock';
+
+    /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
      * You may override this method if you want to use a different database connection.
@@ -507,7 +513,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         return
             self::find()
                 ->where(['_id' => $id])
-            ->modify(['_lock' => new ObjectId], $options, $db)
+            ->modify(['$set' => [static::$lockField => new ObjectId]], $options, $db)
         ;
     }
 }
