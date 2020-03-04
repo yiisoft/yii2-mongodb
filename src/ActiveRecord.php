@@ -431,28 +431,40 @@ abstract class ActiveRecord extends BaseActiveRecord
         return ArrayHelper::toArray($object);
     }
 
-    public function batchSave():void{
+    /**
+     * invoke batchInsert() or batchUpdate() base on getIsNewRecord()
+    */
+    public function batchSave(){
         if($this->getIsNewRecord())
             return $this->batchInsert();
         return $this->batchUpdate();
     }
 
+    /**
+     * checking if current ActiveRecord class has documents in queue for insert
+     * @return bool
+    */
     public static function hasBatchInsert(){
         return self::$batchInsertQueue > 0;
     }
 
-    private static function batchInsertInit():void{
+    /**
+     * this method is invoked in first call of batchInsert() method for once
+    */
+    private static function batchInsertInit(){
         if(self::$batchInsertInit)
             return;
         self::$batchInsertInit = true;
-        $db = static::getDb();
-        self::$batchInsertCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        self::$batchInsertCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchInsert())
                 yii::warning(self::className().' : batch insert mode not completed!');
         });
     }
 
+    /**
+     * adding insert operation to queue base on current instance data
+    */
     public function batchInsert():void{
         self::batchInsertInit();
         $values = $this->getDirtyAttributes($attributes);
@@ -470,6 +482,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             self::flushBatchInsert();
     }
 
+    /**
+     * execute batch insert operations in queue and reset anything
+     * this method is not continue when not exists any insert operations in queue
+     * @return see docs of Command::executeBatch()
+    */
     public static function flushBatchInsert(){
         if(self::$batchInsertQueue === 0)
             return;
@@ -479,23 +496,32 @@ abstract class ActiveRecord extends BaseActiveRecord
         return $result;
     }
 
+    /**
+     * checking if current ActiveRecord class has documents in queue for update
+     * @return bool
+    */
     public static function hasBatchUpdate(){
         return self::$batchUpdateQueue > 0;
     }
 
-    private static function batchUpdateInit():void{
+    /**
+     * this method is invoked in first call of batchUpdate() method for once
+    */
+    private static function batchUpdateInit(){
         if(self::$batchUpdateInit)
             return;
         self::$batchUpdateInit = true;
-        $db = static::getDb();
-        self::$batchUpdateCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        self::$batchUpdateCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchUpdate())
                 yii::warning(self::className().' : batch update mode not completed!');
         });
     }
 
-    public function batchUpdate():void{
+    /**
+     * adding update operation to queue base on current instance data
+    */
+    public function batchUpdate(){
         self::batchUpdateInit();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values))
@@ -507,6 +533,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             self::flushBatchUpdate();
     }
 
+    /**
+     * execute batch update operations in queue and reset anything
+     * this method is not continue when not exists any update operations in queue
+     * @return see docs of Command::executeBatch()
+    */
     public static function flushBatchUpdate(){
         if(self::$batchUpdateQueue === 0)
             return;
@@ -516,22 +547,31 @@ abstract class ActiveRecord extends BaseActiveRecord
         return $result;
     }
 
+    /**
+     * checking if current ActiveRecord class has documents in queue for delete
+     * @return bool
+    */
     public static function hasBatchDelete(){
         return self::$batchDeleteQueue > 0;
     }
 
-    private static function batchDeleteInit():void{
+    /**
+     * this method is invoked in first call of batchDelete() method for once
+    */
+    private static function batchDeleteInit(){
         if(self::$batchDeleteInit)
             return;
         self::$batchDeleteInit = true;
-        $db = static::getDb();
-        self::$batchDeleteCommand = ($db ? $db : yii::$app->mongodb)->createCommand();
+        self::$batchDeleteCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchDelete())
-                yii::warning(self::className().' : batch update mode not completed!');
+                yii::warning(self::className().' : batch delete mode not completed!');
         });
     }
 
+    /**
+     * adding delete operation to queue base on current instance data
+    */
     public function batchDelete():void{
         self::batchDeleteInit();
         self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
@@ -540,6 +580,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             self::flushBatchDelete();
     }
 
+    /**
+     * execute batch delete operations in queue and reset anything
+     * this method is not continue when not exists any delete operations in queue
+     * @return see docs of Command::executeBatch()
+    */
     public static function flushBatchDelete(){
         if(self::$batchDeleteQueue === 0)
             return;
@@ -548,5 +593,4 @@ abstract class ActiveRecord extends BaseActiveRecord
         self::$batchDeleteCommand->document = [];
         return $result;
     }
-
 }
