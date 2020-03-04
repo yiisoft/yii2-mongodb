@@ -9,6 +9,7 @@ namespace yii\mongodb;
 
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\Type;
+use MongoDB\BSON\ObjectId;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\BaseActiveRecord;
@@ -489,5 +490,24 @@ abstract class ActiveRecord extends BaseActiveRecord
             return $object->__toString();
         }
         return ArrayHelper::toArray($object);
+    }
+
+    /**
+     * Lock a document in a transaction(like `select for update` feature in mysql)
+     * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
+     * @param mixed $id a document id(primary key > _id)
+     * @param array $options list of options in format: optionName => optionValue.
+     * @param Connection $db the Mongo connection used to execute the query.
+     * @return ActiveRecord|array|null the original document, or the modified document when $options['new'] is set.
+     * Depending on the setting of [[asArray]], the query result may be either an array or an ActiveRecord object.
+     * Null will be returned if the query results in nothing.
+    */
+    public static function LockDocument($id, $options = [], $db = null){
+        ($db ? $db : static::getDb())->transactionReady('lock document');
+        return
+            self::find()
+                ->where(['_id' => $id])
+            ->modify(['_lock' => new ObjectId], $options, $db)
+        ;
     }
 }

@@ -488,6 +488,25 @@ class Connection extends Component
     }
 
     /**
+     * check if current connection is in session and transaction
+     * return bool
+    */
+    public function getInTransaction(){
+        return $this->getInSession() && $this->getSession()->getHasTransaction();
+    }
+
+    /**
+     * throw custome error if transaction is not ready in connection 
+     * @param string $operation a custom message to be shown
+    */
+    public function transactionReady($operation){
+        if(!$this->getInSession())
+            throw new Exception('You can\'t '.$operation.' because current connection is\'t in a session.');
+        if(!$this->getSession()->getHasTransaction())
+            throw new Exception('You can\'t '.$operation.' because transaction not started in current session.');
+    }
+
+    /**
      * return current session
      * return ClientSession|null
     */
@@ -515,10 +534,7 @@ class Connection extends Component
     * commit transaction in current session
     */
     public function commitTransaction(){
-        if(!$this->getInSession())
-            throw new Exception('You can\'t commit transaction because current connection is\'t in a session.');
-        if(!$this->getSession()->getHasTransaction())
-            throw new Exception('You can\'t commit transaction because transaction not started in current session.');
+        $this->transactionReady('commit transaction');
         $this->getSession()->transaction->commit();
     }
 
@@ -526,10 +542,7 @@ class Connection extends Component
     * rollback transaction in current session
     */
     public function rollBackTransaction(){
-        if(!$this->getInSession())
-            throw new Exception('You can\'t roll back transaction because current connection is\'t in a session.');
-        if(!$this->getSession()->getHasTransaction())
-            throw new Exception('You can\'t roll back transaction because transaction not started in current session.');
+        $this->transactionReady('roll back transaction');
         $this->getSession()->transaction->rollBack();
     }
 
