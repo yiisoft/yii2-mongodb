@@ -498,10 +498,8 @@ abstract class ActiveRecord extends BaseActiveRecord
     public function batchUpdate():void{
         self::batchUpdateInit();
         $values = $this->getDirtyAttributes($attributes);
-        if (empty($values)) {
-            $this->afterSave(false, $values);
-            return 0;
-        }
+        if (empty($values))
+           return;
         $condition = $this->getOldPrimaryKey(true);
         self::$batchUpdateCommand->AddUpdate($condition, $values);
         self::$batchUpdateQueue++;
@@ -536,8 +534,7 @@ abstract class ActiveRecord extends BaseActiveRecord
 
     public function batchDelete():void{
         self::batchDeleteInit();
-        $condition = $this->getOldPrimaryKey(true);
-        self::$batchDeleteCommand->AddDelete($condition);
+        self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
         self::$batchDeleteQueue++;
         if(self::$batchDeleteQueue >= self::$batchDeleteSize)
             self::flushBatchDelete();
