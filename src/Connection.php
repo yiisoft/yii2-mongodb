@@ -568,6 +568,10 @@ class Connection extends Component
             if($newClientSession->getTransaction()->getIsActive())
                 $newClientSession->getTransaction()->rollBack();
             throw $e;
+        } catch (\Throwable $e) {
+            if($newClientSession->getTransaction()->getIsActive())
+                $newClientSession->getTransaction()->rollBack();
+            throw $e;
         }
     }
 }
