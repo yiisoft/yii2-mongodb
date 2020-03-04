@@ -465,7 +465,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     /**
      * adding insert operation to queue base on current instance data
     */
-    public function batchInsert():void{
+    public function batchInsert(){
         self::batchInsertInit();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
