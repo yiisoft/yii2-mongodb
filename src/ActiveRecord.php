@@ -572,7 +572,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     /**
      * adding delete operation to queue base on current instance data
     */
-    public function batchDelete():void{
+    public function batchDelete(){
         self::batchDeleteInit();
         self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
         self::$batchDeleteQueue++;
