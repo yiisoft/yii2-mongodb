@@ -26,22 +26,67 @@ use yii\helpers\StringHelper;
 abstract class ActiveRecord extends BaseActiveRecord
 {
 
+    /*
+     * @var Command instance of Command class for batch insert.
+    */
     private static $batchInsertCommand;
+    /*
+     * @var integer count of insert operation in queue
+    */
     private static $batchInsertQueue = 0;
+    /*
+     * @var array array of document for insert
+    */
     private static $batchInsertDocuments = [];
+    /*
+     * @var boolean a boolean flag for detect first initialize
+    */
     private static $batchInsertInit = false;
+    /*
+     * @var int size of batch for insert operations
+    */
     public  static $batchInsertSize = 500;
 
+    /*
+     * @var Command instance of Command class for batch update.
+    */
     private static $batchUpdateCommand;
+    /*
+     * @var integer count of update operation in queue
+    */
     private static $batchUpdateQueue = 0;
+    /*
+     * @var array array of document for update
+    */
     private static $batchUpdateDocuments = [];
+    /*
+     * @var boolean a boolean flag for detect first initialize
+    */
     private static $batchUpdateInit = false;
+    /*
+     * @var int size of batch for update operations
+    */
     public  static $batchUpdateSize = 500;
 
+    /*
+     * @var Command instance of Command class for batch delete.
+    */
     private static $batchDeleteCommand;
+    /*
+     * @var integer count of delete operation in queue
+    */
     private static $batchDeleteQueue = 0;
+    /*
+     * @var array array of document for delete
+    */
     private static $batchDeleteDocuments = [];
+    /*
+     * @var boolean a boolean flag for detect first initialize
+    */
     private static $batchDeleteInit = false;
+    /*
+     * @var int size of batch for delete operations
+    */
     public  static $batchDeleteSize = 500;
 
     /**
