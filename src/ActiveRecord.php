@@ -420,7 +420,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             throw new StaleObjectException('The object being deleted is outdated.');
         }
         $this->setOldAttributes(null);
-        $this->afterDelete()
+        $this->afterDelete();
 
         return $result;
     }
