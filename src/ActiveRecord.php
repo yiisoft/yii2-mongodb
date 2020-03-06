@@ -411,4 +411,15 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
         return ArrayHelper::toArray($object);
     }
+
+    /**
+     * using ActiveQuery::exists() method in friendly mode
+     * @param reference $object if passed then object returned based on conditions , else only checked existence in database
+     * @return bool return true if $conditions exists in database
+     */
+    public static function exists($conditions, &$object = null):bool{
+        if(func_num_args() === 2)
+            return ($object = self::findOne($conditions)) ? true : false;
+        return self::find()->where($conditions)->exists();
+    }
 }
