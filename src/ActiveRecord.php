@@ -509,8 +509,10 @@ abstract class ActiveRecord extends BaseActiveRecord
 
     /**
      * adding insert operation to queue base on current instance data
+     * @param array $attributes list of attributes that need to be inserted. Defaults to null,
+     * meaning all attributes that are loaded will be inserted.
     */
-    public function batchInsert(){
+    public function batchInsert($attributes = null){
         self::batchInsertInit();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values)) {
@@ -565,8 +567,10 @@ abstract class ActiveRecord extends BaseActiveRecord
 
     /**
      * adding update operation to queue base on current instance data
+     * @param array $attributes list of attribute names that need to be updated. Defaults to null,
+     * meaning all attributes that are loaded from DB will be updated.
     */
-    public function batchUpdate(){
+    public function batchUpdate($attributes = null){
         self::batchUpdateInit();
         $values = $this->getDirtyAttributes($attributes);
         if (empty($values))
