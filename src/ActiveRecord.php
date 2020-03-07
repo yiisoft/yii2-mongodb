@@ -478,11 +478,13 @@ abstract class ActiveRecord extends BaseActiveRecord
 
     /**
      * invoke batchInsert() or batchUpdate() base on getIsNewRecord()
+     * @param array $attributes list of attributes that need to be inserted or updated. Defaults to null,
+     * meaning all attributes that are loaded will be inserted or updated.
     */
-    public function batchSave(){
+    public function batchSave($attributes = null){
         if($this->getIsNewRecord())
-            return $this->batchInsert();
-        return $this->batchUpdate();
+            return $this->batchInsert($attributes);
+        return $this->batchUpdate($attributes);
     }
 
     /**
@@ -503,7 +505,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         self::$batchInsertCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchInsert())
-                yii::warning(self::className().' : batch insert mode not completed!');
+                yii::warning(static::className().' : batch insert mode not completed!');
         });
     }
 
@@ -525,7 +527,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
         self::$batchInsertCommand->AddInsert($values);
         self::$batchInsertQueue++;
-        if(self::$batchInsertQueue >= self::$batchInsertSize)
+        if(self::$batchInsertQueue >= static::$batchInsertSize)
             self::flushBatchInsert();
     }
 
@@ -538,7 +540,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchInsertQueue === 0)
             return;
         self::$batchInsertQueue = 0;
-        $result = self::$batchInsertCommand->executeBatch(self::collectionName());
+        $result = self::$batchInsertCommand->executeBatch(static::collectionName());
         self::$batchInsertCommand->document = [];
         return $result;
     }
@@ -561,7 +563,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         self::$batchUpdateCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchUpdate())
-                yii::warning(self::className().' : batch update mode not completed!');
+                yii::warning(static::className().' : batch update mode not completed!');
         });
     }
 
@@ -578,7 +580,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         $condition = $this->getOldPrimaryKey(true);
         self::$batchUpdateCommand->AddUpdate($condition, $values);
         self::$batchUpdateQueue++;
-        if(self::$batchUpdateQueue >= self::$batchUpdateSize)
+        if(self::$batchUpdateQueue >= static::$batchUpdateSize)
             self::flushBatchUpdate();
     }
 
@@ -591,7 +593,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchUpdateQueue === 0)
             return;
         self::$batchUpdateQueue = 0;
-        $result = self::$batchUpdateCommand->executeBatch(self::collectionName());
+        $result = self::$batchUpdateCommand->executeBatch(static::collectionName());
         self::$batchUpdateCommand->document = [];
         return $result;
     }
@@ -614,7 +616,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         self::$batchDeleteCommand = static::getDb()->createCommand();
         register_shutdown_function(function(){
             if(self::hasBatchDelete())
-                yii::warning(self::className().' : batch delete mode not completed!');
+                yii::warning(static::className().' : batch delete mode not completed!');
         });
     }
 
@@ -625,7 +627,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         self::batchDeleteInit();
         self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
         self::$batchDeleteQueue++;
-        if(self::$batchDeleteQueue >= self::$batchDeleteSize)
+        if(self::$batchDeleteQueue >= static::$batchDeleteSize)
             self::flushBatchDelete();
     }
 
@@ -638,7 +640,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchDeleteQueue === 0)
             return;
         self::$batchDeleteQueue = 0;
-        $result = self::$batchDeleteCommand->executeBatch(self::collectionName());
+        $result = self::$batchDeleteCommand->executeBatch(static::collectionName());
         self::$batchDeleteCommand->document = [];
         return $result;
     }
