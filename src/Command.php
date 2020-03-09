@@ -106,7 +106,7 @@ class Command extends BaseObject
 
         #convert writeConcern option
         if(array_key_exists('writeConcern', $options)){
-            if(is_string($options['writeConcern']))
+            if(is_string($options['writeConcern']) || is_int($options['writeConcern']))
                 $options['writeConcern'] = new WriteConcern($options['writeConcern']);
             elseif(is_array($options['writeConcern']))
                 $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);

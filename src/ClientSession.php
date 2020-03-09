@@ -76,7 +76,7 @@ class ClientSession extends \yii\base\BaseObject
 
             #convert writeConcern
             if(array_key_exists('writeConcern',$options['defaultTransactionOptions'])){
-                if(is_string($options['defaultTransactionOptions']['writeConcern']))
+                if(is_string($options['defaultTransactionOptions']['writeConcern']) || is_int($options['defaultTransactionOptions']['writeConcern']))
                     $options['defaultTransactionOptions']['writeConcern'] = new WriteConcern($options['defaultTransactionOptions']['writeConcern']);
                 else if(is_array($options['defaultTransactionOptions']['writeConcern']))
                     $options['defaultTransactionOptions']['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['defaultTransactionOptions']['writeConcern']);
