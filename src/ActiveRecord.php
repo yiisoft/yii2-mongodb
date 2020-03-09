@@ -541,6 +541,65 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * locking a document in stubborn mode on a transaction(like `select for update` feature in mysql)
+     * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
+     * notice : before call this method you must save last mongodb client session from db connection
+     * notice : this lock occurred in a new session and transaction
+     * @param mixed $id a document id(primary key > _id)
+     * @param array $options list of options in format:
+     *   [
+     *     'sessionOptions' => [],     #new session options. see $sessionOptions in ClientSession::start()
+     *     'transactionOptions' => [], #new transaction options. see $transactionOptions in Transaction::start()
+     *     'modifyOptions' => [],      #see $options in ActiveQuery::modify()
+     *     'sleep' => 1000000,         #time in microseconds for wait.default is one second
+     *     'tiredAfter' => 0,          #maximum count of retry. throw write conflict error after reached this value. zero default is unlimited.
+     *   ]
+     * @param Connection $db the Mongo connection used to execute the query.
+     * @return ActiveRecord|array|null the modified document.
+     * Depending on the setting of [[asArray]], the query result may be either an array or an ActiveRecord object.
+     * Null will be returned if the query results in nothing.
+     * Throw write conflict error after reached $options['tiredAfter'] value
+    */
+    public static function StubbornLockDocument($id, $options = [], $db = null){
+
+        $db = $db ? $db : static::getDb();
+
+        $options = array_replace_recursive([
+            'sessionOptions' => [],
+            'transactionOptions' => [],
+            'modifyOptions' => [],
+            'sleep' => 1000000, #in microseconds
+            'tiredAfter' => 0,
+        ],$options);
+
+        $options['modifyOptions']['new'] = true;
+
+        #create new session for stubbornness
+        $newClientSession = $db->startSession($options['sessionOptions']);
+        $db->withSession($newClientSession);
+
+        #start stubborn
+        $tiredCounter = 0;
+        StartStubborn:
+        $newClientSession->transaction->start($options['transactionOptions']);
+        try{
+            $doc = 
+                self::find()
+                    ->where(['_id' => $id])
+                ->modify(['$set' => [static::$lockField => new ObjectId]], $options['modifyOptions'], $db)
+            ;
+            return $doc;
+        }catch(\Exception $e){
+            $newClientSession->transaction->rollBack();
+            $tiredCounter++;
+            if($options['tiredAfter'] !== 0 && $tiredCounter === $options['tiredAfter'])
+                throw $e;
+            usleep($options['sleep']);
+            goto StartStubborn;
+        }
+    }
+
+    /**
      * Declares which DB operations should be performed within a transaction in different scenarios.
      * The supported DB operations are: [[OP_INSERT]], [[OP_UPDATE]] and [[OP_DELETE]],
      * which correspond to the [[insert()]], [[update()]] and [[delete()]] methods, respectively.
