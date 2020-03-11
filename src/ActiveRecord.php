@@ -578,7 +578,23 @@ abstract class ActiveRecord extends BaseActiveRecord
         if (empty($values))
            return;
         $condition = $this->getOldPrimaryKey(true);
-        self::$batchUpdateCommand->AddUpdate($condition, $values);
+        self::$batchUpdateCommand->addUpdate($condition, $values);
+        self::$batchUpdateQueue++;
+        if(self::$batchUpdateQueue >= static::$batchUpdateSize)
+            self::flushBatchUpdate();
+    }
+
+    /**
+     * adding update operation to queue
+     * @param array $attributes list of attribute names that need to be updated.
+     * @param array $condition Description of the objects to update.
+     * Please refer to Query::where() on how to specify this parameter.
+     * @param array $options List of options in format: optionName => optionValue.
+     * Please refer to Command::addUpdate() on how to specify this parameter.
+    */
+    public static function batchUpdateAll($attributes, $condition = [], $options = []){
+        self::batchUpdateInit();
+        self::$batchUpdateCommand->addUpdate($condition, $attributes, $options);
         self::$batchUpdateQueue++;
         if(self::$batchUpdateQueue >= static::$batchUpdateSize)
             self::flushBatchUpdate();
@@ -626,6 +642,21 @@ abstract class ActiveRecord extends BaseActiveRecord
     public function batchDelete(){
         self::batchDeleteInit();
         self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
+        self::$batchDeleteQueue++;
+        if(self::$batchDeleteQueue >= static::$batchDeleteSize)
+            self::flushBatchDelete();
+    }
+
+    /**
+     * adding delete operation to queue
+     * @param array $condition Description of the objects to delete.
+     * Please refer to Query::where() on how to specify this parameter.
+     * @param array $options List of options in format: optionName => optionValue.
+     * Please refer to Command::AddDelete() on how to specify this parameter.
+    */
+    public function batchDeleteAll($condition = [], $options = []){
+        self::batchDeleteInit();
+        self::$batchDeleteCommand->AddDelete($condition, $options);
         self::$batchDeleteQueue++;
         if(self::$batchDeleteQueue >= static::$batchDeleteSize)
             self::flushBatchDelete();
