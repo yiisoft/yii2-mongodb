@@ -222,7 +222,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
     /**
      * do not select some fields
-     * @param array $fields list of fields name that you not want selected them
+     * @param array $fields name list of fields that you dont want to select them
      * @return $this the query object itself.
      */
     public function dontSelect(array $fields)
