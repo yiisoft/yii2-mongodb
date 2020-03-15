@@ -219,4 +219,17 @@ class ActiveQuery extends Query implements ActiveQueryInterface
 
         return parent::populate($models);
     }
+
+    /**
+     * do not select some fields
+     * @param array $fields list of fields name that you not want selected them
+     * @return $this the query object itself.
+     */
+    public function dontSelect(array $fields)
+    {
+        $model = new $this->modelClass;
+        $this->select = array_diff($model->attributes(),$fields);
+
+        return $this;
+    }
 }
