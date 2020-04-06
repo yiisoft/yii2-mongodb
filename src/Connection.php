@@ -569,7 +569,10 @@ class Connection extends Component
      * return $this
     */
     public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
+        #save last session for return
+        $lastSession = isset($this->globalExecOptions['session']) ? $this->globalExecOptions['session'] : null;
         $newClientSession = $this->startTransaction($transactionOptions, $sessionOptions);
+        $success = false;
         try {
             $result = call_user_func($actions, $newClientSession);
             if($newClientSession->getTransaction()->getIsActive())
@@ -577,14 +580,12 @@ class Connection extends Component
                     $newClientSession->getTransaction()->rollBack();
                 else
                     $newClientSession->getTransaction()->commit();
-        } catch (\Exception $e){
-            if($newClientSession->getTransaction()->getIsActive())
+            $success = true;
+        } finally {
+            if(!$success && $newClientSession->getTransaction()->getIsActive())
                 $newClientSession->getTransaction()->rollBack();
-            throw $e;
-        } catch (\Throwable $e) {
-            if($newClientSession->getTransaction()->getIsActive())
-                $newClientSession->getTransaction()->rollBack();
-            throw $e;
+            #return last session
+            $this->withSession($lastSession);
         }
     }
 }
