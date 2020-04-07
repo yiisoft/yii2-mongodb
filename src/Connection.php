@@ -466,7 +466,7 @@ class Connection extends Component
         if(empty($execOptions))
             $this->globalExecOptions = [];
         else
-            $this->globalExecOptions = array_merge_recursive($this->globalExecOptions, $execOptions);
+            $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $execOptions);
         return $this;
     }
 
