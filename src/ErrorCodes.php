@@ -355,6 +355,7 @@ class ErrorCode
      * } catch(\Exception $e) {
      *     if (ErrorCode::is($e)) {
      *         echo 'this is a mongodb error.';
+     *     }
      * }
      * 
      * try{
