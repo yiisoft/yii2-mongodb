@@ -15,7 +15,8 @@ use yii\mongodb\Exception as YiiMongoDBException;
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
 */
 
-class ErrorCodes {
+class ErrorCode
+{
 
     const OK = 0;
     const InternalError = 1;
