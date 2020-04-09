@@ -352,7 +352,7 @@ class ErrorCode
      * ```php
      * try {
      *     // mongodb commands ...  
-     * }catch(\Exception $e){
+     * } catch(\Exception $e) {
      *     if(ErrorCodes::is($e))
      *         echo 'this is a mongodb error.';
      * }
