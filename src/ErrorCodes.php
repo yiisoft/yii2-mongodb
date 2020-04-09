@@ -366,7 +366,8 @@ class ErrorCode
      * @return bool returning true value when this instance is related to mongodb.
      * when you set $verifyCode parameter then returns true value if instance is related to mongodb and error code exists.
     */
-    public static function is($e, $verifyCode = null){
+    public static function is($e, $verifyCode = null)
+    {
         if(
             ($e instanceof YiiMongoDBException && $e->getPrevious() instanceof MongoDBExceptionInterface)
                 ||
