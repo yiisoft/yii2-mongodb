@@ -574,7 +574,7 @@ abstract class ActiveRecord extends BaseActiveRecord
 
         #create new session for stubbornness
         $newClientSession = $db->startSession($options['sessionOptions']);
-        $db->withSession($newClientSession);
+        $db->setSession($newClientSession);
 
         #start stubborn
         $tiredCounter = 0;

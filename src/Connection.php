@@ -526,7 +526,7 @@ class Connection extends Component
     public function startTransaction($transactionOptions = [], $sessionOptions = []){
         $newClientSession = $this->startSession($sessionOptions);
         $newClientSession->getTransaction()->start($transactionOptions);
-        $this->withSession($newClientSession);
+        $this->setSession($newClientSession);
         return $newClientSession;
     }
 
@@ -551,7 +551,7 @@ class Connection extends Component
      * @param ClientSession|null $clientSession new instance of ClientSession for replace
      * return $this
     */
-    public function withSession($clientSession){
+    public function setSession($clientSession){
         #drop session
         if(empty($clientSession))
             unset($this->globalExecOptions['session']);
@@ -584,7 +584,7 @@ class Connection extends Component
             if(!$success && $newClientSession->getTransaction()->getIsActive())
                 $newClientSession->getTransaction()->rollBack();
             #return last mongo session
-            $this->withSession($lastSession);
+            $this->setSession($lastSession);
         }
     }
 }
