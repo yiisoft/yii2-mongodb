@@ -525,9 +525,8 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param mixed $id a document id(primary key > _id)
      * @param array $options list of options in format: optionName => optionValue.
      * @param Connection $db the Mongo connection used to execute the query.
-     * @return ActiveRecord|array|null the modified document.
-     * Depending on the setting of [[asArray]], the query result may be either an array or an ActiveRecord object.
-     * Null will be returned if the query results in nothing.
+     * @return ActiveRecord|null the modified document.
+     * Returns instance of ActiveRecord. Null will be returned if the query results in nothing.
     */
     public static function LockDocument($id, $options = [], $db = null){
         $db = $db ? $db : static::getDb();
@@ -555,9 +554,8 @@ abstract class ActiveRecord extends BaseActiveRecord
      *     'tiredAfter' => 0,          #maximum count of retry. throw write conflict error after reached this value. zero default is unlimited.
      *   ]
      * @param Connection $db the Mongo connection used to execute the query.
-     * @return ActiveRecord|array|null the modified document.
-     * Depending on the setting of [[asArray]], the query result may be either an array or an ActiveRecord object.
-     * Null will be returned if the query results in nothing.
+     * @return ActiveRecord|null the modified document.
+     * Returns instance of ActiveRecord. Null will be returned if the query results in nothing.
      * Throw write conflict error after reached $options['tiredAfter'] value
     */
     public static function StubbornLockDocument($id, $options = [], $db = null){

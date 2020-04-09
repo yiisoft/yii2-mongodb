@@ -566,7 +566,6 @@ class Connection extends Component
      * if $actions return false then transaction rolled back.
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
-     * return $this
     */
     public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
         #save last session for return
