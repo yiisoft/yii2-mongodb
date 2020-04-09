@@ -372,9 +372,9 @@ class ErrorCode
     public static function is($e, $verifyCode = null)
     {
         if(
-            ($e instanceof YiiMongoDBException && $e->getPrevious() instanceof MongoDBExceptionInterface)
-                ||
             $e instanceof MongoDBExceptionInterface
+                ||
+            ($e instanceof YiiMongoDBException && $e->getPrevious() instanceof MongoDBExceptionInterface)
         ){
             if($verifyCode !== null && $e->getCode() !== $verifyCode)
                 return false;
