@@ -348,7 +348,8 @@ class ErrorCode
     /**
      * Checking if instance of error exception is related to mongodb.
      * examples:
-     * try{
+     * ```php
+     * try {
      *     // mongodb commands ...  
      * }catch(\Exception $e){
      *     if(ErrorCodes::is($e))
