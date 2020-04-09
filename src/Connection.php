@@ -568,8 +568,8 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
     */
     public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
-        #save last session for return
-        $lastSession = isset($this->globalExecOptions['session']) ? $this->globalExecOptions['session'] : null;
+        #save last mongo session for return
+        $lastSession = $this->getSession();
         $newClientSession = $this->startTransaction($transactionOptions, $sessionOptions);
         $success = false;
         try {
@@ -583,7 +583,7 @@ class Connection extends Component
         } finally {
             if(!$success && $newClientSession->getTransaction()->getIsActive())
                 $newClientSession->getTransaction()->rollBack();
-            #return last session
+            #return last mongo session
             $this->withSession($lastSession);
         }
     }
