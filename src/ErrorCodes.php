@@ -11,7 +11,8 @@ use MongoDB\Driver\Exception\Exception as MongoDBExceptionInterface;
 use yii\mongodb\Exception as YiiMongoDBException;
 
 /**
- * All errors code in mongodb. generated from https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
+ * MongoDB error codes.
+ * @see https://github.com/mongodb/mongo/blob/master/src/mongo/base/error_codes.yml
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
 */
 
