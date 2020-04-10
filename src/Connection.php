@@ -591,11 +591,13 @@ class Connection extends Component
     /**
      * run your mongodb command out of session and transaction. returns last mongodb session after end of codes.
      * @param callable $actions your block of code must be run out of session and transaction
+     * return result of $actions()
     */
     public function noTransaction(callable $actions){
         $lastSession = $this->session;
         $this->session = null;
-        $actions();
+        $result = $actions();
         $this->session = $lastSession;
+        return $result;
     }
 }
