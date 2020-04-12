@@ -534,6 +534,14 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * resetting batch insert
+    */
+    public static function resetBatchInsert(){
+        self::$batchInsertQueue = 0;
+        self::$batchInsertCommand->document = [];
+    }
+
+    /**
      * execute batch insert operations in queue and reset anything
      * this method is not continue when not exists any insert operations in queue
      * @return see docs of Command::executeBatch()
@@ -542,17 +550,8 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchInsertQueue === 0)
             return;
         $result = self::$batchInsertCommand->executeBatch(static::collectionName());
-        self::$batchInsertQueue = 0;
-        self::$batchInsertCommand->document = [];
+        self::resetBatchInsert();
         return $result;
-    }
-
-    /**
-     * resetting queue
-    */
-    public static function resetBatchInsert(){
-        self::$batchInsertQueue = 0;
-        self::$batchInsertCommand->document = [];
     }
 
     /**
@@ -613,6 +612,14 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * resetting batch update
+    */
+    public static function resetBatchUpdate(){
+        self::$batchUpdateQueue = 0;
+        self::$batchUpdateCommand->document = [];
+    }
+
+    /**
      * execute batch update operations in queue and reset anything
      * this method is not continue when not exists any update operations in queue
      * @return see docs of Command::executeBatch()
@@ -621,8 +628,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchUpdateQueue === 0)
             return;
         $result = self::$batchUpdateCommand->executeBatch(static::collectionName());
-        self::$batchUpdateQueue = 0;
-        self::$batchUpdateCommand->document = [];
+        self::resetBatchUpdate();
         return $result;
     }
 
@@ -685,6 +691,14 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
+     * resetting batch delete
+    */
+    public static function resetBatchDelete(){
+        self::$batchDeleteQueue = 0;
+        self::$batchDeleteCommand->document = [];
+    }
+
+    /**
      * execute batch delete operations in queue and reset anything
      * this method is not continue when not exists any delete operations in queue
      * @return see docs of Command::executeBatch()
@@ -693,8 +707,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         if(self::$batchDeleteQueue === 0)
             return;
         $result = self::$batchDeleteCommand->executeBatch(static::collectionName());
-        self::$batchDeleteQueue = 0;
-        self::$batchDeleteCommand->document = [];
+        self::resetBatchDelete();
         return $result;
     }
 
