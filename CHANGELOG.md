@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 ------------------------
 
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
+- Bug #312: Fixed `yii\mongodb\ActiveFixture::load()` doesn't populate data with _id (Lisio)
 
 
 2.1.9 November 19, 2019
