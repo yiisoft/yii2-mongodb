@@ -35,6 +35,36 @@ class Transaction extends \yii\base\BaseObject
     public $clientSession;
 
     /**
+     * Set debug message if `enableLogging` property is enable in yii\mongodb\Connection
+     * @var string $message please see $this->yiiDebug()
+     * @var string $category please see $this->yiiDebug()
+     */
+    protected function yiiDebug($message, $category = 'mongodb'){
+        if($this->clientSession->db->enableLogging)
+            $this->yiiDebug($message,$category);
+    }
+
+    /**
+     * Begin profile if `enableProfiling` property is enable in yii\mongodb\Connection
+     * @var string $token please see $this->yiiBeginProfile()
+     * @var string $category please see $this->yiiBeginProfile()
+     */
+    protected function yiiBeginProfile($token, $category = 'mongodb'){
+        if($this->clientSession->db->enableProfiling)
+            $this->yiiBeginProfile($token,$category);
+    }
+
+    /**
+     * End profile if `enableProfiling` property is enable in yii\mongodb\Connection
+     * @var string $token please see $this->yiiEndProfile()
+     * @var string $category please see $this->yiiEndProfile()
+     */
+    protected function yiiEndProfile($token, $category = 'mongodb'){
+        if($this->clientSession->db->enableProfiling)
+            $this->yiiEndProfile($token,$category);
+    }
+
+    /**
      * Returns a value indicating whether this transaction is active.
      * @return bool whether this transaction is active. Only an active transaction
      * can [[commit()]] or [[rollBack()]].
@@ -53,16 +83,13 @@ class Transaction extends \yii\base\BaseObject
     */
     public function start($transactionOptions = []){
         Command::prepareCPOptions($transactionOptions);
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('Starting mongodb transaction ...', __METHOD__);
+        $this->yiiDebug('Starting mongodb transaction ...', __METHOD__);
         if($this->clientSession->getInTransaction())
             throw new Exception('Nested transaction not supported');
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
-        if($this->clientSession->db->enableProfiling)
-            Yii::beginProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiBeginProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
         $this->clientSession->mongoSession->startTransaction($transactionOptions);
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('MongoDB transaction started.', __METHOD__);
+        $this->yiiDebug('MongoDB transaction started.', __METHOD__);
     }
 
     /**
@@ -70,13 +97,10 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.committransaction.php
      */
     public function commit(){
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('Committing mongodb transaction ...', __METHOD__);
+        $this->yiiDebug('Committing mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->commitTransaction();
-        if($this->clientSession->db->enableProfiling)
-            Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('Commit mongodb transaction.', __METHOD__);
+        $this->yiiEndProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiDebug('Commit mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
     }
 
@@ -85,13 +109,10 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.aborttransaction.php
      */
     public function rollBack(){
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('Rolling back mongodb transaction ...', __METHOD__);
+        $this->yiiDebug('Rolling back mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->abortTransaction();
-        if($this->clientSession->db->enableProfiling)
-            Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
-        if($this->clientSession->db->enableLogging)
-            Yii::debug('Roll back mongodb transaction.', __METHOD__);
+        $this->yiiEndProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiDebug('Roll back mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
     }
 }
