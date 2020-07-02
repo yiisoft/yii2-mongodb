@@ -53,14 +53,16 @@ class Transaction extends \yii\base\BaseObject
     */
     public function start($transactionOptions = []){
         Command::prepareCPOptions($transactionOptions);
-        Yii::debug('Starting mongodb transaction ...', __METHOD__);
+        if($this->clientSession->db->enableLogging)
+            Yii::debug('Starting mongodb transaction ...', __METHOD__);
         if($this->clientSession->getInTransaction())
             throw new Exception('Nested transaction not supported');
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
-        if($this->clientSession->db->enableLogging)
+        if($this->clientSession->db->enableProfiling)
             Yii::beginProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
         $this->clientSession->mongoSession->startTransaction($transactionOptions);
-        Yii::debug('MongoDB transaction started.', __METHOD__);
+        if($this->clientSession->db->enableLogging)
+            Yii::debug('MongoDB transaction started.', __METHOD__);
     }
 
     /**
@@ -68,11 +70,13 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.committransaction.php
      */
     public function commit(){
-        Yii::debug('Committing mongodb transaction ...', __METHOD__);
-        $this->clientSession->mongoSession->commitTransaction();
         if($this->clientSession->db->enableLogging)
+            Yii::debug('Committing mongodb transaction ...', __METHOD__);
+        $this->clientSession->mongoSession->commitTransaction();
+        if($this->clientSession->db->enableProfiling)
             Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
-        Yii::debug('Commit mongodb transaction.', __METHOD__);
+        if($this->clientSession->db->enableLogging)
+            Yii::debug('Commit mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
     }
 
@@ -81,11 +85,13 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.aborttransaction.php
      */
     public function rollBack(){
-        Yii::debug('Rolling back mongodb transaction ...', __METHOD__);
-        $this->clientSession->mongoSession->abortTransaction();
         if($this->clientSession->db->enableLogging)
+            Yii::debug('Rolling back mongodb transaction ...', __METHOD__);
+        $this->clientSession->mongoSession->abortTransaction();
+        if($this->clientSession->db->enableProfiling)
             Yii::endProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
-        Yii::debug('Roll back mongodb transaction.', __METHOD__);
+        if($this->clientSession->db->enableLogging)
+            Yii::debug('Roll back mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
     }
 }
