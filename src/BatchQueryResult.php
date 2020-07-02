@@ -129,9 +129,12 @@ class BatchQueryResult extends BaseObject implements \Iterator
                 // @see https://jira.mongodb.org/browse/PHP-457
                 $this->query->addOptions(['batchSize' => $this->batchSize]);
             }
-            $cursor = $this->query->buildCursor($this->db);
-            $token = 'fetch cursor id = ' . $cursor->getId();
-            Yii::info($token, __METHOD__);
+            $db = $this->db === null ? yii::$app->mongodb : $this->db;
+            $cursor = $this->query->buildCursor($db);
+            if($db->enableLogging){
+                $token = 'fetch cursor id = ' . $cursor->getId();
+                Yii::info($token, __METHOD__);
+            }
 
             if ($cursor instanceof \Iterator) {
                 $this->_iterator = $cursor;
