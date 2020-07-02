@@ -203,25 +203,30 @@ class Query extends Component implements QueryInterface
 
     /**
      * Fetches rows from the given Mongo cursor.
-     * @param \MongoDB\Driver\Cursor $cursor Mongo cursor instance to fetch data from.
+     * @param yii\mongodb\Connection $db the MongoDB connection used to fetch rows.
      * @param bool $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy the column name or PHP callback,
      * by which the query results should be indexed by.
      * @throws Exception on failure.
      * @return array|bool result.
      */
-    protected function fetchRows($cursor, $all = true, $indexBy = null)
+    protected function fetchRows($db, $all = true, $indexBy = null)
     {
+        $cursor = $this->buildCursor($db);
         $token = 'fetch cursor id = ' . $cursor->getId();
-        Yii::info($token, __METHOD__);
+        if($db->enableLogging)
+            Yii::info($token, __METHOD__);
         try {
-            Yii::beginProfile($token, __METHOD__);
+            if($db->enableProfiling)
+                Yii::beginProfile($token, __METHOD__);
             $result = $this->fetchRowsInternal($cursor, $all);
-            Yii::endProfile($token, __METHOD__);
+            if($db->enableProfiling)
+                Yii::endProfile($token, __METHOD__);
 
             return $result;
         } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
+            if($db->enableProfiling)
+                Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
@@ -322,8 +327,7 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return [];
         }
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true, $this->indexBy);
+        $rows = $this->fetchRows($db, true, $this->indexBy);
         return $this->populate($rows);
     }
 
@@ -358,8 +362,7 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return false;
         }
-        $cursor = $this->buildCursor($db);
-        return $this->fetchRows($cursor, false);
+        return $this->fetchRows($db, false);
     }
 
     /**
@@ -384,8 +387,7 @@ class Query extends Component implements QueryInterface
             $this->select['_id'] = false;
         }
 
-        $cursor = $this->buildCursor($db);
-        $row = $this->fetchRows($cursor, false);
+        $row = $this->fetchRows($db, false);
 
         if (empty($row)) {
             return false;
@@ -417,8 +419,7 @@ class Query extends Component implements QueryInterface
             $this->select[] = $this->indexBy;
         }
 
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true);
+        $rows = $this->fetchRows($db, true);
 
         if (empty($rows)) {
             return [];
