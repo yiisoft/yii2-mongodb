@@ -364,8 +364,9 @@ class Connection extends Component
                     Yii::endProfile($token, __METHOD__);
                 }
             } catch (\Exception $e) {
-                if($this->enableProfiling)
+                if ($this->enableProfiling) {
                     Yii::endProfile($token, __METHOD__);
+                }
                 throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
             }
 
