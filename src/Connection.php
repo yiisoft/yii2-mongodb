@@ -352,8 +352,9 @@ class Connection extends Component
                 if ($this->enableLogging) {
                     Yii::trace($token, __METHOD__);
                 }
-                if($this->enableProfiling)
+                if ($this->enableProfiling) {
                     Yii::beginProfile($token, __METHOD__);
+                }
                 $options = $this->options;
 
                 $this->manager = new Manager($this->dsn, $options, $this->driverOptions);
