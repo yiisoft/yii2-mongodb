@@ -231,8 +231,9 @@ class Query extends Component implements QueryInterface
 
             return $result;
         } catch (\Exception $e) {
-            if($db->enableProfiling)
+            if ($db->enableProfiling) {
                 Yii::endProfile($token, __METHOD__);
+            }
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
     }
