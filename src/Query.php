@@ -217,8 +217,9 @@ class Query extends Component implements QueryInterface
         }
         $cursor = $this->buildCursor($db);
         $token = 'fetch cursor id = ' . $cursor->getId();
-        if($db->enableLogging)
+        if ($db->enableLogging) {
             Yii::info($token, __METHOD__);
+        }
         try {
             if($db->enableProfiling)
                 Yii::beginProfile($token, __METHOD__);
