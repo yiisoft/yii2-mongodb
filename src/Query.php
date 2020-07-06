@@ -221,8 +221,9 @@ class Query extends Component implements QueryInterface
             Yii::info($token, __METHOD__);
         }
         try {
-            if($db->enableProfiling)
+            if ($db->enableProfiling) {
                 Yii::beginProfile($token, __METHOD__);
+            }
             $result = $this->fetchRowsInternal($cursor, $all);
             if($db->enableProfiling)
                 Yii::endProfile($token, __METHOD__);
