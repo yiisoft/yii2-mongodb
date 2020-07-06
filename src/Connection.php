@@ -360,8 +360,9 @@ class Connection extends Component
                 $this->manager->selectServer($this->manager->getReadPreference());
 
                 $this->initConnection();
-                if($this->enableProfiling)
+                if ($this->enableProfiling) {
                     Yii::endProfile($token, __METHOD__);
+                }
             } catch (\Exception $e) {
                 if($this->enableProfiling)
                     Yii::endProfile($token, __METHOD__);
