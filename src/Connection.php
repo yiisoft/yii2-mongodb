@@ -349,8 +349,9 @@ class Connection extends Component
             }
             $token = 'Opening MongoDB connection: ' . $this->dsn;
             try {
-                if($this->enableLogging)
+                if ($this->enableLogging) {
                     Yii::trace($token, __METHOD__);
+                }
                 if($this->enableProfiling)
                     Yii::beginProfile($token, __METHOD__);
                 $options = $this->options;
