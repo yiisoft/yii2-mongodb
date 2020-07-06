@@ -212,7 +212,9 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($all = true, $indexBy = null, $db = null)
     {
-        $db = $db === null ? yii::$app->mongodb : $db;
+        if ($db === null) {
+            $db = Yii::$app->get('mongodb');
+        }
         $cursor = $this->buildCursor($db);
         $token = 'fetch cursor id = ' . $cursor->getId();
         if($db->enableLogging)
