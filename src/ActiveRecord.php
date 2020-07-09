@@ -504,10 +504,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             return;
         self::$batchInsertInit = true;
         self::$batchInsertCommand = static::getDb()->createCommand();
-        register_shutdown_function(function(){
-            if(self::hasBatchInsert())
-                yii::warning(static::className().' : batch insert mode not completed!');
-        });
+        if(self::$batchInsertCommand->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchInsert())
+                    yii::warning(static::className().' : batch insert mode not completed!');
+            });
     }
 
     /**
@@ -570,10 +571,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             return;
         self::$batchUpdateInit = true;
         self::$batchUpdateCommand = static::getDb()->createCommand();
-        register_shutdown_function(function(){
-            if(self::hasBatchUpdate())
-                yii::warning(static::className().' : batch update mode not completed!');
-        });
+        if(self::$batchUpdateCommand->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchUpdate())
+                    yii::warning(static::className().' : batch update mode not completed!');
+            });
     }
 
     /**
@@ -648,10 +650,11 @@ abstract class ActiveRecord extends BaseActiveRecord
             return;
         self::$batchDeleteInit = true;
         self::$batchDeleteCommand = static::getDb()->createCommand();
-        register_shutdown_function(function(){
-            if(self::hasBatchDelete())
-                yii::warning(static::className().' : batch delete mode not completed!');
-        });
+        if(self::$batchDeleteCommand->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchDelete())
+                    yii::warning(static::className().' : batch delete mode not completed!');
+            });
     }
 
     /**
