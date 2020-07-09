@@ -41,7 +41,7 @@ class Transaction extends \yii\base\BaseObject
      */
     protected function yiiDebug($message, $category = 'mongodb'){
         if($this->clientSession->db->enableLogging)
-            $this->yiiDebug($message,$category);
+            yii::debug($message,$category);
     }
 
     /**
@@ -51,7 +51,7 @@ class Transaction extends \yii\base\BaseObject
      */
     protected function yiiBeginProfile($token, $category = 'mongodb'){
         if($this->clientSession->db->enableProfiling)
-            $this->yiiBeginProfile($token,$category);
+            yii::beginProfile($token,$category);
     }
 
     /**
@@ -61,7 +61,7 @@ class Transaction extends \yii\base\BaseObject
      */
     protected function yiiEndProfile($token, $category = 'mongodb'){
         if($this->clientSession->db->enableProfiling)
-            $this->yiiEndProfile($token,$category);
+            yii::endProfile($token,$category);
     }
 
     /**
