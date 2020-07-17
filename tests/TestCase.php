@@ -34,6 +34,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if (!empty($config)) {
             $this->mongoDbConfig = $config;
         }
+        Yii::$app->setComponents(['mongodb' => $this->getConnection()]);
         //$this->mockApplication();
     }
 

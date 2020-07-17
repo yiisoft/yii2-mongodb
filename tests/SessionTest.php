@@ -26,7 +26,6 @@ class SessionTest extends TestCase
     {
         return Yii::createObject([
             'class' => Session::className(),
-            'db' => $this->getConnection(),
             'sessionCollection' => static::$sessionCollection,
         ]);
     }

@@ -19,7 +19,7 @@ class DownloadTest extends TestCase
 
     public function testToStream()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $document = $upload->addContent('test content')->complete();
@@ -34,7 +34,7 @@ class DownloadTest extends TestCase
 
     public function testToFile()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $document = $upload->addContent('test content')->complete();
@@ -49,7 +49,7 @@ class DownloadTest extends TestCase
 
     public function testSubstr()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $upload->chunkSize = 10;

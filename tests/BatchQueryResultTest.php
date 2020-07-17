@@ -4,7 +4,6 @@ namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\BatchQueryResult;
 use yii\mongodb\Query;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
 
@@ -13,7 +12,6 @@ class BatchQueryResultTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 
@@ -38,7 +36,7 @@ class BatchQueryResultTest extends TestCase
                 'status' => $i,
             ];
         }
-        $customerCollection = $this->getConnection()->getCollection('customer');
+        $customerCollection = yii::$app->mongodb->getCollection('customer');
         $customers = $customerCollection->batchInsert($customers);
 
         $customerOrders = [];
@@ -52,7 +50,7 @@ class BatchQueryResultTest extends TestCase
                 'number' => $customer['status'] + 100,
             ];
         }
-        $customerOrderCollection = $this->getConnection()->getCollection('customer_order');
+        $customerOrderCollection = yii::$app->mongodb->getCollection('customer_order');
         $customerOrderCollection->batchInsert($customerOrders);
     }
 
@@ -60,12 +58,11 @@ class BatchQueryResultTest extends TestCase
 
     public function testQuery()
     {
-        $db = $this->getConnection();
 
         // initialize property test
         $query = new Query();
         $query->from('customer')->orderBy('id');
-        $result = $query->batch(2, $db);
+        $result = $query->batch(2);
         $this->assertTrue($result instanceof BatchQueryResult);
         $this->assertEquals(2, $result->batchSize);
         $this->assertTrue($result->query === $query);
@@ -74,7 +71,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer');
         $allRows = [];
-        $batch = $query->batch(2, $db);
+        $batch = $query->batch(2);
         foreach ($batch as $rows) {
             $allRows = array_merge($allRows, $rows);
         }
@@ -84,7 +81,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer')->orderBy('name');
         $allRows = [];
-        $batch = $query->batch(2, $db);
+        $batch = $query->batch(2);
         foreach ($batch as $rows) {
             $allRows = array_merge($allRows, $rows);
         }
@@ -106,7 +103,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer')->where(['name' => 'unexistingName']);
         $allRows = [];
-        $batch = $query->batch(2, $db);
+        $batch = $query->batch(2);
         foreach ($batch as $rows) {
             $allRows = array_merge($allRows, $rows);
         }
@@ -116,7 +113,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer')->indexBy('name');
         $allRows = [];
-        foreach ($query->batch(2, $db) as $rows) {
+        foreach ($query->batch(2) as $rows) {
             $allRows = array_merge($allRows, $rows);
         }
         $this->assertEquals(9, count($allRows));
@@ -128,7 +125,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer')->orderBy('name');
         $allRows = [];
-        foreach ($query->each(100, $db) as $rows) {
+        foreach ($query->each(100) as $rows) {
             $allRows[] = $rows;
         }
         $this->assertEquals(9, count($allRows));
@@ -140,7 +137,7 @@ class BatchQueryResultTest extends TestCase
         $query = new Query();
         $query->from('customer')->orderBy('name')->indexBy('name');
         $allRows = [];
-        foreach ($query->each(100, $db) as $key => $row) {
+        foreach ($query->each(100) as $key => $row) {
             $allRows[$key] = $row;
         }
         $this->assertEquals(9, count($allRows));
@@ -151,11 +148,10 @@ class BatchQueryResultTest extends TestCase
 
     public function testActiveQuery()
     {
-        $db = $this->getConnection();
 
         $query = Customer::find()->orderBy('id');
         $customers = [];
-        foreach ($query->batch(2, $db) as $models) {
+        foreach ($query->batch(2) as $models) {
             $customers = array_merge($customers, $models);
         }
         $this->assertEquals(9, count($customers));
@@ -166,7 +162,7 @@ class BatchQueryResultTest extends TestCase
         // batch with eager loading
         $query = Customer::find()->with('orders')->orderBy('id');
         $customers = [];
-        foreach ($query->batch(2, $db) as $models) {
+        foreach ($query->batch(2) as $models) {
             $customers = array_merge($customers, $models);
             foreach ($models as $model) {
                 $this->assertTrue($model->isRelationPopulated('orders'));

@@ -2,7 +2,6 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\CustomerOrder;
 use yiiunit\extensions\mongodb\data\ar\Item;
@@ -12,7 +11,6 @@ class ActiveRelationTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 
@@ -38,7 +36,7 @@ class ActiveRelationTest extends TestCase
                 'status' => $i,
             ];
         }
-        $customerCollection = $this->getConnection()->getCollection('customer');
+        $customerCollection = yii::$app->mongodb->getCollection('customer');
         $customers = $customerCollection->batchInsert($customers);
 
         $items = [];
@@ -48,7 +46,7 @@ class ActiveRelationTest extends TestCase
                 'price' => $i,
             ];
         }
-        $itemCollection = $this->getConnection()->getCollection('item');
+        $itemCollection = yii::$app->mongodb->getCollection('item');
         $items = $itemCollection->batchInsert($items);
 
         $customerOrders = [];
@@ -70,7 +68,7 @@ class ActiveRelationTest extends TestCase
                 ],
             ];
         }
-        $customerOrderCollection = $this->getConnection()->getCollection('customer_order');
+        $customerOrderCollection = yii::$app->mongodb->getCollection('customer_order');
         $customerOrderCollection->batchInsert($customerOrders);
     }
 

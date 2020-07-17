@@ -2,6 +2,8 @@
 
 namespace yiiunit\extensions\mongodb\data\ar;
 
+use yii\mongodb\ActiveRecord;
+
 /**
  * @property \MongoDB\BSON\ObjectID|string $_id
  * @property int $number

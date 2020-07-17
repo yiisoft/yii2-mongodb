@@ -19,21 +19,21 @@ class CollectionTest extends TestCase
     public function testGetName()
     {
         $collectionName = 'customer';
-        $collection = $this->getConnection()->getCollection($collectionName);
+        $collection = yii::$app->mongodb->getCollection($collectionName);
         $this->assertEquals($collectionName, $collection->name);
-        $this->assertEquals($this->getConnection()->getDefaultDatabaseName() . '.' . $collectionName, $collection->getFullName());
+        $this->assertEquals(yii::$app->mongodb->getDefaultDatabaseName() . '.' . $collectionName, $collection->getFullName());
     }
 
     public function testFind()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $cursor = $collection->find();
         $this->assertTrue($cursor instanceof Cursor);
     }
 
     public function testInsert()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -49,7 +49,7 @@ class CollectionTest extends TestCase
      */
     public function testFindOne()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -69,7 +69,7 @@ class CollectionTest extends TestCase
      */
     public function testFindAll()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -90,7 +90,7 @@ class CollectionTest extends TestCase
      */
     public function testBatchInsert()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [
             [
                 'name' => 'customer 1',
@@ -109,7 +109,7 @@ class CollectionTest extends TestCase
 
     public function testSave()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -124,7 +124,7 @@ class CollectionTest extends TestCase
      */
     public function testUpdateBySave()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -145,7 +145,7 @@ class CollectionTest extends TestCase
      */
     public function testRemove()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -165,7 +165,7 @@ class CollectionTest extends TestCase
      */
     public function testRemoveComplexCondition()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $collection->batchInsert([
             [
                 'name' => 'customer 1',
@@ -193,7 +193,7 @@ class CollectionTest extends TestCase
      */
     public function testUpdate()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $data = [
             'name' => 'customer 1',
             'address' => 'customer 1 address',
@@ -215,7 +215,7 @@ class CollectionTest extends TestCase
      */
     public function testGroup()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [
             [
                 'name' => 'customer 1',
@@ -239,7 +239,7 @@ class CollectionTest extends TestCase
 
     public function testFindAndModify()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [
             [
                 'name' => 'customer 1',
@@ -294,7 +294,7 @@ class CollectionTest extends TestCase
      */
     public function testMapReduce()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [
             [
                 'name' => 'customer 1',
@@ -327,7 +327,7 @@ class CollectionTest extends TestCase
         );
         $this->assertEquals('mapReduceOut', $result);
 
-        $outputCollection = $this->getConnection()->getCollection($result);
+        $outputCollection = yii::$app->mongodb->getCollection($result);
         $rows = $this->findAll($outputCollection);
         $expectedRows = [
             [
@@ -347,7 +347,7 @@ class CollectionTest extends TestCase
      */
     public function testMapReduceInline()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [
             [
                 'name' => 'customer 1',
@@ -393,7 +393,7 @@ class CollectionTest extends TestCase
 
     public function testCreateIndex()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $columns = [
             'name',
             'status' => SORT_DESC
@@ -408,7 +408,7 @@ class CollectionTest extends TestCase
      */
     public function testDropIndex()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
 
         $collection->createIndex('name');
         $this->assertTrue($collection->dropIndex('name'));
@@ -425,7 +425,7 @@ class CollectionTest extends TestCase
      */
     public function testDropIndexWithPlugin()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
 
         $columns = [
             'name' => 'text'
@@ -442,7 +442,7 @@ class CollectionTest extends TestCase
      */
     public function testDropAllIndexes()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $collection->createIndex('name');
         $this->assertEquals(2, $collection->dropAllIndexes());
         $indexInfo = $collection->listIndexes();
@@ -451,7 +451,7 @@ class CollectionTest extends TestCase
 
     public function testCreateIndexes()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $columns = [
             ['key' => ['name']],
             ['key' => ['status' => SORT_DESC]]
@@ -466,7 +466,7 @@ class CollectionTest extends TestCase
      */
     public function testDropIndexes()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $columns = [
             [
                 'key' => ['name'],
@@ -491,7 +491,7 @@ class CollectionTest extends TestCase
      */
     public function testFindByNotObjectId()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
 
         $data = [
             'name' => 'customer 1',
@@ -516,7 +516,7 @@ class CollectionTest extends TestCase
      */
     public function testInsertMongoBin()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
 
         $fileName = __FILE__;
         $data = [
@@ -534,7 +534,7 @@ class CollectionTest extends TestCase
      */
     public function testDistinct()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
 
         $rows = [
             [

@@ -14,8 +14,6 @@ class ActiveRelationTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        \yiiunit\extensions\mongodb\data\ar\ActiveRecord::$db = $this->getConnection();
-        \yiiunit\extensions\mongodb\data\ar\file\ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 
@@ -31,7 +29,7 @@ class ActiveRelationTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $fileCollection = $this->getConnection()->getFileCollection(CustomerFile::collectionName());
+        $fileCollection = yii::$app->mongodb->getFileCollection(CustomerFile::collectionName());
         $customers = [];
         $files = [];
         for ($i = 1; $i <= 5; $i++) {
@@ -52,7 +50,7 @@ class ActiveRelationTest extends TestCase
                 'file_id' => $file['_id'],
             ];
         }
-        $customerCollection = $this->getConnection()->getCollection(Customer::collectionName());
+        $customerCollection = yii::$app->mongodb->getCollection(Customer::collectionName());
         $customers = $customerCollection->batchInsert($customers);
     }
 
