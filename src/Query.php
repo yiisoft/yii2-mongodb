@@ -204,13 +204,11 @@ class Query extends Component implements QueryInterface
     /**
      * Fetches rows from the given Mongo cursor.
      * @param bool $all whether to fetch all rows or only first one.
-     * @param string|callable $indexBy the column name or PHP callback,
-     * by which the query results should be indexed by.
      * @param yii\mongodb\Connection $db the MongoDB connection used to fetch rows.
      * @throws Exception on failure.
      * @return array|bool result.
      */
-    protected function fetchRows($all = true, $indexBy = null, $db = null)
+    protected function fetchRows($all = true, $db = null)
     {
         if ($db === null) {
             $db = Yii::$app->get('mongodb');
@@ -334,7 +332,7 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return [];
         }
-        $rows = $this->fetchRows(true, $this->indexBy, $db);
+        $rows = $this->fetchRows(true, $db);
         return $this->populate($rows);
     }
 
