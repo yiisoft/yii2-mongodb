@@ -126,6 +126,16 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * returns connection object from `modelClass` if `$db` is null otherwise returns `$db`
+     * @param null|Connection your custom connection object
+     * @return Connection returns a connection object base on input
+    */
+    protected function finalConObj($db){
+        $modelClass = $this->modelClass;
+        return $db === null ? $modelClass::getDb() : $db;
+    }
+
+    /**
      * Executes query and returns all results as an array.
      * @param Connection $db the Mongo connection used to execute the query.
      * If null, the Mongo connection returned by [[modelClass]] will be used.
@@ -133,7 +143,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function all($db = null)
     {
-        return parent::all($db);
+        return parent::all($this->finalConObj($db));
     }
 
     /**
@@ -146,7 +156,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function one($db = null)
     {
-        $row = parent::one($db);
+        $row = parent::one($this->finalConObj($db));
         if ($row !== false) {
             $models = $this->populate([$row]);
             return reset($models) ?: null;
@@ -167,7 +177,7 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function modify($update, $options = [], $db = null)
     {
-        $row = parent::modify($update, $options, $db);
+        $row = parent::modify($update, $options, $this->finalConObj($db));
         if ($row !== null) {
             $models = $this->populate([$row]);
             return reset($models) ?: null;
@@ -182,16 +192,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
      */
     public function getCollection($db = null)
     {
-        /* @var $modelClass ActiveRecord */
-        $modelClass = $this->modelClass;
-        if ($db === null) {
-            $db = $modelClass::getDb();
-        }
         if ($this->from === null) {
+            /* @var $modelClass ActiveRecord */
+            $modelClass = $this->modelClass;
             $this->from = $modelClass::collectionName();
         }
 
-        return $db->getCollection($this->from);
+        return $this->finalConObj($db)->getCollection($this->from);
     }
 
     /**
