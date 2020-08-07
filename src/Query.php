@@ -230,8 +230,9 @@ class Query extends Component implements QueryInterface
         if ($db === null) {
             $db = Yii::$app->get('mongodb');
         }
-
-        $info = $db->getQueryCacheInfo($this->queryCacheDuration, $this->queryCacheDependency);
+        
+        $queryCacheDuration = $this->queryCacheDuration === true ? $db->queryCacheDuration : $this->queryCacheDuration;
+        $info = $db->getQueryCacheInfo($queryCacheDuration, $this->queryCacheDependency);
         if (is_array($info)) {
             /* @var $cache \yii\caching\CacheInterface */
             $cache = $info[0];
@@ -700,7 +701,7 @@ class Query extends Component implements QueryInterface
      * @param int|true $duration the number of seconds that query results can remain valid in cache.
      * Use 0 to indicate that the cached data will never expire.
      * Use a negative number to indicate that query cache should not be used.
-     * Use boolean `true` to indicate that [[Connection::queryCacheDuration]] should be used.
+     * Use boolean `true` to indicate that [[Connection::queryCacheDuration]] should be used, see [[Query::fetchRows()]].
      * Defaults to `true`.
      * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached result.
      * @return $this the Query object itself
