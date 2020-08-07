@@ -4,6 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.10 under development
 ------------------------
 
+- Enh #189: Query caching using `yii\mongodb\Connection::cache()` and `yii\mongodb\Query::cache()` (fl0v)
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
 
 

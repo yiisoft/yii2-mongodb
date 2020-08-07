@@ -10,6 +10,8 @@ namespace yii\mongodb;
 use MongoDB\Driver\Manager;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
+use yii\caching\CacheInterface;
+
 use Yii;
 
 /**
@@ -154,6 +156,30 @@ class Connection extends Component
      * @since 2.1
      */
     public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
+    /**
+     * @var bool whether to enable query caching.
+     * Note that in order to enable query caching, a valid cache component as specified
+     * by [[queryCache]] must be enabled and [[enableQueryCache]] must be set true.
+     * Also, only the results of the queries enclosed within [[cache()]] will be cached.
+     * @see queryCache
+     * @see cache()
+     * @see noCache()
+     */
+    public $enableQueryCache = true;
+    /**
+     * @var int the default number of seconds that query results can remain valid in cache.
+     * Defaults to 3600, meaning 3600 seconds, or one hour. Use 0 to indicate that the cached data will never expire.
+     * The value of this property will be used when [[cache()]] is called without a cache duration.
+     * @see enableQueryCache
+     * @see cache()
+     */
+    public $queryCacheDuration = 3600;
+    /**
+     * @var CacheInterface|string the cache object or the ID of the cache application component
+     * that is used for query caching.
+     * @see enableQueryCache
+     */
+    public $queryCache = 'cache';
 
     /**
      * @var string name of the MongoDB database to use by default.
@@ -180,6 +206,10 @@ class Connection extends Component
      * @since 2.1
      */
     private $_fileStreamWrapperRegistered = false;
+    /**
+     * @var array query cache parameters for the [[cache()]] calls
+     */
+    private $_queryCacheInfo = [];
 
 
     /**
@@ -350,16 +380,16 @@ class Connection extends Component
             $token = 'Opening MongoDB connection: ' . $this->dsn;
             try {
                 Yii::trace($token, __METHOD__);
-                Yii::beginProfile($token, __METHOD__);
+                $this->enableProfiling and Yii::beginProfile($token, __METHOD__);
                 $options = $this->options;
 
                 $this->manager = new Manager($this->dsn, $options, $this->driverOptions);
                 $this->manager->selectServer($this->manager->getReadPreference());
 
                 $this->initConnection();
-                Yii::endProfile($token, __METHOD__);
+                $this->enableProfiling and Yii::endProfile($token, __METHOD__);
             } catch (\Exception $e) {
-                Yii::endProfile($token, __METHOD__);
+                $this->enableProfiling and Yii::endProfile($token, __METHOD__);
                 throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
             }
 
@@ -386,6 +416,7 @@ class Connection extends Component
                 $database->clearCollections();
             }
             $this->_databases = [];
+            $this->_queryCacheInfo = [];
         }
     }
 
@@ -432,4 +463,130 @@ class Connection extends Component
 
         return $this->fileStreamProtocol;
     }
+
+    /**
+     * Uses query cache for the queries performed with the callable.
+     *
+     * When query caching is enabled ([[enableQueryCache]] is true and [[queryCache]] refers to a valid cache),
+     * queries performed within the callable will be cached and their results will be fetched from cache if available.
+     * For example,
+     *
+     * ```php
+     * // The customers will be fetched from cache if available.
+     * // If not, the query will be made against DB and cached for use next time.
+     * $customers = $db->cache(function (Connection $db) {
+     *     return (new Query())->select(['name', 'status'])->from('customer')->limit(10)->all();
+     * });
+     * ```
+     *
+     * Note that query cache can only be used for queries that return results as array (executed by  \yii\mongodb\Query).
+     * For queries performed by \yii\mongodb\Command, query cache will not be used since they return \MongoDB\Driver\Cursor.
+     *
+     * @param callable $callable a PHP callable that contains DB queries which will make use of query cache.
+     * The signature of the callable is `function (Connection $db)`.
+     * @param int $duration the number of seconds that query results can remain valid in the cache. If this is
+     * not set, the value of [[queryCacheDuration]] will be used instead.
+     * Use 0 to indicate that the cached data will never expire.
+     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached query results.
+     * @return mixed the return result of the callable
+     * @throws \Exception|\Throwable if there is any exception during query
+     * @see enableQueryCache
+     * @see queryCache
+     * @see noCache()
+     */
+    public function cache(callable $callable, $duration = null, $dependency = null)
+    {
+        $this->_queryCacheInfo[] = [$duration === null ? $this->queryCacheDuration : $duration, $dependency];
+        try {
+            $result = call_user_func($callable, $this);
+            array_pop($this->_queryCacheInfo);
+            return $result;
+        } catch (\Exception $e) {
+            array_pop($this->_queryCacheInfo);
+            throw $e;
+        } catch (\Throwable $e) {
+            array_pop($this->_queryCacheInfo);
+            throw $e;
+        }
+    }
+    
+    /**
+     * Disables query cache temporarily.
+     *
+     * Queries performed within the callable will not use query cache at all. For example,
+     *
+     * ```php
+     * $db->cache(function (Connection $db) {
+     *
+     *     // ... queries that use query cache ...
+     *
+     *     return $db->noCache(function (Connection $db) {
+     *         // this query will not use query cache
+     *         return (new Query())->select(['name', 'status'])->from('customer')->limit(10)->all();
+     *     });
+     * });
+     * ```
+     *
+     * @param callable $callable a PHP callable that contains DB queries which should not use query cache.
+     * The signature of the callable is `function (Connection $db)`.
+     * @return mixed the return result of the callable
+     * @throws \Exception|\Throwable if there is any exception during query
+     * @see enableQueryCache
+     * @see queryCache
+     * @see cache()
+     */
+     public function noCache(callable $callable)
+     {
+        $this->_queryCacheInfo[] = false;
+        try {
+            $result = call_user_func($callable, $this);
+            array_pop($this->_queryCacheInfo);
+            return $result;
+        } catch (\Exception $e) {
+            array_pop($this->_queryCacheInfo);
+            throw $e;
+        } catch (\Throwable $e) {
+            array_pop($this->_queryCacheInfo);
+            throw $e;
+        }
+    }
+
+    /**
+     * Returns the current query cache information.
+     * This method is used internally by [[Query]].
+     * @param int $duration the preferred caching duration. If null, it will be ignored.
+     * @param \yii\caching\Dependency $dependency the preferred caching dependency. If null, it will be ignored.
+     * @return array the current query cache information, or null if query cache is not enabled.
+     * @internal
+     */
+    public function getQueryCacheInfo($duration, $dependency)
+    {
+        if (!$this->enableQueryCache) {
+            return null;
+        }
+
+        $info = end($this->_queryCacheInfo);
+        if (is_array($info)) {
+            if ($duration === null) {
+                $duration = $info[0];
+            }
+            if ($dependency === null) {
+                $dependency = $info[1];
+            }
+        }
+        
+        if ($duration === 0 || $duration > 0) {
+            if (is_string($this->queryCache) && Yii::$app) {
+                $cache = Yii::$app->get($this->queryCache, false);
+            } else {
+                $cache = $this->queryCache;
+            }
+            if ($cache instanceof CacheInterface) {
+                return [$cache, $duration, $dependency];
+            }
+        }
+    
+        return null;
+    }
+
 }

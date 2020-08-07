@@ -59,6 +59,20 @@ class Query extends Component implements QueryInterface
      * @see options()
      */
     public $options = [];
+    /**
+     * @var int|true the default number of seconds that query results can remain valid in cache.
+     * Use 0 to indicate that the cached data will never expire.
+     * Use a negative number to indicate that query cache should not be used.
+     * Use boolean `true` to indicate that [[Connection::queryCacheDuration]] should be used.
+     * @see cache()
+     */
+    public $queryCacheDuration;
+    /**
+     * @var \yii\caching\Dependency the dependency to be associated with the cached query result for this query
+     * @see cache()
+     */
+    public $queryCacheDependency;
+
 
 
     /**
@@ -207,23 +221,71 @@ class Query extends Component implements QueryInterface
      * @param bool $all whether to fetch all rows or only first one.
      * @param string|callable $indexBy the column name or PHP callback,
      * by which the query results should be indexed by.
+     * @param Connection $db Mongo connection.
      * @throws Exception on failure.
      * @return array|bool result.
      */
-    protected function fetchRows($cursor, $all = true, $indexBy = null)
+    protected function fetchRows($cursor, $all = true, $indexBy = null, $db = null)
     {
-        $token = 'fetch cursor id = ' . $cursor->getId();
-        Yii::info($token, __METHOD__);
-        try {
-            Yii::beginProfile($token, __METHOD__);
-            $result = $this->fetchRowsInternal($cursor, $all);
-            Yii::endProfile($token, __METHOD__);
+        if ($db === null) {
+            $db = Yii::$app->get('mongodb');
+        }
 
-            return $result;
+        $info = $db->getQueryCacheInfo($this->queryCacheDuration, $this->queryCacheDependency);
+        if (is_array($info)) {
+            /* @var $cache \yii\caching\CacheInterface */
+            $cache = $info[0];
+            $cacheKey = $this->getCacheKey($all, $db);
+            $result = $cache->get($cacheKey);
+            if (is_array($result) && isset($result[0])) {
+                Yii::debug('Query result served from cache', __METHOD__);
+                return $result[0];
+            }
+        }
+        
+        $profile = $db->enableProfiling;
+        $token = 'fetch cursor id = ' . $cursor->getId();
+        Yii::trace($token, __METHOD__);
+        try {
+            $profile and Yii::beginProfile($token, __METHOD__);
+            $result = $this->fetchRowsInternal($cursor, $all);
+            $profile and Yii::endProfile($token, __METHOD__);
+
         } catch (\Exception $e) {
-            Yii::endProfile($token, __METHOD__);
+            $profile and Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
+        
+        if (isset($cache, $cacheKey, $info)) {
+            $cache->set($cacheKey, [$result], $info[1], $info[2]);
+            Yii::debug('Saved query result in cache', __METHOD__);
+        }
+        
+        return $result;
+
+    }
+
+    /**
+     * Returns the cache key for the query.
+     *
+     * @param bool $all if fetchRows() was called for all rows or only for the first one.
+     * @param Connection $db Mongo connection used for fetchRows().
+     * @return array the cache key
+     */
+    protected function getCacheKey($all, $db)
+    {
+        return [
+            __CLASS__,
+            $db->dsn,
+            $this->options,
+            $this->select,
+            $this->from,
+            $this->where,
+            $this->orderBy,
+            $this->limit,
+            $this->offset,
+            $all
+        ];
     }
 
     /**
@@ -323,7 +385,7 @@ class Query extends Component implements QueryInterface
             return [];
         }
         $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true, $this->indexBy);
+        $rows = $this->fetchRows($cursor, true, $this->indexBy, $db);
         return $this->populate($rows);
     }
 
@@ -359,7 +421,7 @@ class Query extends Component implements QueryInterface
             return false;
         }
         $cursor = $this->buildCursor($db);
-        return $this->fetchRows($cursor, false);
+        return $this->fetchRows($cursor, false, null, $db);
     }
 
     /**
@@ -385,7 +447,7 @@ class Query extends Component implements QueryInterface
         }
 
         $cursor = $this->buildCursor($db);
-        $row = $this->fetchRows($cursor, false);
+        $row = $this->fetchRows($cursor, false, null, $db);
 
         if (empty($row)) {
             return false;
@@ -418,7 +480,7 @@ class Query extends Component implements QueryInterface
         }
 
         $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true);
+        $rows = $this->fetchRows($cursor, true, null, $db);
 
         if (empty($rows)) {
             return [];
@@ -631,5 +693,32 @@ class Query extends Component implements QueryInterface
             return [];
         }
         return $this->where;
+    }
+
+    /**
+     * Enables query cache for this Query.
+     * @param int|true $duration the number of seconds that query results can remain valid in cache.
+     * Use 0 to indicate that the cached data will never expire.
+     * Use a negative number to indicate that query cache should not be used.
+     * Use boolean `true` to indicate that [[Connection::queryCacheDuration]] should be used.
+     * Defaults to `true`.
+     * @param \yii\caching\Dependency $dependency the cache dependency associated with the cached result.
+     * @return $this the Query object itself
+     */
+    public function cache($duration = true, $dependency = null)
+    {
+        $this->queryCacheDuration = $duration;
+        $this->queryCacheDependency = $dependency;
+        return $this;
+    }
+    
+    /**
+     * Disables query cache for this Query.
+     * @return $this the Query object itself
+     */
+    public function noCache()
+    {
+        $this->queryCacheDuration = -1;
+        return $this;
     }
 }

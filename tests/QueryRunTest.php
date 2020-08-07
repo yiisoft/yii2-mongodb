@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use yii\mongodb\Query;
+use yii\caching\ArrayCache;
 
 class QueryRunTest extends TestCase
 {
@@ -633,8 +634,9 @@ class QueryRunTest extends TestCase
         $rows = (new Query())
             ->from('customer')
             ->distinct('group', $db);
+        sort($rows);
 
-        $this->assertSame(['odd', 'even'], $rows);
+        $this->assertSame(['even', 'odd'], $rows);
     }
 
     public function testAggregationShortcuts()
@@ -671,4 +673,58 @@ class QueryRunTest extends TestCase
             ->average('status', $db);
         $this->assertEquals(6, $max);
     }
+
+    public function testQueryCache()
+    {
+        $db = $this->getConnection();
+        $db->enableQueryCache = true;
+        $db->queryCache = new ArrayCache();
+        $query = (new Query())->select(['name'])->from('customer');
+
+        // No cache
+        $newRecordId = $db->createCommand()->insert('customer', ['name' => 'John']);
+        $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Asserting initial value');
+        $db->createCommand()->update('customer', ['_id' => (string) $newRecordId], ['name' => 'Mike'], ['multi' => false, 'upsert' => false]);
+        $this->assertEquals('Mike', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Query reflects DB changes when caching is disabled');
+
+        // Connection cache
+        $newRecordId = $db->createCommand()->insert('customer', ['name' => 'John']);
+        $db->cache(function ($db) use ($query, $newRecordId) {
+            $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Asserting initial value');        
+
+            $db->createCommand()->update('customer', ['_id' => (string) $newRecordId], ['name' => 'Mike'], ['multi' => false, 'upsert' => false]);
+            $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Query does NOT reflect DB changes when wrapped in connection caching');
+
+            $db->noCache(function () use ($query, $db, $newRecordId) {
+                $this->assertEquals('Mike', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Query reflects DB changes when wrapped in connection caching and noCache simultaneously');
+            });
+
+            $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'Cache does not get changes after getting newer data from DB in noCache block.');
+        }, 10);
+
+
+        // Connection cache disabled
+        $db->enableQueryCache = false;
+        $db->cache(function ($db) use ($query, $newRecordId) {
+            $this->assertEquals('Mike', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'When cache is disabled for the whole connection, Query inside cache block does not get cached');
+            $db->createCommand()->update('customer', ['_id' => (string) $newRecordId], ['name' => 'Alex'], ['multi' => false, 'upsert' => false]);
+            $this->assertEquals('Alex', $query->where(['_id' => (string) $newRecordId])->scalar($db));
+        }, 10);
+
+
+        $db->enableQueryCache = true;
+        $query->cache();
+        $newRecordId = $db->createCommand()->insert('customer', ['name' => 'John']);
+
+        $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db));
+        $db->createCommand()->update('customer', ['_id' => (string) $newRecordId], ['name' => 'Mike'], ['multi' => false, 'upsert' => false]);
+        $this->assertEquals('John', $query->where(['_id' => (string) $newRecordId])->scalar($db), 'When both Connection and Query have cache enabled, we get cached value');
+        $this->assertEquals('Mike', $query->noCache()->where(['_id' => (string) $newRecordId])->scalar($db), 'When Query has disabled cache, we get actual data');
+
+        $db->cache(function ($db) use ($query, $newRecordId) {
+            $this->assertEquals('Mike', $query->noCache()->where(['_id' => (string) $newRecordId])->scalar($db));
+            $this->assertEquals('John', $query->cache()->where(['_id' => (string) $newRecordId])->scalar($db));
+        }, 10);
+    }
+
 }
