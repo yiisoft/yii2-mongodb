@@ -257,9 +257,6 @@ class Query extends Component implements QueryInterface
         if (is_array($info)) {
             /* @var $cache \yii\caching\CacheInterface */
             $cache = $info[0];
-            if (empty($this->from) || empty($this->where)) {
-            // $this->prepare(); // neads to be called to make sure we have all query properties set
-            }
             $cacheKey = $this->getCacheKey($db);
             $result = $cache->get($cacheKey);
             if (is_array($result) && isset($result[0])) {
