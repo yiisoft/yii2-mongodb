@@ -480,7 +480,6 @@ class Connection extends Component
      * ```
      *
      * Note that query cache can only be used for queries that return results as array (executed by  \yii\mongodb\Query).
-     * For queries performed by \yii\mongodb\Command, query cache will not be used since they return \MongoDB\Driver\Cursor.
      *
      * @param callable $callable a PHP callable that contains DB queries which will make use of query cache.
      * The signature of the callable is `function (Connection $db)`.

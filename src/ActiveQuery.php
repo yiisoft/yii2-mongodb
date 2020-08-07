@@ -121,7 +121,8 @@ class ActiveQuery extends Query implements ActiveQueryInterface
                 $this->filterByModels([$this->primaryModel]);
             }
         }
-
+       
+        $this->prepareFrom();
         return parent::prepare();
     }
 
@@ -187,11 +188,23 @@ class ActiveQuery extends Query implements ActiveQueryInterface
         if ($db === null) {
             $db = $modelClass::getDb();
         }
+        $this->prepareFrom(); // just in case getCollection() is called directly without prepare()
+        return $db->getCollection($this->from);
+    }
+
+    /**
+     * Makes sure we prepared $this->from
+     *
+     * @see self::getCollection()
+     * @see self::prepare()
+     */
+    private function prepareFrom()
+    {
         if ($this->from === null) {
+            /* @var $modelClass ActiveRecord */
+            $modelClass = $this->modelClass;
             $this->from = $modelClass::collectionName();
         }
-
-        return $db->getCollection($this->from);
     }
 
     /**

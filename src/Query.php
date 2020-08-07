@@ -85,7 +85,6 @@ class Query extends Component implements QueryInterface
         if ($db === null) {
             $db = Yii::$app->get('mongodb');
         }
-
         return $db->getCollection($this->from);
     }
 
@@ -201,8 +200,6 @@ class Query extends Component implements QueryInterface
      */
     public function buildCursor($db = null)
     {
-        $this->prepare();
-
         $options = $this->options;
         if (!empty($this->orderBy)) {
             $options['sort'] = $this->orderBy;
@@ -231,19 +228,6 @@ class Query extends Component implements QueryInterface
             $db = Yii::$app->get('mongodb');
         }
         
-        $queryCacheDuration = $this->queryCacheDuration === true ? $db->queryCacheDuration : $this->queryCacheDuration;
-        $info = $db->getQueryCacheInfo($queryCacheDuration, $this->queryCacheDependency);
-        if (is_array($info)) {
-            /* @var $cache \yii\caching\CacheInterface */
-            $cache = $info[0];
-            $cacheKey = $this->getCacheKey($all, $db);
-            $result = $cache->get($cacheKey);
-            if (is_array($result) && isset($result[0])) {
-                Yii::debug('Query result served from cache', __METHOD__);
-                return $result[0];
-            }
-        }
-        
         $profile = $db->enableProfiling;
         $token = 'fetch cursor id = ' . $cursor->getId();
         Yii::trace($token, __METHOD__);
@@ -256,25 +240,66 @@ class Query extends Component implements QueryInterface
             $profile and Yii::endProfile($token, __METHOD__);
             throw new Exception($e->getMessage(), (int) $e->getCode(), $e);
         }
-        
-        if (isset($cache, $cacheKey, $info)) {
-            $cache->set($cacheKey, [$result], $info[1], $info[2]);
-            Yii::debug('Saved query result in cache', __METHOD__);
-        }
+
+        $this->saveResultToCache($result, $db);        
         
         return $result;
 
+    }
+    
+    protected function fetchResultFromCache($db = null)
+    {
+        if ($db === null) {
+            $db = Yii::$app->get('mongodb');
+        }
+        $queryCacheDuration = $this->queryCacheDuration === true ? $db->queryCacheDuration : $this->queryCacheDuration;
+        $info = $db->getQueryCacheInfo($queryCacheDuration, $this->queryCacheDependency);
+        if (is_array($info)) {
+            /* @var $cache \yii\caching\CacheInterface */
+            $cache = $info[0];
+            if (empty($this->from) || empty($this->where)) {
+            // $this->prepare(); // neads to be called to make sure we have all query properties set
+            }
+            $cacheKey = $this->getCacheKey($db);
+            $result = $cache->get($cacheKey);
+            if (is_array($result) && isset($result[0])) {
+                Yii::debug('Query result served from cache', __METHOD__);
+                return $result[0];
+            }
+        }
+        return false;
+    }
+
+    protected function saveResultToCache($result, $db = null)
+    {
+        if ($db === null) {
+            $db = Yii::$app->get('mongodb');
+        }
+        $queryCacheDuration = $this->queryCacheDuration === true ? $db->queryCacheDuration : $this->queryCacheDuration;
+        $info = $db->getQueryCacheInfo($queryCacheDuration, $this->queryCacheDependency);
+        if (is_array($info)) {
+            /* @var $cache \yii\caching\CacheInterface */
+            $cache = $info[0];
+            $cacheKey = $this->getCacheKey($db);
+            $cache->set($cacheKey, [$result], $info[1], $info[2]);
+            Yii::debug('Saved query result in cache', __METHOD__);
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /**
      * Returns the cache key for the query.
      *
-     * @param bool $all if fetchRows() was called for all rows or only for the first one.
      * @param Connection $db Mongo connection used for fetchRows().
      * @return array the cache key
      */
-    protected function getCacheKey($all, $db)
+    protected function getCacheKey($db)
     {
+        if ($db === null) {
+            $db = Yii::$app->get('mongodb');
+        }
         return [
             __CLASS__,
             $db->dsn,
@@ -284,8 +309,7 @@ class Query extends Component implements QueryInterface
             $this->where,
             $this->orderBy,
             $this->limit,
-            $this->offset,
-            $all
+            $this->offset
         ];
     }
 
@@ -385,8 +409,11 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return [];
         }
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true, $this->indexBy, $db);
+        $this->prepare();
+        if (($rows = $this->fetchResultFromCache($db)) === false) {
+            $cursor = $this->buildCursor($db);
+            $rows = $this->fetchRows($cursor, true, $this->indexBy, $db);
+        }
         return $this->populate($rows);
     }
 
@@ -421,8 +448,12 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return false;
         }
-        $cursor = $this->buildCursor($db);
-        return $this->fetchRows($cursor, false, null, $db);
+        $this->prepare();
+        if (($row = $this->fetchResultFromCache($db)) === false) {
+            $cursor = $this->buildCursor($db);
+            $row = $this->fetchRows($cursor, false, null, $db);
+        }
+        return $row;
     }
 
     /**
@@ -447,8 +478,11 @@ class Query extends Component implements QueryInterface
             $this->select['_id'] = false;
         }
 
-        $cursor = $this->buildCursor($db);
-        $row = $this->fetchRows($cursor, false, null, $db);
+        $this->prepare();
+        if (($row = $this->fetchResultFromCache($db)) === false) {
+            $cursor = $this->buildCursor($db);
+            $row = $this->fetchRows($cursor, false, null, $db);
+        }
 
         if (empty($row)) {
             return false;
@@ -480,8 +514,11 @@ class Query extends Component implements QueryInterface
             $this->select[] = $this->indexBy;
         }
 
-        $cursor = $this->buildCursor($db);
-        $rows = $this->fetchRows($cursor, true, null, $db);
+        $this->prepare();
+        if (($rows = $this->fetchResultFromCache($db)) === false) {
+            $cursor = $this->buildCursor($db);
+            $rows = $this->fetchRows($cursor, true, null, $db);
+        }
 
         if (empty($rows)) {
             return [];
@@ -558,6 +595,7 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return false;
         }
+        $this->prepare();
         $cursor = $this->buildCursor($db);
         foreach ($cursor as $row) {
             return true;
