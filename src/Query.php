@@ -73,8 +73,6 @@ class Query extends Component implements QueryInterface
      */
     public $queryCacheDependency;
 
-
-
     /**
      * Returns the Mongo collection for this query.
      * @param Connection $db Mongo connection.
@@ -294,9 +292,6 @@ class Query extends Component implements QueryInterface
      */
     protected function getCacheKey($db)
     {
-        if ($db === null) {
-            $db = Yii::$app->get('mongodb');
-        }
         return [
             __CLASS__,
             $db->dsn,
