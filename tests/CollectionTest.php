@@ -9,7 +9,7 @@ class CollectionTest extends TestCase
 {
     protected function tearDown()
     {
-        //$this->dropCollection('customer');
+        $this->dropCollection('customer');
         $this->dropCollection('mapReduceOut');
         parent::tearDown();
     }
