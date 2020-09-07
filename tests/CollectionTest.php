@@ -9,7 +9,7 @@ class CollectionTest extends TestCase
 {
     protected function tearDown()
     {
-        $this->dropCollection('customer');
+        //$this->dropCollection('customer');
         $this->dropCollection('mapReduceOut');
         parent::tearDown();
     }
@@ -559,5 +559,23 @@ class CollectionTest extends TestCase
         $rows = $collection->distinct('status', ['status' => 1]);
         $this->assertFalse($rows === false);
         $this->assertCount(1, $rows);
+    }
+
+    /**
+     * @depends testInsert
+     * @depends testFindOne
+     */
+    public function testDocumentExists()
+    {
+        $name = uniqid('customer_', true);
+        $collection = $this->getConnection()->getCollection('customer');
+        $data = [
+            'name' => $name,
+            'address' => 'test address',
+        ];
+        $collection->insert($data);
+
+        $this->assertTrue($collection->documentExists(['name' => $name]));
+        $this->assertFalse($collection->documentExists(['name' => 'non-existing']));
     }
 }

@@ -8,7 +8,47 @@ if you want to upgrade from version A to version C and there is
 version B between A and C, you need to following the instructions
 for both A and B.
 
-Upgrade from Yii 2.0.5
+Upgrade from 2.1.9
+----------------------
+
+* `yii\mongodb\Session` now respects the 'session.use_strict_mode' ini directive.
+  In case you use a custom `Session` class and have overwritten the `Session::openSession()` and/or 
+  `Session::writeSession()` functions changes might be required:
+  * When in strict mode the `openSession()` function should check if the requested session id exists
+    (and mark it for forced regeneration if not).
+    For example, the `yii\mongodb\Session` does this at the beginning of the function as follows:
+    ```php
+    if ($this->getUseStrictMode()) {
+        $id = $this->getId();
+        $collection = $this->db->getCollection($this->sessionCollection);
+        $condition = [
+            'id' => $id,
+            'expire' => ['$gt' => time()],
+        ];
+        if (!$collection->documentExists($condition)) {
+            //This session id does not exist, mark it for forced regeneration
+            $this->_forceRegenerateId = $id;
+        }
+    }
+    // ... normal function continues ...
+    ``` 
+  * When in strict mode the `writeSession()` function should ignore writing the session under the old id.
+    For example, the `yii\mongodb\Session` does this at the beginning of the function as follows:
+    ```php
+    if ($this->getUseStrictMode() && $id === $this->_forceRegenerateId) {
+        //Ignore write when forceRegenerate is active for this id
+        return true;
+    }
+    // ... normal function continues ...
+    ```
+  > Note: In case your custom functions call their `parent` functions, there are probably no changes needed to your 
+    code if those parents implement the `useStrictMode` checks.
+
+  > Warning: in case `openSession()` and/or `writeSession()` functions do not implement the `useStrictMode` code
+    the session could be stored under the forced id without warning even if `useStrictMode` is enabled.
+
+
+Upgrade from 2.0.5
 ----------------------
 
 * PHP [mongodb](http://php.net/manual/en/set.mongodb.php) extension is now used instead of [mongo](http://php.net/manual/en/book.mongo.php).
@@ -38,13 +78,13 @@ Upgrade from Yii 2.0.5
 * Cursor composed via `yii\mongodb\file\Collection::find()` now returns result in the same format as `yii\mongodb\file\Query::one()`.
   If you wish to perform file manipulations on returned row you should use `file` key instead of direct method invocations.
 
-Upgrade from Yii 2.0.1
+Upgrade from 2.0.1
 ----------------------
 
 * MongoDB PHP extension min version raised up to 1.5.0. You should upgrade your environment in case you are
   using older version.
 
-Upgrade from Yii 2.0.0
+Upgrade from 2.0.0
 ----------------------
 
 * MongoDB PHP extension min version raised up to 1.4.0. You should upgrade your environment in case you are

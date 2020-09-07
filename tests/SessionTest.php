@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use yii\mongodb\Session;
 use Yii;
+use yii\helpers\ArrayHelper;
 
 class SessionTest extends TestCase
 {
@@ -22,13 +23,13 @@ class SessionTest extends TestCase
      * Creates test session instance.
      * @return Session session instance.
      */
-    protected function createSession()
+    protected function createSession($config = [])
     {
-        return Yii::createObject([
+        return Yii::createObject(ArrayHelper::merge([
             'class' => Session::className(),
             'db' => $this->getConnection(),
             'sessionCollection' => static::$sessionCollection,
-        ]);
+        ], $config));
     }
 
     // Tests:
@@ -156,5 +157,47 @@ class SessionTest extends TestCase
 
         $this->assertEquals('session data', $rows[0]['data']);
         $this->assertEquals(15, $rows[0]['user_id']);
+    }
+
+    /**
+     * @depends testWriteSession
+     */
+    public function testStrictMode()
+    {
+        //non-strict-mode test
+        $nonStrictSession = $this->createSession([
+            'useStrictMode' => false,
+        ]);
+        $nonStrictSession->close();
+        $nonStrictSession->destroySession('non-existing-non-strict');
+        $nonStrictSession->setId('non-existing-non-strict');
+        $nonStrictSession->open();
+        $this->assertEquals('non-existing-non-strict', $nonStrictSession->getId());
+        $nonStrictSession->close();
+
+        //strict-mode test
+        $strictSession = $this->createSession([
+            'useStrictMode' => true,
+        ]);
+        $strictSession->close();
+        $strictSession->destroySession('non-existing-strict');
+        $strictSession->setId('non-existing-strict');
+        $strictSession->open();
+        $id = $strictSession->getId();
+        $this->assertNotEquals('non-existing-strict', $id);
+        $strictSession->set('strict_mode_test', 'session data');
+        $strictSession->close();
+        //Ensure session was not stored under forced id
+        $strictSession->setId('non-existing-strict');
+        $strictSession->open();
+        $this->assertNotEquals('session data', $strictSession->get('strict_mode_test'));
+        $strictSession->close();
+        //Ensure session can be accessed with the new (and thus existing) id.
+        $strictSession->setId($id);
+        $strictSession->open();
+        $this->assertNotEmpty($id);
+        $this->assertEquals($id, $strictSession->getId());
+        $this->assertEquals('session data', $strictSession->get('strict_mode_test'));
+        $strictSession->close();
     }
 }

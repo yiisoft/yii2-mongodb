@@ -242,6 +242,16 @@ class Collection extends BaseObject
     }
 
     /**
+     * Returns if a document exists
+     * @param array $condition  query condition
+     * @return bool
+     */
+    public function documentExists($condition = [])
+    {
+        return static::findOne($condition, ['_id' => 1]) === null ? false : true;
+    }
+
+    /**
      * Updates a document and returns it.
      * @param array $condition query condition
      * @param array $update update criteria
