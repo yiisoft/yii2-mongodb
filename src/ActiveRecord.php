@@ -419,7 +419,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     public static function exists($conditions, &$object = null){
         if(func_num_args() === 2)
-            return ($object = self::findOne($conditions)) ? true : false;
+            return ($object = self::find()->where($conditions)->one()) ? true : false;
         return self::find()->where($conditions)->exists();
     }
 }
