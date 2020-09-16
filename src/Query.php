@@ -367,13 +367,15 @@ class Query extends Component implements QueryInterface
      * The value returned will be the first column in the first row of the query results.
      * Column `_id` will be automatically excluded from select fields, if [[select]] is not empty and
      * `_id` is not selected explicitly.
+     * @param mixed $value a reference variable for save result.
+     * result is the value of the first column in the first row of the query result.
      * @param Connection $db the MongoDB connection used to generate the query.
      * If this parameter is not given, the `mongodb` application component will be used.
-     * @return string|null|false the value of the first column in the first row of the query result.
-     * `false` is returned if the query result is empty.
+     * @return null|bool `null` is returned if the `emulateExecution` is not empty.
+     * `false` is returned if the query result is empty otherwise returned true.
      * @since 2.1.2
      */
-    public function scalar($db = null)
+    public function scalar(&$value, $db = null)
     {
         if (!empty($this->emulateExecution)) {
             return null;
@@ -391,7 +393,9 @@ class Query extends Component implements QueryInterface
             return false;
         }
 
-        return reset($row);
+        $value = reset($row);
+
+        return true;
     }
 
     /**
