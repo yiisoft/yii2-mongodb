@@ -29,19 +29,15 @@ abstract class ActiveRecord extends BaseActiveRecord
     /*
      * @var Command instance of Command class for batch insert.
     */
-    private static $batchInsertCommand;
+    private static $batchInsertCommand = [];
     /*
      * @var integer count of insert operation in queue
     */
-    private static $batchInsertQueue = 0;
+    private static $batchInsertQueue = [];
     /*
      * @var array array of document for insert
     */
     private static $batchInsertDocuments = [];
-    /*
-     * @var boolean a boolean flag for detect first initialize
-    */
-    private static $batchInsertInit = false;
     /*
      * @var int size of batch for insert operations
     */
@@ -50,19 +46,15 @@ abstract class ActiveRecord extends BaseActiveRecord
     /*
      * @var Command instance of Command class for batch update.
     */
-    private static $batchUpdateCommand;
+    private static $batchUpdateCommand = [];
     /*
      * @var integer count of update operation in queue
     */
-    private static $batchUpdateQueue = 0;
+    private static $batchUpdateQueue = [];
     /*
      * @var array array of document for update
     */
     private static $batchUpdateDocuments = [];
-    /*
-     * @var boolean a boolean flag for detect first initialize
-    */
-    private static $batchUpdateInit = false;
     /*
      * @var int size of batch for update operations
     */
@@ -71,19 +63,15 @@ abstract class ActiveRecord extends BaseActiveRecord
     /*
      * @var Command instance of Command class for batch delete.
     */
-    private static $batchDeleteCommand;
+    private static $batchDeleteCommand = [];
     /*
      * @var integer count of delete operation in queue
     */
-    private static $batchDeleteQueue = 0;
+    private static $batchDeleteQueue = [];
     /*
      * @var array array of document for delete
     */
     private static $batchDeleteDocuments = [];
-    /*
-     * @var boolean a boolean flag for detect first initialize
-    */
-    private static $batchDeleteInit = false;
     /*
      * @var int size of batch for delete operations
     */
@@ -493,18 +481,22 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return bool
     */
     public static function hasBatchInsert(){
-        return self::$batchInsertQueue > 0;
+        $className = static::className();
+        return array_key_exists($className,self::$batchInsertQueue) && self::$batchInsertQueue[$className] > 0;
     }
 
     /**
      * this method is invoked in first call of batchInsert() method for once
     */
     private static function batchInsertInit(){
-        if(self::$batchInsertInit)
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchInsertCommand))
             return;
-        self::$batchInsertInit = true;
-        self::$batchInsertCommand = static::getDb()->createCommand();
-        if(self::$batchInsertCommand->db->enableLogging)
+
+        self::$batchInsertQueue[$className] = 0;
+        self::$batchInsertCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchInsertCommand[$className]->db->enableLogging)
             register_shutdown_function(function(){
                 if(self::hasBatchInsert())
                     yii::warning(static::className().' : batch insert mode not completed!');
@@ -528,9 +520,10 @@ abstract class ActiveRecord extends BaseActiveRecord
                 }
             }
         }
-        self::$batchInsertCommand->AddInsert($values);
-        self::$batchInsertQueue++;
-        if(self::$batchInsertQueue >= static::$batchInsertSize)
+        $className = static::className();
+        self::$batchInsertCommand[$className]->AddInsert($values);
+        self::$batchInsertQueue[$className]++;
+        if(self::$batchInsertQueue[$className] >= static::$batchInsertSize)
             return self::flushBatchInsert();
     }
 
@@ -538,8 +531,11 @@ abstract class ActiveRecord extends BaseActiveRecord
      * resetting batch insert
     */
     public static function resetBatchInsert(){
-        self::$batchInsertQueue = 0;
-        self::$batchInsertCommand->document = [];
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchInsertCommand))
+            return;
+        self::$batchInsertQueue[$className] = 0;
+        self::$batchInsertCommand[$className]->document = [];
     }
 
     /**
@@ -548,9 +544,10 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return see docs of Command::executeBatch()
     */
     public static function flushBatchInsert(){
-        if(self::$batchInsertQueue === 0)
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchInsertQueue) || self::$batchInsertQueue[$className] === 0)
             return;
-        $result = self::$batchInsertCommand->executeBatch(static::collectionName());
+        $result = self::$batchInsertCommand[$className]->executeBatch(static::collectionName());
         self::resetBatchInsert();
         return $result;
     }
@@ -560,18 +557,22 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return bool
     */
     public static function hasBatchUpdate(){
-        return self::$batchUpdateQueue > 0;
+        $className = static::className();
+        return array_key_exists($className,self::$batchUpdateQueue) && self::$batchUpdateQueue[$className] > 0;
     }
 
     /**
      * this method is invoked in first call of batchUpdate() method for once
     */
     private static function batchUpdateInit(){
-        if(self::$batchUpdateInit)
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchUpdateCommand))
             return;
-        self::$batchUpdateInit = true;
-        self::$batchUpdateCommand = static::getDb()->createCommand();
-        if(self::$batchUpdateCommand->db->enableLogging)
+
+        self::$batchUpdateQueue[$className] = 0;
+        self::$batchUpdateCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchUpdateCommand[$className]->db->enableLogging)
             register_shutdown_function(function(){
                 if(self::hasBatchUpdate())
                     yii::warning(static::className().' : batch update mode not completed!');
@@ -590,9 +591,10 @@ abstract class ActiveRecord extends BaseActiveRecord
         if (empty($values))
            return;
         $condition = $this->getOldPrimaryKey(true);
-        self::$batchUpdateCommand->addUpdate($condition, $values);
-        self::$batchUpdateQueue++;
-        if(self::$batchUpdateQueue >= static::$batchUpdateSize)
+        $className = static::className();
+        self::$batchUpdateCommand[$className]->addUpdate($condition, $values);
+        self::$batchUpdateQueue[$className]++;
+        if(self::$batchUpdateQueue[$className] >= static::$batchUpdateSize)
             return self::flushBatchUpdate();
     }
 
@@ -607,9 +609,10 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     public static function batchUpdateAll($attributes, $condition = [], $options = []){
         self::batchUpdateInit();
-        self::$batchUpdateCommand->addUpdate($condition, $attributes, $options);
-        self::$batchUpdateQueue++;
-        if(self::$batchUpdateQueue >= static::$batchUpdateSize)
+        $className = static::className();
+        self::$batchUpdateCommand[$className]->addUpdate($condition, $attributes, $options);
+        self::$batchUpdateQueue[$className]++;
+        if(self::$batchUpdateQueue[$className] >= static::$batchUpdateSize)
             return self::flushBatchUpdate();
     }
 
@@ -617,8 +620,11 @@ abstract class ActiveRecord extends BaseActiveRecord
      * resetting batch update
     */
     public static function resetBatchUpdate(){
-        self::$batchUpdateQueue = 0;
-        self::$batchUpdateCommand->document = [];
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchUpdateCommand))
+            return;
+        self::$batchUpdateQueue[$className] = 0;
+        self::$batchUpdateCommand[$className]->document = [];
     }
 
     /**
@@ -627,9 +633,10 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return see docs of Command::executeBatch()
     */
     public static function flushBatchUpdate(){
-        if(self::$batchUpdateQueue === 0)
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchUpdateQueue) || self::$batchUpdateQueue[$className] === 0)
             return;
-        $result = self::$batchUpdateCommand->executeBatch(static::collectionName());
+        $result = self::$batchUpdateCommand[$className]->executeBatch(static::collectionName());
         self::resetBatchUpdate();
         return $result;
     }
@@ -639,18 +646,22 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return bool
     */
     public static function hasBatchDelete(){
-        return self::$batchDeleteQueue > 0;
+        $className = static::className();
+        return array_key_exists($className,self::$batchDeleteQueue) && self::$batchDeleteQueue[$className] > 0;
     }
 
     /**
      * this method is invoked in first call of batchDelete() method for once
     */
     private static function batchDeleteInit(){
-        if(self::$batchDeleteInit)
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchDeleteCommand))
             return;
-        self::$batchDeleteInit = true;
-        self::$batchDeleteCommand = static::getDb()->createCommand();
-        if(self::$batchDeleteCommand->db->enableLogging)
+
+        self::$batchDeleteQueue[$className] = 0;
+        self::$batchDeleteCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchDeleteCommand[$className]->db->enableLogging)
             register_shutdown_function(function(){
                 if(self::hasBatchDelete())
                     yii::warning(static::className().' : batch delete mode not completed!');
@@ -663,9 +674,10 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     public function batchDelete(){
         self::batchDeleteInit();
-        self::$batchDeleteCommand->AddDelete($this->getOldPrimaryKey(true));
-        self::$batchDeleteQueue++;
-        if(self::$batchDeleteQueue >= static::$batchDeleteSize)
+        $className = static::className();
+        self::$batchDeleteCommand[$className]->AddDelete($this->getOldPrimaryKey(true));
+        self::$batchDeleteQueue[$className]++;
+        if(self::$batchDeleteQueue[$className] >= static::$batchDeleteSize)
             return self::flushBatchDelete();
     }
 
@@ -679,9 +691,10 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     public function batchDeleteAll($condition = [], $options = []){
         self::batchDeleteInit();
-        self::$batchDeleteCommand->AddDelete($condition, $options);
-        self::$batchDeleteQueue++;
-        if(self::$batchDeleteQueue >= static::$batchDeleteSize)
+        $className = static::className();
+        self::$batchDeleteCommand[$className]->AddDelete($condition, $options);
+        self::$batchDeleteQueue[$className]++;
+        if(self::$batchDeleteQueue[$className] >= static::$batchDeleteSize)
             return self::flushBatchDelete();
     }
 
@@ -689,8 +702,11 @@ abstract class ActiveRecord extends BaseActiveRecord
      * resetting batch delete
     */
     public static function resetBatchDelete(){
-        self::$batchDeleteQueue = 0;
-        self::$batchDeleteCommand->document = [];
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchDeleteCommand))
+            return;
+        self::$batchDeleteQueue[$className] = 0;
+        self::$batchDeleteCommand[$className]->document = [];
     }
 
     /**
@@ -699,9 +715,10 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return see docs of Command::executeBatch()
     */
     public static function flushBatchDelete(){
-        if(self::$batchDeleteQueue === 0)
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchDeleteQueue) || self::$batchDeleteQueue[$className] === 0)
             return;
-        $result = self::$batchDeleteCommand->executeBatch(static::collectionName());
+        $result = self::$batchDeleteCommand[$className]->executeBatch(static::collectionName());
         self::resetBatchDelete();
         return $result;
     }
