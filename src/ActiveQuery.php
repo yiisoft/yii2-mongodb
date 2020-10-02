@@ -94,6 +94,19 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     }
 
     /**
+     * Returns the connection used by this ActiveQuery.
+     * @param Connection $db Mongo connection.
+     * @return Connection connection instance.
+     */
+    public function getDb($db = null){
+        if($db !== null){
+            return $db;
+        }
+        $modelClass = $this->modelClass;
+        return $modelClass::getDb();
+    }
+
+    /**
      * {@inheritdoc}
      */
     public function prepare()
@@ -183,15 +196,13 @@ class ActiveQuery extends Query implements ActiveQueryInterface
     public function getCollection($db = null)
     {
         /* @var $modelClass ActiveRecord */
-        $modelClass = $this->modelClass;
-        if ($db === null) {
-            $db = $modelClass::getDb();
-        }
+
         if ($this->from === null) {
+            $modelClass = $this->modelClass;
             $this->from = $modelClass::collectionName();
         }
 
-        return $db->getCollection($this->from);
+        return $this->getDb()->getCollection($this->from);
     }
 
     /**

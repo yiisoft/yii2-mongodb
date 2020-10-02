@@ -60,6 +60,14 @@ class Query extends Component implements QueryInterface
      */
     public $options = [];
 
+    /**
+     * Returns the connection used by this Query.
+     * @param Connection $db Mongo connection.
+     * @return Connection connection instance.
+     */
+    public function getDb($db = null){
+        return $db === null ? $db : Yii::$app->get('mongodb');
+    }
 
     /**
      * Returns the Mongo collection for this query.
@@ -68,11 +76,7 @@ class Query extends Component implements QueryInterface
      */
     public function getCollection($db = null)
     {
-        if ($db === null) {
-            $db = Yii::$app->get('mongodb');
-        }
-
-        return $db->getCollection($this->from);
+        return $this->getDb($db)->getCollection($this->from);
     }
 
     /**
@@ -210,9 +214,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($all = true, $db = null)
     {
-        if ($db === null) {
-            $db = Yii::$app->get('mongodb');
-        }
+        $db = $this->getDb($db);
         $cursor = $this->buildCursor($db);
         $token = 'fetch cursor id = ' . $cursor->getId();
         if ($db->enableLogging) {
@@ -288,7 +290,7 @@ class Query extends Component implements QueryInterface
             'class' => BatchQueryResult::className(),
             'query' => $this,
             'batchSize' => $batchSize,
-            'db' => $db,
+            'db' => $this->getDb($db),
             'each' => false,
         ]);
     }
@@ -316,7 +318,7 @@ class Query extends Component implements QueryInterface
             'class' => BatchQueryResult::className(),
             'query' => $this,
             'batchSize' => $batchSize,
-            'db' => $db,
+            'db' => $this->getDb($db),
             'each' => true,
         ]);
     }
