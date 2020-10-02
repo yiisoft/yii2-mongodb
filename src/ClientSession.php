@@ -133,14 +133,6 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * current session has a transaction?
-     * @return bool return true if transaction exists otherwise return false
-    */
-    public function getHasTransaction(){
-        return !empty($this->_transaction);
-    }
-
-    /**
      * Returns whether a multi-document transaction is in progress
      * @return bool
     */

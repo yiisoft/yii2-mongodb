@@ -28,6 +28,11 @@ use Yii;
 class Transaction extends \yii\base\BaseObject
 {
 
+    const STATE_NONE = 'none';
+    const STATE_STARTING = 'starting';
+    const STATE_ABORTED = 'aborted';
+    const STATE_COMMITTED = 'committed';
+
     /**
      * @var MongoDB\Driver\Session class represents a client session and Commands, queries, and write operations may then be associated the session.
      * @see https://www.php.net/manual/en/class.mongodb-driver-session.php
@@ -62,6 +67,13 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiEndProfile($token, $category = 'mongodb'){
         if($this->clientSession->db->enableProfiling)
             yii::endProfile($token,$category);
+    }
+
+    /**
+     * Returns the transaction state.
+     */
+    public function getState(){
+        return $this->clientSession->mongoSession->getTransactionState();
     }
 
     /**

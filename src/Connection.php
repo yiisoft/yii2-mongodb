@@ -471,11 +471,30 @@ class Connection extends Component
     }
 
     /**
-     * start new session for current connection
+     * Ends the previous session and starts new session for current connection.
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * @param array $skip when set to true , no creates new session if exists.
+     * return ClientSession
+    */
+    public function startSession($sessionOptions = [], $skip = false){
+
+        if($this->getInSession()){
+            if($skip)
+                return $this->getSession();
+            $this->getSession()->end();
+        }
+
+        $newSession = ClientSession::start($this, $sessionOptions);
+        $this->setSession($newSession);
+        return $newSession;
+    }
+
+    /**
+     * only starts new session for current connection and that session does not sets for current connection.
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function startSession($sessionOptions = []){
+    public function newSession($sessionOptions = []){
         return ClientSession::start($this, $sessionOptions);
     }
 
@@ -492,7 +511,7 @@ class Connection extends Component
      * return bool
     */
     public function getInTransaction(){
-        return $this->getInSession() && $this->getSession()->getHasTransaction();
+        return $this->getInSession() && $this->getSession()->getInTransaction();
     }
 
     /**
@@ -502,7 +521,7 @@ class Connection extends Component
     public function transactionReady($operation){
         if(!$this->getInSession())
             throw new Exception('You can\'t '.$operation.' because current connection is\'t in a session.');
-        if(!$this->getSession()->getHasTransaction())
+        if(!$this->getSession()->getInTransaction())
             throw new Exception('You can\'t '.$operation.' because transaction not started in current session.');
     }
 
@@ -516,7 +535,7 @@ class Connection extends Component
 
     /**
      * start transaction with three step :
-     * - start new session
+     * - starts new session if has not started
      * - start transaction of new session
      * - set new session to current connection
      * @param array $transactionOptions see doc of Transaction::start()
@@ -524,10 +543,9 @@ class Connection extends Component
      * return ClientSession
     */
     public function startTransaction($transactionOptions = [], $sessionOptions = []){
-        $newClientSession = $this->startSession($sessionOptions);
-        $newClientSession->getTransaction()->start($transactionOptions);
-        $this->setSession($newClientSession);
-        return $newClientSession;
+        $session = $this->startSession($sessionOptions,true);
+        $session->getTransaction()->start($transactionOptions);
+        return $session;
     }
 
     /**
@@ -568,23 +586,19 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
     */
     public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
-        #save last mongo session for return
-        $lastSession = $this->getSession();
-        $newClientSession = $this->startTransaction($transactionOptions, $sessionOptions);
+        $session = $this->startTransaction($transactionOptions, $sessionOptions);
         $success = false;
         try {
-            $result = call_user_func($actions, $newClientSession);
-            if($newClientSession->getTransaction()->getIsActive())
+            $result = call_user_func($actions, $session);
+            if($session->getTransaction()->getIsActive())
                 if($result === false)
-                    $newClientSession->getTransaction()->rollBack();
+                    $session->getTransaction()->rollBack();
                 else
-                    $newClientSession->getTransaction()->commit();
+                    $session->getTransaction()->commit();
             $success = true;
         } finally {
-            if(!$success && $newClientSession->getTransaction()->getIsActive())
-                $newClientSession->getTransaction()->rollBack();
-            #return last mongo session
-            $this->setSession($lastSession);
+            if(!$success && $session->getTransaction()->getIsActive())
+                $session->getTransaction()->rollBack();
         }
     }
 

@@ -533,7 +533,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         $db->transactionReady('lock document');
         $options['new'] = true;
         return
-            self::find()
+            static::find()
                 ->where(['_id' => $id])
             ->modify(['$set' => [static::$lockField => new ObjectId]], $options, $db)
         ;
@@ -547,11 +547,11 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param mixed $id a document id(primary key > _id)
      * @param array $options list of options in format:
      *   [
-     *     'sessionOptions' => [],     #new session options. see $sessionOptions in ClientSession::start()
-     *     'transactionOptions' => [], #new transaction options. see $transactionOptions in Transaction::start()
-     *     'modifyOptions' => [],      #see $options in ActiveQuery::modify()
-     *     'sleep' => 1000000,         #time in microseconds for wait.default is one second
-     *     'tiredAfter' => 0,          #maximum count of retry. throw write conflict error after reached this value. zero default is unlimited.
+     *     'mySession' => false,        #custom session instance of ClientSession.
+     *     'transactionOptions' => [],  #new transaction options. see $transactionOptions in Transaction::start()
+     *     'modifyOptions' => [],       #see $options in ActiveQuery::modify()
+     *     'sleep' => 1000000,          #time in microseconds for wait. default is one second.
+     *     'tiredAfter' => 0,           #maximum count of retry. throw write conflict error after reached this value. zero default is unlimited.
      *   ]
      * @param Connection $db the Mongo connection used to execute the query.
      * @return ActiveRecord|null the modified document.
@@ -563,7 +563,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         $db = $db ? $db : static::getDb();
 
         $options = array_replace_recursive([
-            'sessionOptions' => [],
+            'mySession' => false,
             'transactionOptions' => [],
             'modifyOptions' => [],
             'sleep' => 1000000, #in microseconds
@@ -572,23 +572,24 @@ abstract class ActiveRecord extends BaseActiveRecord
 
         $options['modifyOptions']['new'] = true;
 
-        #create new session for stubbornness
-        $newClientSession = $db->startSession($options['sessionOptions']);
-        $db->setSession($newClientSession);
+        $session = $options['mySession'] ? $options['mySession'] : $db->startSession([],true); 
+
+        if($session->getInTransaction())
+            throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
 
         #start stubborn
         $tiredCounter = 0;
         StartStubborn:
-        $newClientSession->transaction->start($options['transactionOptions']);
+        $session->transaction->start($options['transactionOptions']);
         try{
             $doc = 
-                self::find()
+                static::find()
                     ->where(['_id' => $id])
                 ->modify(['$set' => [static::$lockField => new ObjectId]], $options['modifyOptions'], $db)
             ;
             return $doc;
         }catch(\Exception $e){
-            $newClientSession->transaction->rollBack();
+            $session->transaction->rollBack();
             $tiredCounter++;
             if($options['tiredAfter'] !== 0 && $tiredCounter === $options['tiredAfter'])
                 throw $e;

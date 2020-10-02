@@ -159,12 +159,12 @@ class Command extends BaseObject
      * Execute commands batch (bulk).
      * @param string $collectionName collection name.
      * @param array $options batch options.
+     * @param array $execOptions options for executeBulkWrite
      * @return array array of 2 elements:
      *
      * - 'insertedIds' - contains inserted IDs.
      * - 'result' - [[\MongoDB\Driver\WriteResult]] instance.
      *
-     * @param array $execOptions options for executeBulkWrite
      * @see https://www.php.net/manual/en/mongodb-driver-server.executebulkwrite.php#refsect1-mongodb-driver-server.executebulkwrite-parameters
      * @throws Exception on failure.
      * @throws InvalidConfigException on invalid [[document]] format.
