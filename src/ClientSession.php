@@ -153,6 +153,6 @@ class ClientSession extends \yii\base\BaseObject
     */
     public function end(){
         $this->mongoSession->endSession();
-        $db->trigger(Connection::EVENT_END_SESSION);
+        $this->db->trigger(Connection::EVENT_END_SESSION);
     }
 }
