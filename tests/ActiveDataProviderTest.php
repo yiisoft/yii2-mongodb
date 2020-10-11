@@ -12,7 +12,6 @@ class ActiveDataProviderTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->mockApplication();
         $this->setUpTestRows();
     }
 

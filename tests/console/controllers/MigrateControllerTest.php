@@ -47,8 +47,6 @@ class MigrateControllerTest extends TestCase
         $this->migrationNamespace = 'yiiunit\extensions\mongodb\runtime\test_migrations';
 
         $this->setUpMigrationPath();
-
-        $this->mockApplication();
     }
 
     public function tearDown()

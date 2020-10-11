@@ -10,11 +10,6 @@ use yiiunit\extensions\mongodb\data\ar\Customer;
 
 class ActiveFixtureTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->mockApplication();
-    }
 
     protected function tearDown()
     {

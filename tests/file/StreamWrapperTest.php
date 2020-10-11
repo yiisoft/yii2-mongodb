@@ -35,12 +35,6 @@ class StreamWrapperTest extends TestCase
 
     public function testWriteResource()
     {
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => yii::$app->mongodb
-            ],
-        ]);
-
         yii::$app->mongodb->registerFileStreamWrapper(true);
         $databaseName = yii::$app->mongodb->getDefaultDatabaseName();
 
@@ -59,12 +53,6 @@ class StreamWrapperTest extends TestCase
 
     public function testReadResource()
     {
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => yii::$app->mongodb
-            ],
-        ]);
-
         $collection = yii::$app->mongodb->getFileCollection();
         $upload = $collection->createUpload();
         $document = $upload->addContent('test content')->complete();
@@ -80,12 +68,6 @@ class StreamWrapperTest extends TestCase
     
     public function testSeek()
     {
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => yii::$app->mongodb
-            ],
-        ]);
-
         yii::$app->mongodb->registerFileStreamWrapper(true);
         $databaseName = yii::$app->mongodb->getDefaultDatabaseName();
 

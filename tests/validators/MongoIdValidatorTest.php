@@ -9,12 +9,6 @@ use yiiunit\extensions\mongodb\TestCase;
 
 class MongoIdValidatorTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->mockApplication();
-    }
-
     public function testValidateValue()
     {
         $validator = new MongoIdValidator();
