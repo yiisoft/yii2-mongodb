@@ -39,7 +39,7 @@ cache:
     - $HOME/.composer/cache
 
 install:
-  - sudo echo "replication:replSetName: yii2rs" >> /etc/mongodb.conf
+  - sudo echo "replication:replSetName: yii2rs" > /etc/mongodb.conf
   - sudo service mongodb restart
   - sleep 20
   - mongo --eval 'rs.initiate()'
