@@ -40,7 +40,6 @@ install:
   - mongod --dbpath=data/db --replSet "rs0" &
   - sleep 5
   - mongo --eval 'rs.initiate()'
-  - mongo --eval ';'
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"

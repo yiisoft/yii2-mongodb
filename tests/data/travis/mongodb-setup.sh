@@ -7,7 +7,7 @@
 echo "MongoDB Server version:"
 mongod --version
 
-mongo yii2test --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
+mongo mongo "mongodb://127.0.0.1/yii2test?replicaSet=rs0" --eval 'db.createUser({user: "travis", pwd: "test", roles: ["readWrite", "dbAdmin"]});'
 
 # PHP Extension :
 
