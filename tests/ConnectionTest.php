@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use yii;
 use yii\mongodb\Collection;
 use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;

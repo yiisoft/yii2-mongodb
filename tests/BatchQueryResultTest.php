@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use yii;
 use yii\mongodb\BatchQueryResult;
 use yii\mongodb\Query;
 use yiiunit\extensions\mongodb\data\ar\Customer;

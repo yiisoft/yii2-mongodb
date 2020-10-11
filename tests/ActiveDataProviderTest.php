@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
 use yiiunit\extensions\mongodb\data\ar\Customer;

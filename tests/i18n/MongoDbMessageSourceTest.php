@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\i18n;
 
+use yii;
 use yii\i18n\I18N;
 use yii\mongodb\i18n\MongoDbMessageSource;
 use yiiunit\extensions\mongodb\TestCase;

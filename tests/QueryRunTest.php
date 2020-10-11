@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yii\mongodb\Query;
 
 class QueryRunTest extends TestCase

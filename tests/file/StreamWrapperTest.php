@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use yii;
 use yiiunit\extensions\mongodb\TestCase;
 
 class StreamWrapperTest extends TestCase

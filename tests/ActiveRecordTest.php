@@ -5,6 +5,7 @@ namespace yiiunit\extensions\mongodb;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
+use yii;
 use yii\mongodb\ActiveQuery;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\Animal;

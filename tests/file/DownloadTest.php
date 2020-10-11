@@ -3,7 +3,7 @@
 namespace yiiunit\extensions\mongodb\file;
 
 use yiiunit\extensions\mongodb\TestCase;
-
+use yii;
 /**
  * @group file
  */

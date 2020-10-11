@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\ObjectID;
+use yii;
 
 class LogBuilderTest extends TestCase
 {

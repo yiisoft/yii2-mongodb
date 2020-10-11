@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use yii;
 use yii\mongodb\file\Download;
 use yii\mongodb\file\Query;
 use yiiunit\extensions\mongodb\TestCase;

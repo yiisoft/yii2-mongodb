@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yii\mongodb\file\Cursor;
 use yii\mongodb\file\Download;
 use yiiunit\extensions\mongodb\TestCase;

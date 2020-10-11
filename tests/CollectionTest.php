@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\Cursor;
+use yii;
 
 class CollectionTest extends TestCase
 {

@@ -5,6 +5,7 @@ namespace yiiunit\extensions\mongodb\file;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 use yiiunit\extensions\mongodb\TestCase;
+use yii;
 
 /**
  * @group file
