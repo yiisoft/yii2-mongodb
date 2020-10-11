@@ -51,7 +51,11 @@ class MigrateControllerTest extends TestCase
 
     public function tearDown()
     {
-        yii::$app->mongodb->getCollection('migration')->drop();
+        try {
+            yii::$app->mongodb->getCollection('migration')->drop();
+        } catch (Exception $e) {
+            // shutdown exception
+        }
         $this->tearDownMigrationPath();
         parent::tearDown();
     }
