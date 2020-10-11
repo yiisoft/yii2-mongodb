@@ -14,7 +14,7 @@ class ConnectionTest extends TestCase
 {
     public function testConstruct()
     {
-        $connection = $this->getConnection(false);
+        $connection = $this->getConnection(true,false);
         $params = $this->mongoDbConfig;
 
         $connection->open();
@@ -26,7 +26,7 @@ class ConnectionTest extends TestCase
 
     public function testOpenClose()
     {
-        $connection = $this->getConnection(false, false);
+        $connection = $this->getConnection(true, false);
 
         $this->assertFalse($connection->isActive);
         $this->assertEquals(null, $connection->manager);
