@@ -25,7 +25,7 @@ sudo: false
 
 env:
   global:
-    - MONGODB_VERSION=2.6.10
+    - MONGODB_VERSION=4.0.0
 
 # cache vendor dirs
 cache:
