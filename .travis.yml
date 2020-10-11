@@ -37,12 +37,12 @@ install:
   - tar xfz mongodb-linux-x86_64-$MONGODB_VERSION.tgz
   - export PATH=`pwd`/mongodb-linux-x86_64-$MONGODB_VERSION/bin:$PATH
   - mkdir -p data/db
-  - mongod --dbpath=data/db &
+  - mongod --quiet --dbpath=data/db &
   - sleep 5
   - tests/data/travis/mongodb-setup.sh
   - pkill -f "mongod"
   - sleep 5
-  - mongod --noauth --dbpath=data/db --replSet "rs0" &
+  - mongod --quiet --noauth --dbpath=data/db --replSet "rs0" &
   - sleep 5
   - mongo --eval 'rs.initiate()'
   - travis_retry composer self-update && composer --version
