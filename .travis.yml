@@ -1,3 +1,4 @@
+
 language: php
 
 matrix:
@@ -19,19 +20,12 @@ matrix:
     - php: "5.4"
       dist: trusty
 
-services:
-  - mongodb
-
-addons:
-  apt:
-    sources:
-      - mongodb-4.0-precise
-    packages:
-      - mongodb-org-server
-      - mongodb-org-shell
-
 # faster builds on new travis setup not using sudo
 sudo: false
+
+env:
+  global:
+    - MONGODB_VERSION=2.6.10
 
 # cache vendor dirs
 cache:
@@ -39,11 +33,13 @@ cache:
     - $HOME/.composer/cache
 
 install:
-  - sudo service mongod stop
-  - mongo --replSet "rs0"
-  - sleep 20
+  - wget http://fastdl.mongodb.org/linux/mongodb-linux-x86_64-$MONGODB_VERSION.tgz
+  - tar xfz mongodb-linux-x86_64-$MONGODB_VERSION.tgz
+  - export PATH=`pwd`/mongodb-linux-x86_64-$MONGODB_VERSION/bin:$PATH
+  - mkdir -p data/db
+  - mongod --dbpath=data/db --replSet "rs0" &
+  - sleep 3
   - mongo --eval 'rs.initiate()'
-  - sleep 15
   - tests/data/travis/mongodb-setup.sh
   - travis_retry composer self-update && composer --version
   - export PATH="$HOME/.composer/vendor/bin:$PATH"
