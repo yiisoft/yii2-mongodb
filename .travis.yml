@@ -39,7 +39,7 @@ cache:
     - $HOME/.composer/cache
 
 install:
-  - sudo service mongodb stop
+  - sudo service mongod stop
   - mongo --replSet "rs0"
   - sleep 20
   - mongo --eval 'rs.initiate()'
