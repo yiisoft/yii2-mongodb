@@ -41,6 +41,7 @@ install:
   - sleep 5
   - tests/data/travis/mongodb-setup.sh
   - pkill -f "mongod"
+  - sleep 5
   - mongod --noauth --dbpath=data/db --replSet "rs0" &
   - sleep 5
   - mongo --eval 'rs.initiate()'
