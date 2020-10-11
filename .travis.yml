@@ -17,9 +17,6 @@ matrix:
     - php: "5.5"
       dist: trusty
 
-    - php: "5.4"
-      dist: trusty
-
 # faster builds on new travis setup not using sudo
 sudo: false
 
