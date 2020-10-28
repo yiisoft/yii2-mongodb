@@ -175,6 +175,9 @@ class Connection extends Component
      */
     public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
 
+    /**
+    * @var array default options for `executeCommand` method of MongoDB\Driver\Manager in `Command` class.
+    */
     public $globalExecOptions = [];
 
     /**
@@ -457,8 +460,7 @@ class Connection extends Component
     }
 
     /**
-     * set global execOptions for Command::execute() and Command::executeBatch() and Command::query()
-     * this options when set if internal $execOptions is not set.
+     * Sets global execOptions for Command::execute() and Command::executeBatch() and Command::query()
      * @param array $execOptions see docs of Command::execute() and Command::executeBatch() and Command::query()
      * @return $this
      */
@@ -471,26 +473,33 @@ class Connection extends Component
     }
 
     /**
-     * Ends the previous session and starts new session for current connection.
+     * Ends the previous session and starts the new session.
      * @param array $sessionOptions see doc of ClientSession::start()
-     * @param array $skip when set to true , no creates new session if exists.
      * return ClientSession
     */
-    public function startSession($sessionOptions = [], $skip = false){
+    public function startSession($sessionOptions = []){
 
-        if($this->getInSession()){
-            if($skip)
-                return $this->getSession();
+        if($this->getInSession())
             $this->getSession()->end();
-        }
 
-        $newSession = ClientSession::start($this, $sessionOptions);
+        $newSession = $this->newSession($sessionOptions);
         $this->setSession($newSession);
         return $newSession;
     }
 
     /**
-     * only starts new session for current connection and that session does not sets for current connection.
+     * Starts a new session if the session has not started, otherwise returns previous session.
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * return ClientSession
+    */
+    public function startSessionOnce($sessionOptions = []){
+        if($this->getInSession())
+            return $this->getSession();
+        return $this->startSession($sessionOptions);
+    }
+
+    /**
+     * Only starts the new session for current connection but this session does not set for current connection.
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
@@ -499,7 +508,7 @@ class Connection extends Component
     }
 
     /**
-     * check if current connection is in session
+     * Checks whether the current connection is in session.
      * return bool
     */
     public function getInSession(){
@@ -507,7 +516,7 @@ class Connection extends Component
     }
 
     /**
-     * check if current connection is in session and transaction
+     * Checks that the current connection is in session and transaction
      * return bool
     */
     public function getInTransaction(){
@@ -515,7 +524,7 @@ class Connection extends Component
     }
 
     /**
-     * throw custome error if transaction is not ready in connection 
+     * Throws custom error if transaction is not ready in connection 
      * @param string $operation a custom message to be shown
     */
     public function transactionReady($operation){
@@ -526,7 +535,7 @@ class Connection extends Component
     }
 
     /**
-     * return current session
+     * Returns current session
      * return ClientSession|null
     */
     public function getSession(){
@@ -534,10 +543,10 @@ class Connection extends Component
     }
 
     /**
-     * start transaction with three step :
+     * Starts a transaction with three steps :
      * - starts new session if has not started
-     * - start transaction of new session
-     * - set new session to current connection
+     * - starts the transaction in new session
+     * - sets new session to current connection
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
@@ -549,7 +558,19 @@ class Connection extends Component
     }
 
     /**
-    * commit transaction in current session
+     * Starts a transaction in current session if the previous transaction was not started in current session.
+     * @param array $transactionOptions see doc of Transaction::start()
+     * @param array $sessionOptions see doc of ClientSession::start()
+     * return ClientSession
+    */
+    public function startTransactionOnce($transactionOptions = [], $sessionOptions = []){
+        if($this->getInTransaction())
+            return $this->getSession();
+        return $this->startTransaction($transactionOptions,$sessionOptions);
+    }
+
+    /**
+    * Commits transaction in current session
     */
     public function commitTransaction(){
         $this->transactionReady('commit transaction');
@@ -557,7 +578,7 @@ class Connection extends Component
     }
 
     /**
-    * rollback transaction in current session
+    * Rollbacks transaction in current session
     */
     public function rollBackTransaction(){
         $this->transactionReady('roll back transaction');
@@ -565,8 +586,8 @@ class Connection extends Component
     }
 
     /**
-     * change current session of command (or drop session)
-     * @param ClientSession|null $clientSession new instance of ClientSession for replace
+     * Changes the current session of connection to execute commands (or drop session)
+     * @param ClientSession|null $clientSession new instance of ClientSession to replace
      * return $this
     */
     public function setSession($clientSession){
@@ -579,9 +600,9 @@ class Connection extends Component
     }
 
     /**
-     * easy start and commit transaction
-     * @param callable $actions your block of code must be run after transaction started and before commit
-     * if $actions return false then transaction rolled back.
+     * Starts and commits a transaction in easy mode.
+     * @param callable $actions your block of code must be runned after transaction started and before commit
+     * if the $actions returns false then transaction rolls back.
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
     */
@@ -603,10 +624,23 @@ class Connection extends Component
     }
 
     /**
-     * run your mongodb command out of session and transaction.
-     * returns last mongodb session to current session after end of codes.
-     * @param callable $actions your block of code must be run out of session and transaction
-     * return result of $actions()
+     * Starts and commits transaction in easy mode if the previous transaction was not executed,
+     * otherwise only runs your actions in previous transaction.
+     * @param callable $actions your block of code must be runned after transaction started and before commit
+     * @param array $transactionOptions see doc of Transaction::start()
+     * @param array $sessionOptions see doc of ClientSession::start()
+    */
+    public function transactionOnce(callable $actions, $transactionOptions = [], $sessionOptions = []){
+        if($this->getInTransaction())
+            $action();
+        else
+            $this->transaction($action,$transactionOptions,$sessionOptions);
+    }
+
+    /**
+     * Runs your mongodb command out of session and transaction.
+     * @param callable $actions your block of code must be runned out of session and transaction
+     * @return mixed returns a result of $actions()
     */
     public function noTransaction(callable $actions){
         $lastSession = $this->getSession();

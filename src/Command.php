@@ -73,10 +73,13 @@ class Command extends BaseObject
      */
     public $document = [];
 
+    /**
+    * @var array default options for `executeCommand` method of MongoDB\Driver\Manager.
+    */
     public $globalExecOptions = [];
 
     /**
-    * prepare execOptions for some purpose
+    * prepares execOptions for some purposes
     * @param array|object by reference see Connection::prepareExceOptions
     */
     private function prepareExecOptions(&$execOptions){

@@ -15,8 +15,8 @@ use MongoDB\Driver\ReadPreference;
 /**
  * ClientSession represents a client session and Commands, queries, and write operations may then be associated the session.
  * @see https://docs.mongodb.com/manual/release-notes/3.6/#client-sessions
- * Note : At least 1.4.0 mongodb php driver version is supported.
- * Note : At least 3.6 MongoDB version is supported.
+ * Note : The minimum supported version of mongodb php driver is 1.4.0
+ * Note : The minimum supported version of MongoDB server is 3.6
  * @see https://github.com/mongodb/mongo-php-driver/releases/tag/1.4.0
  * @see https://docs.mongodb.com/ecosystem/drivers/php/#mongodb-compatibility
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
@@ -37,12 +37,12 @@ class ClientSession extends \yii\base\BaseObject
     public $mongoSession;
 
     /**
-     * @var Transaction current transaction in session. this transaction can only be created once.
+     * @var Transaction The current transaction in session. this transaction can only be created once.
     */
     private $_transaction = null;
 
     /**
-    * preapare options for some purpose
+    * Prepares options for some purposes
     * @param array by reference
     * convert string option to object
     * [
@@ -102,11 +102,11 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * Start a new session in a connection.
+     * Starts a new mongodb session in a connection.
      * @param Connection $db 
      * @param Array $sessionOptions Creates a ClientSession for the given options
      * @see https://www.php.net/manual/en/mongodb-driver-manager.startsession.php#refsect1-mongodb-driver-manager.startsession-parameters
-     * @return ClientSession return new session base on a session options for the given connection
+     * @return ClientSession returns new session base on a session options for the given connection
     */
     public static function start($db, $sessionOptions = []){
         self::prepareOptions($sessionOptions);
@@ -123,8 +123,8 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * Get current transaction of session or create a new transaction once
-     * @return Transaction return current transaction
+     * Gets a current transaction of session or creates a new transaction once
+     * @return Transaction returns current transaction
     */
     public function getTransaction(){
         if($this->_transaction === null)
@@ -133,7 +133,7 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * Returns whether a multi-document transaction is in progress
+     * Returns true if the transaction is in progress
      * @return bool
     */
     public function getInTransaction(){
@@ -141,7 +141,7 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * End current session
+     * Ends the current session.
     */
     public function end(){
         $this->mongoSession->endSession();

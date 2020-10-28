@@ -520,13 +520,13 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Lock a document in a transaction(like `select for update` feature in mysql)
+     * Locks a document of the collection in a transaction(like `select for update` feature in mysql)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
      * @param mixed $id a document id(primary key > _id)
-     * @param array $options list of options in format: optionName => optionValue.
-     * @param Connection $db the Mongo connection used to execute the query.
-     * @return ActiveRecord|null the modified document.
-     * Returns instance of ActiveRecord. Null will be returned if the query results in nothing.
+     * @param array $options list of the options in format: optionName => optionValue.
+     * @param Connection $db the Mongo connection uses it to execute the query.
+     * @return ActiveRecord|null the locked document.
+     * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
     */
     public static function LockDocument($id, $options = [], $db = null){
         $db = $db ? $db : static::getDb();
@@ -542,23 +542,22 @@ abstract class ActiveRecord extends BaseActiveRecord
     /**
      * locking a document in stubborn mode on a transaction(like `select for update` feature in mysql)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
-     * notice : before call this method you must save last mongodb client session from db connection
-     * notice : this lock occurred in a new session and transaction
+     * notice : you can not use stubborn mode if transaction is started in current session(or use your session with `mySession` parameter).
      * @param mixed $id a document id(primary key > _id)
      * @param array $options list of options in format:
      *   [
-     *     'mySession' => false,        #custom session instance of ClientSession.
+     *     'mySession' => false,        #a custom session instance of ClientSession for start a transaction.
      *     'transactionOptions' => [],  #new transaction options. see $transactionOptions in Transaction::start()
      *     'modifyOptions' => [],       #see $options in ActiveQuery::modify()
-     *     'sleep' => 1000000,          #time in microseconds for wait. default is one second.
-     *     'tiredAfter' => 0,           #maximum count of retry. throw write conflict error after reached this value. zero default is unlimited.
+     *     'sleep' => 1000000,          #a time parameter in microseconds to wait. the default is one second.
+     *     'try' => 0,                  #maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
      *   ]
-     * @param Connection $db the Mongo connection used to execute the query.
-     * @return ActiveRecord|null the modified document.
-     * Returns instance of ActiveRecord. Null will be returned if the query results in nothing.
-     * Throw write conflict error after reached $options['tiredAfter'] value
+     * @param Connection $db the Mongo connection uses it to execute the query.
+     * @return ActiveRecord|null returns the locked document.
+     * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
+     * When the total number of attempts to lock the document passes `try`, conflict error will be thrown
     */
-    public static function StubbornLockDocument($id, $options = [], $db = null){
+    public static function LockDocumentStubbornly($id, $options = [], $db = null){
 
         $db = $db ? $db : static::getDb();
 
@@ -566,13 +565,13 @@ abstract class ActiveRecord extends BaseActiveRecord
             'mySession' => false,
             'transactionOptions' => [],
             'modifyOptions' => [],
-            'sleep' => 1000000, #in microseconds
-            'tiredAfter' => 0,
+            'sleep' => 1000000,
+            'try' => 0,
         ],$options);
 
         $options['modifyOptions']['new'] = true;
 
-        $session = $options['mySession'] ? $options['mySession'] : $db->startSession([],true); 
+        $session = $options['mySession'] ? $options['mySession'] : $db->startSessionOnce(); 
 
         if($session->getInTransaction())
             throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
@@ -591,7 +590,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }catch(\Exception $e){
             $session->transaction->rollBack();
             $tiredCounter++;
-            if($options['tiredAfter'] !== 0 && $tiredCounter === $options['tiredAfter'])
+            if($options['try'] !== 0 && $tiredCounter === $options['try'])
                 throw $e;
             usleep($options['sleep']);
             goto StartStubborn;
