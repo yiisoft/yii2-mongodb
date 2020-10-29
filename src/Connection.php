@@ -632,9 +632,9 @@ class Connection extends Component
     */
     public function transactionOnce(callable $actions, $transactionOptions = [], $sessionOptions = []){
         if($this->getInTransaction())
-            $action();
+            $actions();
         else
-            $this->transaction($action,$transactionOptions,$sessionOptions);
+            $this->transaction($actions,$transactionOptions,$sessionOptions);
     }
 
     /**
