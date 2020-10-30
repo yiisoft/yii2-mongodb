@@ -245,6 +245,7 @@ class Collection extends BaseObject
      * Returns if a document exists.
      * @param array $condition Query condition.
      * @return bool
+     * @since 2.0.39
      */
     public function documentExists($condition = [])
     {
