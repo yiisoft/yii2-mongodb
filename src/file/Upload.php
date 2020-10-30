@@ -178,7 +178,7 @@ class Upload extends BaseObject
             $this->filename = basename($filename);
         }
 
-        $stream = fopen($filename, 'r+');
+        $stream = fopen($filename, 'r');
         if ($stream === false) {
             throw new InvalidParamException("Unable to read file '{$filename}'");
         }
