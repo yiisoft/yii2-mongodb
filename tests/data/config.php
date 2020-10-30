@@ -7,7 +7,7 @@
 
 $config = [
     'mongodb' => [
-        'dsn' => 'mongodb://travis:test@localhost:27017/yii2test',
+        'dsn' => 'mongodb://localhost:27017/yii2test',
         'options' => [],
         'driverOptions' => [],
     ]
