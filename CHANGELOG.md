@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.10 under development
 ------------------------
 
-- Enh #294: transactions support (ziaratban)
+- Enh #294: Add transactions support (ziaratban)
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
 
 
