@@ -42,16 +42,13 @@ jobs:
                   restore-keys: ${{ runner.os }}-composer-
             - name: Install dependencies
               run: composer update $DEFAULT_COMPOSER_FLAGS
-            - name: PHP Unit tests for PHP 7.1
+            - name: Run unit tests with coverage
               run: vendor/bin/phpunit --verbose --coverage-clover=coverage.clover --colors=always
               if: matrix.php == '7.1'
-            - name: PHP Unit tests for PHP >= 7.2
+            - name: Run unit tests without coverage
               run: vendor/bin/phpunit --verbose --colors=always
-              if: matrix.php >= '7.2'
-            - name: PHP Unit tests for PHP <= 7.0
-              run: vendor/bin/phpunit --verbose --colors=always
-              if: matrix.php <= '7.0'
-            - name: Code coverage
+              if: matrix.php != '7.1'
+            - name: Upload code coverage
               run: |
                   wget https://scrutinizer-ci.com/ocular.phar
                   php ocular.phar code-coverage:upload --format=php-clover coverage.clover
