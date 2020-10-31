@@ -27,7 +27,7 @@ class ActiveDataProviderTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $collection = yii::$app->mongodb->getCollection('customer');
+        $collection = Yii::$app->mongodb->getCollection('customer');
         $rows = [];
         for ($i = 1; $i <= 10; $i++) {
             $rows[] = [
