@@ -40,7 +40,7 @@ class ActiveFixtureTest extends TestCase
 
         $fixture->load();
 
-        $rows = $this->findAll(yii::$app->mongodb->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(Yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertCount(2, $rows);
     }
 
