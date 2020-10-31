@@ -132,7 +132,7 @@ PHP;
             ['name' => 'name2'],
             ['name' => 'name3'],
         ];
-        $fixtureDataFile = $fixtureDataPath . DIRECTORY_SEPARATOR . yii::$app->mongodb->getDefaultDatabaseName() . '.' . Customer::collectionName() . '.php';
+        $fixtureDataFile = $fixtureDataPath . DIRECTORY_SEPARATOR . Yii::$app->mongodb->getDefaultDatabaseName() . '.' . Customer::collectionName() . '.php';
         $fixtureDataContent = '<?php return ' . VarDumper::export($fixtureData) . ';';
         file_put_contents($fixtureDataFile, $fixtureDataContent);
 
