@@ -1,10 +1,11 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.10 under development
+2.2.0 under development
 ------------------------
 
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
+- Enh #319: Added support for the 'session.use_strict_mode' ini directive in `yii\web\Session` (rhertogh)
 
 
 2.1.9 November 19, 2019
