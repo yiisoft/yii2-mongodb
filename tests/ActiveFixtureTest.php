@@ -27,7 +27,7 @@ class ActiveFixtureTest extends TestCase
         $fixture = $this->getMockBuilder(ActiveFixture::className())
             ->setConstructorArgs([
                 [
-                    'db' => yii::$app->mongodb,
+                    'db' => Yii::$app->mongodb,
                     'collectionName' => Customer::collectionName()
                 ]
             ])
