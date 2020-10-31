@@ -147,7 +147,7 @@ PHP;
 
         $fixture = new $className([
             'collectionName' => [
-                yii::$app->mongodb->getDefaultDatabaseName(),
+                Yii::$app->mongodb->getDefaultDatabaseName(),
                 Customer::collectionName()
             ],
         ]);
