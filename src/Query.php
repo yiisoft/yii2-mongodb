@@ -66,7 +66,7 @@ class Query extends Component implements QueryInterface
      * @return Connection connection instance.
      */
     public function getDb($db = null){
-        return $db === null ? $db : Yii::$app->get('mongodb');
+        return $db === null ? Yii::$app->get('mongodb') : $db;
     }
 
     /**
