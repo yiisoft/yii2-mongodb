@@ -161,6 +161,7 @@ class SessionTest extends TestCase
 
     /**
      * @depends testWriteSession
+     * @runInSeparateProcess
      */
     public function testStrictMode()
     {
