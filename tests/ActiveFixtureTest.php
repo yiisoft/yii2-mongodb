@@ -90,7 +90,7 @@ class ActiveFixtureTest extends TestCase
 
         $fixture->load(); // should be no error
 
-        $rows = $this->findAll(yii::$app->mongodb->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(Yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertEmpty($rows);
     }
 
