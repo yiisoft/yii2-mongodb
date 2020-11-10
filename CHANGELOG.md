@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.10 under development
+2.1.10 November 10, 2020
 ------------------------
 
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
