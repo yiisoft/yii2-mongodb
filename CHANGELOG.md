@@ -1,6 +1,12 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
+2.1.11 under development
+------------------------
+
+- no changes in this release.
+
+
 2.1.10 November 10, 2020
 ------------------------
 
