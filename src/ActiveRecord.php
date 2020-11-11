@@ -176,15 +176,17 @@ abstract class ActiveRecord extends BaseActiveRecord
 
     public function unset()
     {
-        if ($this->getIsNewRecord()) {
-            throw new InvalidConfigException('You can not use `unset` method when the current record is new.');
-        }
         foreach(func_get_args() as $attribute) {
             if (!$this->hasAttribute($attribute)) {
                 throw new UnknownPropertyException('Unsetting unknown property: ' . get_class($this) . '::' . $attribute);
             }
-            $this->unsetAttrs[$attribute] = '';
-            $this->$attr = null;
+            if ($this->getIsNewRecord()) {
+                unset($this->$attr);
+            }
+            else {
+                $this->unsetAttrs[$attribute] = '';
+                $this->$attr = null;
+            }
         }
     }
 
