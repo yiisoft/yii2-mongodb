@@ -181,11 +181,11 @@ abstract class ActiveRecord extends BaseActiveRecord
                 throw new UnknownPropertyException('Unsetting unknown property: ' . get_class($this) . '::' . $attribute);
             }
             if ($this->getIsNewRecord()) {
-                unset($this->$attr);
+                unset($this->$attribute);
             }
             else {
                 $this->unsetAttrs[$attribute] = '';
-                $this->$attr = null;
+                $this->$attribute = null;
             }
         }
     }
