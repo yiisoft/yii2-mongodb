@@ -146,12 +146,20 @@ class BatchQueryResult extends BaseObject implements \Iterator
         $count = 0;
 
         while ($count++ < $this->batchSize) {
-            if (!$this->_iterator->valid()) {
+            $row = $this->_iterator->current();
+            if ($row === null) {
                 break;
             }
-            $rows[] = $this->_iterator->current();
             $this->_iterator->next();
+            $rows[] = $row;
         }
+//        while ($count++ < $this->batchSize) {
+//            if (!$this->_iterator->valid()) {
+//                break;
+//            }
+//            $rows[] = $this->_iterator->current();
+//            $this->_iterator->next();
+//        }
         return $this->query->populate($rows);
     }
 
