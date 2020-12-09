@@ -7,7 +7,7 @@ env:
 
 jobs:
     phpunit:
-        name: PHP ${{ matrix.php }} on ${{ matrix.os }}
+        name: PHP ${{ matrix.php }} (mongodb-ext ${{ matrix.mongoext }}) on ${{ matrix.os }}
         runs-on: ${{ matrix.os }}
         services:
             mongodb:
@@ -20,7 +20,7 @@ jobs:
                 os: [ubuntu-latest]
                 php: ['7.0', '7.1', '7.2', '7.3', '7.4']
                 mongo: ['3']
-                mongoext: ['1.8.2', '1.9.0']
+                mongoext: ['1.8.2', '1.9.0', '1.10.0']
 
         steps:
             - name: Checkout
