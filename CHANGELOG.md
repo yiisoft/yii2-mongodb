@@ -1,7 +1,7 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.1.11 under development
+2.1.11 December 23, 2020
 ------------------------
 
 - Bug #327: Fix `yii\mongodb\BatchQueryResult` to be compatible with PECL MongoDb 1.9.0 driver (bizley)
