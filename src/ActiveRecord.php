@@ -69,10 +69,6 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     private static $batchDeleteQueue = [];
     /*
-     * @var array array of document for delete
-    */
-    private static $batchDeleteDocuments = [];
-    /*
      * @var int size of batch for delete operations
     */
     public  static $batchDeleteSize = 500;
@@ -689,7 +685,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Please refer to Command::AddDelete() on how to specify this parameter.
      * @return null|array return null if no execute command or return result of Command::executeBatch()
     */
-    public function batchDeleteAll($condition = [], $options = []){
+    public static function batchDeleteAll($condition = [], $options = []){
         self::batchDeleteInit();
         $className = static::className();
         self::$batchDeleteCommand[$className]->AddDelete($condition, $options);
