@@ -201,7 +201,7 @@ class Connection extends Component
     {
         if ($this->_defaultDatabaseName === null) {
             if (preg_match('/^mongodb(:|\+srv:)\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
-                $this->_defaultDatabaseName = $matches[1];
+                $this->_defaultDatabaseName = $matches[2];
             } else {
                 throw new InvalidConfigException("Unable to determine default database name from dsn.");
             }
