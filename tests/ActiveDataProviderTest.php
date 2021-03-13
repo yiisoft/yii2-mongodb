@@ -50,6 +50,7 @@ class ActiveDataProviderTest extends TestCase
         $query->from('customer');
 
         $provider = new ActiveDataProvider([
+            'connectionClass' => 'yii\mongodb\Connection',
             'query' => $query,
             'db' => $this->getConnection(),
         ]);
@@ -57,6 +58,7 @@ class ActiveDataProviderTest extends TestCase
         $this->assertEquals(10, count($models));
 
         $provider = new ActiveDataProvider([
+            'connectionClass' => 'yii\mongodb\Connection',
             'query' => $query,
             'db' => $this->getConnection(),
             'pagination' => [
@@ -70,6 +72,7 @@ class ActiveDataProviderTest extends TestCase
     public function testActiveQuery()
     {
         $provider = new ActiveDataProvider([
+            'connectionClass' => 'yii\mongodb\Connection',
             'query' => Customer::find()->orderBy('id ASC'),
         ]);
         $models = $provider->getModels();
@@ -79,6 +82,7 @@ class ActiveDataProviderTest extends TestCase
         $this->assertTrue($keys[0] instanceof ObjectID);
 
         $provider = new ActiveDataProvider([
+            'connectionClass' => 'yii\mongodb\Connection',
             'query' => Customer::find(),
             'pagination' => [
                 'pageSize' => 5,
