@@ -54,7 +54,7 @@ $record->save();
 
 $record = ImageFile::find()->where(['number' => 15])->one();
 var_dump($record->file); // 出力: "object(\yii\mongodb\file\Download)"
-echo $row['file']->toString(); // ファイルのコンテントを出力
+echo $record->file->toString(); // ファイルのコンテントを出力
 ```
 
 GridFS のファイルを通常の PHP ストリーム・リソースを通じて操作することも出来ます。
