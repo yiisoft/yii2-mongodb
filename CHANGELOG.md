@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 2.1.12 under development
 ------------------------
 
-- Enh: Use `random_int()` for cache garbage collection (samdark)
+- Enh #342: Use `random_int()` for cache garbage collection (samdark)
 
 
 2.1.11 December 23, 2020
