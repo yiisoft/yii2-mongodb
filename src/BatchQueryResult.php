@@ -73,7 +73,8 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the batch query.
      * This method will clean up the existing batch query so that a new batch query can be performed.
      */
-    public function reset(): void
+    #[\ReturnTypeWillChange]
+    public function reset()
     {
         $this->_iterator = null;
         $this->_batch = null;
@@ -85,7 +86,8 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the iterator to the initial state.
      * This method is required by the interface Iterator.
      */
-    public function rewind(): void
+    #[\ReturnTypeWillChange]
+    public function rewind()
     {
         $this->reset();
         $this->next();
@@ -95,7 +97,8 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Moves the internal pointer to the next dataset.
      * This method is required by the interface Iterator.
      */
-    public function next(): void
+    #[\ReturnTypeWillChange]
+    public function next()
     {
         if ($this->_batch === null || !$this->each || $this->each && next($this->_batch) === false) {
             $this->_batch = $this->fetchData();
