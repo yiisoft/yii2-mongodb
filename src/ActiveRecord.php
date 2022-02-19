@@ -25,6 +25,54 @@ use yii\helpers\StringHelper;
  */
 abstract class ActiveRecord extends BaseActiveRecord
 {
+
+    /*
+     * @var Command instance of Command class for batch insert.
+    */
+    private static $batchInsertCommand = [];
+    /*
+     * @var integer count of insert operation in queue
+    */
+    private static $batchInsertQueue = [];
+    /*
+     * @var array array of document for insert
+    */
+    private static $batchInsertDocuments = [];
+    /*
+     * @var int size of batch for insert operations
+    */
+    public  static $batchInsertSize = 500;
+
+    /*
+     * @var Command instance of Command class for batch update.
+    */
+    private static $batchUpdateCommand = [];
+    /*
+     * @var integer count of update operation in queue
+    */
+    private static $batchUpdateQueue = [];
+    /*
+     * @var array array of document for update
+    */
+    private static $batchUpdateDocuments = [];
+    /*
+     * @var int size of batch for update operations
+    */
+    public  static $batchUpdateSize = 500;
+
+    /*
+     * @var Command instance of Command class for batch delete.
+    */
+    private static $batchDeleteCommand = [];
+    /*
+     * @var integer count of delete operation in queue
+    */
+    private static $batchDeleteQueue = [];
+    /*
+     * @var int size of batch for delete operations
+    */
+    public  static $batchDeleteSize = 500;
+
     /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
@@ -410,5 +458,264 @@ abstract class ActiveRecord extends BaseActiveRecord
             return $object->__toString();
         }
         return ArrayHelper::toArray($object);
+    }
+
+    /**
+     * invoke batchInsert() or batchUpdate() base on getIsNewRecord()
+     * @param array $attributes list of attributes that need to be inserted or updated. Defaults to null,
+     * meaning all attributes that are loaded will be inserted or updated.
+     * @return see ActiveRecord::batchInsert()
+    */
+    public function batchSave($attributes = null){
+        if($this->getIsNewRecord())
+            return $this->batchInsert($attributes);
+        return $this->batchUpdate($attributes);
+    }
+
+    /**
+     * checking if current ActiveRecord class has documents in queue for insert
+     * @return bool
+    */
+    public static function hasBatchInsert(){
+        $className = static::className();
+        return array_key_exists($className,self::$batchInsertQueue) && self::$batchInsertQueue[$className] > 0;
+    }
+
+    /**
+     * this method is invoked in first call of batchInsert() method for once
+    */
+    private static function batchInsertInit(){
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchInsertCommand))
+            return;
+
+        self::$batchInsertQueue[$className] = 0;
+        self::$batchInsertCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchInsertCommand[$className]->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchInsert())
+                    yii::warning(static::className().' : batch insert mode not completed!');
+            });
+    }
+
+    /**
+     * adding insert operation to queue base on current instance data
+     * @param array $attributes list of attributes that need to be inserted. Defaults to null,
+     * meaning all attributes that are loaded will be inserted.
+     * @return null|array return null if no execute command or return result of Command::executeBatch()
+    */
+    public function batchInsert($attributes = null){
+        self::batchInsertInit();
+        $values = $this->getDirtyAttributes($attributes);
+        if (empty($values)) {
+            $currentAttributes = $this->getAttributes();
+            foreach ($this->primaryKey() as $key) {
+                if (isset($currentAttributes[$key])) {
+                    $values[$key] = $currentAttributes[$key];
+                }
+            }
+        }
+        $className = static::className();
+        self::$batchInsertCommand[$className]->AddInsert($values);
+        self::$batchInsertQueue[$className]++;
+        if(self::$batchInsertQueue[$className] >= static::$batchInsertSize)
+            return self::flushBatchInsert();
+    }
+
+    /**
+     * resetting batch insert
+    */
+    public static function resetBatchInsert(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchInsertCommand))
+            return;
+        self::$batchInsertQueue[$className] = 0;
+        self::$batchInsertCommand[$className]->document = [];
+    }
+
+    /**
+     * execute batch insert operations in queue and reset anything
+     * this method is not continue when not exists any insert operations in queue
+     * @return see docs of Command::executeBatch()
+    */
+    public static function flushBatchInsert(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchInsertQueue) || self::$batchInsertQueue[$className] === 0)
+            return;
+        $result = self::$batchInsertCommand[$className]->executeBatch(static::collectionName());
+        self::resetBatchInsert();
+        return $result;
+    }
+
+    /**
+     * checking if current ActiveRecord class has documents in queue for update
+     * @return bool
+    */
+    public static function hasBatchUpdate(){
+        $className = static::className();
+        return array_key_exists($className,self::$batchUpdateQueue) && self::$batchUpdateQueue[$className] > 0;
+    }
+
+    /**
+     * this method is invoked in first call of batchUpdate() method for once
+    */
+    private static function batchUpdateInit(){
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchUpdateCommand))
+            return;
+
+        self::$batchUpdateQueue[$className] = 0;
+        self::$batchUpdateCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchUpdateCommand[$className]->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchUpdate())
+                    yii::warning(static::className().' : batch update mode not completed!');
+            });
+    }
+
+    /**
+     * adding update operation to queue base on current instance data
+     * @param array $attributes list of attribute names that need to be updated. Defaults to null,
+     * meaning all attributes that are loaded from DB will be updated.
+     * @return null|array return null if no execute command or return result of Command::executeBatch()
+    */
+    public function batchUpdate($attributes = null){
+        self::batchUpdateInit();
+        $values = $this->getDirtyAttributes($attributes);
+        if (empty($values))
+           return;
+        $condition = $this->getOldPrimaryKey(true);
+        $className = static::className();
+        self::$batchUpdateCommand[$className]->addUpdate($condition, $values);
+        self::$batchUpdateQueue[$className]++;
+        if(self::$batchUpdateQueue[$className] >= static::$batchUpdateSize)
+            return self::flushBatchUpdate();
+    }
+
+    /**
+     * adding update operation to queue
+     * @param array $attributes list of attribute names that need to be updated.
+     * @param array $condition Description of the objects to update.
+     * Please refer to Query::where() on how to specify this parameter.
+     * @param array $options List of options in format: optionName => optionValue.
+     * Please refer to Command::addUpdate() on how to specify this parameter.
+     * @return null|array return null if no execute command or return result of Command::executeBatch()
+    */
+    public static function batchUpdateAll($attributes, $condition = [], $options = []){
+        self::batchUpdateInit();
+        $className = static::className();
+        self::$batchUpdateCommand[$className]->addUpdate($condition, $attributes, $options);
+        self::$batchUpdateQueue[$className]++;
+        if(self::$batchUpdateQueue[$className] >= static::$batchUpdateSize)
+            return self::flushBatchUpdate();
+    }
+
+    /**
+     * resetting batch update
+    */
+    public static function resetBatchUpdate(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchUpdateCommand))
+            return;
+        self::$batchUpdateQueue[$className] = 0;
+        self::$batchUpdateCommand[$className]->document = [];
+    }
+
+    /**
+     * execute batch update operations in queue and reset anything
+     * this method is not continue when not exists any update operations in queue
+     * @return see docs of Command::executeBatch()
+    */
+    public static function flushBatchUpdate(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchUpdateQueue) || self::$batchUpdateQueue[$className] === 0)
+            return;
+        $result = self::$batchUpdateCommand[$className]->executeBatch(static::collectionName());
+        self::resetBatchUpdate();
+        return $result;
+    }
+
+    /**
+     * checking if current ActiveRecord class has documents in queue for delete
+     * @return bool
+    */
+    public static function hasBatchDelete(){
+        $className = static::className();
+        return array_key_exists($className,self::$batchDeleteQueue) && self::$batchDeleteQueue[$className] > 0;
+    }
+
+    /**
+     * this method is invoked in first call of batchDelete() method for once
+    */
+    private static function batchDeleteInit(){
+        $className = static::className();
+
+        if(array_key_exists($className,self::$batchDeleteCommand))
+            return;
+
+        self::$batchDeleteQueue[$className] = 0;
+        self::$batchDeleteCommand[$className] = static::getDb()->createCommand();
+        if(self::$batchDeleteCommand[$className]->db->enableLogging)
+            register_shutdown_function(function(){
+                if(self::hasBatchDelete())
+                    yii::warning(static::className().' : batch delete mode not completed!');
+            });
+    }
+
+    /**
+     * adding delete operation to queue base on current instance data
+     * @return null|array return null if no execute command or return result of Command::executeBatch()
+    */
+    public function batchDelete(){
+        self::batchDeleteInit();
+        $className = static::className();
+        self::$batchDeleteCommand[$className]->AddDelete($this->getOldPrimaryKey(true));
+        self::$batchDeleteQueue[$className]++;
+        if(self::$batchDeleteQueue[$className] >= static::$batchDeleteSize)
+            return self::flushBatchDelete();
+    }
+
+    /**
+     * adding delete operation to queue
+     * @param array $condition Description of the objects to delete.
+     * Please refer to Query::where() on how to specify this parameter.
+     * @param array $options List of options in format: optionName => optionValue.
+     * Please refer to Command::AddDelete() on how to specify this parameter.
+     * @return null|array return null if no execute command or return result of Command::executeBatch()
+    */
+    public static function batchDeleteAll($condition = [], $options = []){
+        self::batchDeleteInit();
+        $className = static::className();
+        self::$batchDeleteCommand[$className]->AddDelete($condition, $options);
+        self::$batchDeleteQueue[$className]++;
+        if(self::$batchDeleteQueue[$className] >= static::$batchDeleteSize)
+            return self::flushBatchDelete();
+    }
+
+    /**
+     * resetting batch delete
+    */
+    public static function resetBatchDelete(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchDeleteCommand))
+            return;
+        self::$batchDeleteQueue[$className] = 0;
+        self::$batchDeleteCommand[$className]->document = [];
+    }
+
+    /**
+     * execute batch delete operations in queue and reset anything
+     * this method is not continue when not exists any delete operations in queue
+     * @return see docs of Command::executeBatch()
+    */
+    public static function flushBatchDelete(){
+        $className = static::className();
+        if(!array_key_exists($className,self::$batchDeleteQueue) || self::$batchDeleteQueue[$className] === 0)
+            return;
+        $result = self::$batchDeleteCommand[$className]->executeBatch(static::collectionName());
+        self::resetBatchDelete();
+        return $result;
     }
 }
