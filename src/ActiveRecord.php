@@ -546,7 +546,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      *     'modifyOptions' => [],       #See $options in ActiveQuery::modify()
      *     'sleep' => 1000000,          #A time parameter in microseconds to wait. the default is one second.
      *     'try' => 0,                  #Maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
-     *     'lockFieldName' =>          #The name of the field you want to lock. default is '_lock'
+     *     'lockFieldName' => '_lock'   #The name of the field you want to lock. default is '_lock'
      *   ]
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null returns the locked document.
