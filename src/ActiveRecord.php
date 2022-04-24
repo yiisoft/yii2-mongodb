@@ -48,12 +48,6 @@ abstract class ActiveRecord extends BaseActiveRecord
     const OP_ALL = 0x07;
 
     /**
-     * @var string default lock field name in LockDocument() method
-     * this property can be define by end user
-    */
-    public static $lockField = '_lock';
-
-    /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
      * You may override this method if you want to use a different database connection.
@@ -523,19 +517,20 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Locks a document of the collection in a transaction(like `select for update` feature in mysql)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
      * @param mixed $id a document id(primary key > _id)
-     * @param array $options list of the options in format: optionName => optionValue.
+     * @param string $lockFieldName The name of the field you want to lock. default is '_lock'
+     * @param array $modifyOptions list of the options in format: optionName => optionValue.
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
     */
-    public static function LockDocument($id, $options = [], $db = null){
+    public static function LockDocument($id, $lockFieldName = '_lock', $modifyOptions = [], $db = null){
         $db = $db ? $db : static::getDb();
         $db->transactionReady('lock document');
         $options['new'] = true;
         return
             static::find()
                 ->where(['_id' => $id])
-            ->modify(['$set' => [static::$lockField => new ObjectId]], $options, $db)
+            ->modify(['$set' => [$lockFieldName => new ObjectId]], $modifyOptions, $db)
         ;
     }
 
@@ -546,11 +541,12 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param mixed $id a document id(primary key > _id)
      * @param array $options list of options in format:
      *   [
-     *     'mySession' => false,        #a custom session instance of ClientSession for start a transaction.
-     *     'transactionOptions' => [],  #new transaction options. see $transactionOptions in Transaction::start()
-     *     'modifyOptions' => [],       #see $options in ActiveQuery::modify()
-     *     'sleep' => 1000000,          #a time parameter in microseconds to wait. the default is one second.
-     *     'try' => 0,                  #maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
+     *     'mySession' => false,        #A custom session instance of ClientSession for start a transaction.
+     *     'transactionOptions' => [],  #New transaction options. see $transactionOptions in Transaction::start()
+     *     'modifyOptions' => [],       #See $options in ActiveQuery::modify()
+     *     'sleep' => 1000000,          #A time parameter in microseconds to wait. the default is one second.
+     *     'try' => 0,                  #Maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
+     *     'lockFieldName' =>          #The name of the field you want to lock. default is '_lock'
      *   ]
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null returns the locked document.
@@ -567,6 +563,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             'modifyOptions' => [],
             'sleep' => 1000000,
             'try' => 0,
+            'lockFieldName' => '_lock',
         ],$options);
 
         $options['modifyOptions']['new'] = true;
@@ -584,7 +581,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             $doc = 
                 static::find()
                     ->where(['_id' => $id])
-                ->modify(['$set' => [static::$lockField => new ObjectId]], $options['modifyOptions'], $db)
+                ->modify(['$set' => [$options['lockFieldName'] => new ObjectId]], $options['modifyOptions'], $db)
             ;
             return $doc;
         }catch(\Exception $e){
