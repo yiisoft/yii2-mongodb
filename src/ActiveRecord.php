@@ -424,8 +424,9 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     protected function deleteInternal()
     {
-        if(!$this->beforeDelete())
+        if (!$this->beforeDelete()) {
             return false;
+        }
         // we do not check the return value of deleteAll() because it's possible
         // the record is already deleted in the database and thus the method will return 0
         $condition = $this->getOldPrimaryKey(true);
