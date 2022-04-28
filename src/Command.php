@@ -82,14 +82,16 @@ class Command extends BaseObject
     * prepares execOptions for some purposes
     * @param array|object by reference see Connection::prepareExceOptions
     */
-    private function prepareExecOptions(&$execOptions){
+    private function prepareExecOptions(&$execOptions)
+    {
         $execOptions = empty($execOptions) ? $this->globalExecOptions : $execOptions;
 
         self::prepareCPOptions($execOptions);
 
-        #convert session option
-        if(array_key_exists('session',$execOptions) && $execOptions['session'] instanceof ClientSession)
+        //Convert session option
+        if (array_key_exists('session', $execOptions) && $execOptions['session'] instanceof ClientSession) {
             $execOptions['session'] = $execOptions['session']->mongoSession;
+        }
     }
 
     /**
@@ -101,26 +103,29 @@ class Command extends BaseObject
     * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
     * ['readPreference' => 'snapshot'] > ['readPreference' => new \MongoDB\Driver\ReadPreference('primary')]
     */
-    public static function prepareCPOptions(&$options){
-
-        #convert readConcern option
-        if(array_key_exists('readConcern', $options) && is_string($options['readConcern']))
+    public static function prepareCPOptions(&$options)
+    {
+        //Convert readConcern option
+        if (array_key_exists('readConcern', $options) && is_string($options['readConcern'])) {
             $options['readConcern'] = new ReadConcern($options['readConcern']);
-
-        #convert writeConcern option
-        if(array_key_exists('writeConcern', $options)){
-            if(is_string($options['writeConcern']) || is_int($options['writeConcern']))
-                $options['writeConcern'] = new WriteConcern($options['writeConcern']);
-            elseif(is_array($options['writeConcern']))
-                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);
         }
 
-        #conver readPreference option
-        if(array_key_exists('readPreference', $options)){
-            if(is_string($options['readPreference']))
+        //Convert writeConcern option
+        if (array_key_exists('writeConcern', $options)) {
+            if (is_string($options['writeConcern']) || is_int($options['writeConcern'])) {
+                $options['writeConcern'] = new WriteConcern($options['writeConcern']);
+            } elseif (is_array($options['writeConcern'])) {
+                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);   
+            }
+        }
+
+        //Convert readPreference option
+        if (array_key_exists('readPreference', $options)) {
+            if (is_string($options['readPreference'])) {
                 $options['readPreference'] = new ReadPreference($options['readPreference']);
-            elseif(is_array($options['readPreference']))
+            } elseif (is_array($options['readPreference'])) {
                 $options['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['readPreference']);
+            }
         }
     }
 
@@ -269,7 +274,6 @@ class Command extends BaseObject
     public function dropDatabase($execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->dropDatabase();
-
         $result = current($this->execute($execOptions)->toArray());
         return $result['ok'] > 0;
     }
@@ -284,7 +288,6 @@ class Command extends BaseObject
     public function createCollection($collectionName, array $options = [], $execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->createCollection($collectionName, $options);
-
         $result = current($this->execute($execOptions)->toArray());
         return $result['ok'] > 0;
     }
@@ -298,7 +301,6 @@ class Command extends BaseObject
     public function dropCollection($collectionName, $execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->dropCollection($collectionName);
-
         $result = current($this->execute($execOptions)->toArray());
         return $result['ok'] > 0;
     }
@@ -323,7 +325,6 @@ class Command extends BaseObject
     public function createIndexes($collectionName, $indexes, $execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->createIndexes($this->databaseName, $collectionName, $indexes);
-
         $result = current($this->execute($execOptions)->toArray());
         return $result['ok'] > 0;
     }
@@ -338,7 +339,6 @@ class Command extends BaseObject
     public function dropIndexes($collectionName, $indexes, $execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->dropIndexes($collectionName, $indexes);
-
         return current($this->execute($execOptions)->toArray());
     }
 
@@ -383,7 +383,6 @@ class Command extends BaseObject
     public function count($collectionName, $condition = [], $options = [], $execOptions = [])
     {
         $this->document = $this->db->getQueryBuilder()->count($collectionName, $condition, $options);
-
         $result = current($this->execute($execOptions)->toArray());
         return $result['n'];
     }

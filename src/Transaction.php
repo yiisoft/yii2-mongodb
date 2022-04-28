@@ -44,9 +44,11 @@ class Transaction extends \yii\base\BaseObject
      * @var string $message please see $this->yiiDebug()
      * @var string $category please see $this->yiiDebug()
      */
-    protected function yiiDebug($message, $category = 'mongodb'){
-        if($this->clientSession->db->enableLogging)
+    protected function yiiDebug($message, $category = 'mongodb')
+    {
+        if ($this->clientSession->db->enableLogging) {
             yii::debug($message,$category);
+        }
     }
 
     /**
@@ -54,9 +56,11 @@ class Transaction extends \yii\base\BaseObject
      * @var string $token please see $this->yiiBeginProfile()
      * @var string $category please see $this->yiiBeginProfile()
      */
-    protected function yiiBeginProfile($token, $category = 'mongodb'){
-        if($this->clientSession->db->enableProfiling)
+    protected function yiiBeginProfile($token, $category = 'mongodb')
+    {
+        if ($this->clientSession->db->enableProfiling) {
             yii::beginProfile($token,$category);
+        }
     }
 
     /**
@@ -64,15 +68,18 @@ class Transaction extends \yii\base\BaseObject
      * @var string $token please see $this->yiiEndProfile()
      * @var string $category please see $this->yiiEndProfile()
      */
-    protected function yiiEndProfile($token, $category = 'mongodb'){
-        if($this->clientSession->db->enableProfiling)
+    protected function yiiEndProfile($token, $category = 'mongodb')
+    {
+        if ($this->clientSession->db->enableProfiling) {
             yii::endProfile($token,$category);
+        }
     }
 
     /**
      * Returns the transaction state.
      */
-    public function getState(){
+    public function getState()
+    {
         return $this->clientSession->mongoSession->getTransactionState();
     }
 
@@ -81,7 +88,8 @@ class Transaction extends \yii\base\BaseObject
      * @return bool whether this transaction is active. Only an active transaction
      * can [[commit()]] or [[rollBack()]].
      */
-    public function getIsActive(){
+    public function getIsActive()
+    {
         return $this->clientSession->db->getIsActive() && $this->clientSession->getInTransaction();
     }
 
@@ -93,13 +101,15 @@ class Transaction extends \yii\base\BaseObject
      * if set when starting the session with ClientSession::start().
      * @see https://www.php.net/manual/en/mongodb-driver-session.starttransaction.php#refsect1-mongodb-driver-session.starttransaction-parameters
     */
-    public function start($transactionOptions = []){
+    public function start($transactionOptions = [])
+    {
         Command::prepareCPOptions($transactionOptions);
         $this->yiiDebug('Starting mongodb transaction ...', __METHOD__);
-        if($this->clientSession->getInTransaction())
+        if ($this->clientSession->getInTransaction()) {
             throw new Exception('Nested transaction not supported');
+        }
         $this->clientSession->db->trigger(Connection::EVENT_START_TRANSACTION);
-        $this->yiiBeginProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiBeginProfile('mongodb > start transaction(session id => ' . $this->clientSession->getId() . ')');
         $this->clientSession->mongoSession->startTransaction($transactionOptions);
         $this->yiiDebug('MongoDB transaction started.', __METHOD__);
     }
@@ -108,10 +118,11 @@ class Transaction extends \yii\base\BaseObject
      * Commit a transaction.
      * @see https://www.php.net/manual/en/mongodb-driver-session.committransaction.php
      */
-    public function commit(){
+    public function commit()
+    {
         $this->yiiDebug('Committing mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->commitTransaction();
-        $this->yiiEndProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiEndProfile('mongodb > start transaction(session id => ' . $this->clientSession->getId() . ')');
         $this->yiiDebug('Commit mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_COMMIT_TRANSACTION);
     }
@@ -120,10 +131,11 @@ class Transaction extends \yii\base\BaseObject
      * Rolls back a transaction.
      * @see https://www.php.net/manual/en/mongodb-driver-session.aborttransaction.php
      */
-    public function rollBack(){
+    public function rollBack()
+    {
         $this->yiiDebug('Rolling back mongodb transaction ...', __METHOD__);
         $this->clientSession->mongoSession->abortTransaction();
-        $this->yiiEndProfile('mongodb > start transaction(session id => '.$this->clientSession->getId().')');
+        $this->yiiEndProfile('mongodb > start transaction(session id => ' . $this->clientSession->getId() . ')');
         $this->yiiDebug('Roll back mongodb transaction.', __METHOD__);
         $this->clientSession->db->trigger(Connection::EVENT_ROLLBACK_TRANSACTION);
     }

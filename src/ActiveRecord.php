@@ -521,21 +521,26 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Locks a document of the collection in a transaction(like `select for update` feature in mysql)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
      * @param mixed $id a document id(primary key > _id)
-     * @param string $lockFieldName The name of the field you want to lock. default is '_lock'
+     * @param string $lockFieldName The name of the field you want to lock.
      * @param array $modifyOptions list of the options in format: optionName => optionValue.
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
     */
-    public static function LockDocument($id, $lockFieldName = '_lock', $modifyOptions = [], $db = null)
+    public static function LockDocument($id, $lockFieldName, $modifyOptions = [], $db = null)
     {
         $db = $db ? $db : static::getDb();
         $db->transactionReady('lock document');
         $options['new'] = true;
-        return
-            static::find()
-                ->where(['_id' => $id])
-            ->modify(['$set' => [$lockFieldName => new ObjectId]], $modifyOptions, $db)
+        return static::find()
+            ->where(['_id' => $id])
+            ->modify(
+                [
+                    '$set' =>[$lockFieldName => new ObjectId]
+                ],
+                $modifyOptions,
+                $db
+            )
         ;
     }
 
@@ -558,18 +563,20 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
      * When the total number of attempts to lock the document passes `try`, conflict error will be thrown
     */
-    public static function LockDocumentStubbornly($id, $options = [], $db = null)
+    public static function LockDocumentStubbornly($id, $lockFieldName, $options = [], $db = null)
     {
         $db = $db ? $db : static::getDb();
 
-        $options = array_replace_recursive([
-            'mySession' => false,
-            'transactionOptions' => [],
-            'modifyOptions' => [],
-            'sleep' => 1000000,
-            'try' => 0,
-            'lockFieldName' => '_lock',
-        ], $options);
+        $options = array_replace_recursive(
+            [
+                'mySession' => false,
+                'transactionOptions' => [],
+                'modifyOptions' => [],
+                'sleep' => 1000000,
+                'try' => 0,
+            ],
+            $options
+        );
 
         $options['modifyOptions']['new'] = true;
 
@@ -589,7 +596,7 @@ abstract class ActiveRecord extends BaseActiveRecord
                 ->modify(
                     [
                         '$set' => [
-                            $options['lockFieldName'] => new ObjectId
+                            $lockFieldName => new ObjectId
                         ]
                     ],
                     $options['modifyOptions'],

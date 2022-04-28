@@ -464,11 +464,14 @@ class Connection extends Component
      * @param array $execOptions see docs of Command::execute() and Command::executeBatch() and Command::query()
      * @return $this
      */
-    public function execOptions($execOptions){
-        if(empty($execOptions))
+    public function execOptions($execOptions)
+    {
+        if (empty($execOptions)) {
             $this->globalExecOptions = [];
-        else
+        }
+        else {
             $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $execOptions);
+        }
         return $this;
     }
 
@@ -477,10 +480,12 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function startSession($sessionOptions = []){
+    public function startSession($sessionOptions = [])
+    {
 
-        if($this->getInSession())
+        if ($this->getInSession()) {
             $this->getSession()->end();
+        }
 
         $newSession = $this->newSession($sessionOptions);
         $this->setSession($newSession);
@@ -492,9 +497,11 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function startSessionOnce($sessionOptions = []){
-        if($this->getInSession())
+    public function startSessionOnce($sessionOptions = [])
+    {
+        if ($this->getInSession()) {   
             return $this->getSession();
+        }
         return $this->startSession($sessionOptions);
     }
 
@@ -503,7 +510,8 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function newSession($sessionOptions = []){
+    public function newSession($sessionOptions = [])
+    {
         return ClientSession::start($this, $sessionOptions);
     }
 
@@ -511,7 +519,8 @@ class Connection extends Component
      * Checks whether the current connection is in session.
      * return bool
     */
-    public function getInSession(){
+    public function getInSession()
+    {
         return array_key_exists('session',$this->globalExecOptions);
     }
 
@@ -519,7 +528,8 @@ class Connection extends Component
      * Checks that the current connection is in session and transaction
      * return bool
     */
-    public function getInTransaction(){
+    public function getInTransaction()
+    {
         return $this->getInSession() && $this->getSession()->getInTransaction();
     }
 
@@ -527,18 +537,22 @@ class Connection extends Component
      * Throws custom error if transaction is not ready in connection 
      * @param string $operation a custom message to be shown
     */
-    public function transactionReady($operation){
-        if(!$this->getInSession())
-            throw new Exception('You can\'t '.$operation.' because current connection is\'t in a session.');
-        if(!$this->getSession()->getInTransaction())
-            throw new Exception('You can\'t '.$operation.' because transaction not started in current session.');
+    public function transactionReady($operation)
+    {
+        if (!$this->getInSession()) {
+            throw new Exception('You can\'t ' . $operation . ' because current connection is\'t in a session.');
+        }
+        if (!$this->getSession()->getInTransaction()) {
+            throw new Exception('You can\'t ' . $operation . ' because transaction not started in current session.');
+        }
     }
 
     /**
      * Returns current session
      * return ClientSession|null
     */
-    public function getSession(){
+    public function getSession()
+    {
         return $this->getInSession() ? $this->globalExecOptions['session'] : null;
     }
 
@@ -551,7 +565,8 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function startTransaction($transactionOptions = [], $sessionOptions = []){
+    public function startTransaction($transactionOptions = [], $sessionOptions = [])
+    {
         $session = $this->startSession($sessionOptions,true);
         $session->getTransaction()->start($transactionOptions);
         return $session;
@@ -563,16 +578,19 @@ class Connection extends Component
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
     */
-    public function startTransactionOnce($transactionOptions = [], $sessionOptions = []){
-        if($this->getInTransaction())
+    public function startTransactionOnce($transactionOptions = [], $sessionOptions = [])
+    {
+        if ($this->getInTransaction()) {
             return $this->getSession();
+        }
         return $this->startTransaction($transactionOptions,$sessionOptions);
     }
 
     /**
     * Commits transaction in current session
     */
-    public function commitTransaction(){
+    public function commitTransaction()
+    {
         $this->transactionReady('commit transaction');
         $this->getSession()->transaction->commit();
     }
@@ -580,7 +598,8 @@ class Connection extends Component
     /**
     * Rollbacks transaction in current session
     */
-    public function rollBackTransaction(){
+    public function rollBackTransaction()
+    {
         $this->transactionReady('roll back transaction');
         $this->getSession()->transaction->rollBack();
     }
@@ -590,12 +609,15 @@ class Connection extends Component
      * @param ClientSession|null $clientSession new instance of ClientSession to replace
      * return $this
     */
-    public function setSession($clientSession){
+    public function setSession($clientSession)
+    {
         #drop session
-        if(empty($clientSession))
+        if (empty($clientSession)) {
             unset($this->globalExecOptions['session']);
-        else
+        }
+        else {
             $this->globalExecOptions['session'] = $clientSession;
+        }
         return $this;
     }
 
@@ -606,20 +628,25 @@ class Connection extends Component
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
     */
-    public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = []){
+    public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = [])
+    {
         $session = $this->startTransaction($transactionOptions, $sessionOptions);
         $success = false;
         try {
             $result = call_user_func($actions, $session);
-            if($session->getTransaction()->getIsActive())
-                if($result === false)
+            if ($session->getTransaction()->getIsActive()) {
+                if ($result === false) {
                     $session->getTransaction()->rollBack();
-                else
+                }
+                else {
                     $session->getTransaction()->commit();
+                }
+            }
             $success = true;
         } finally {
-            if(!$success && $session->getTransaction()->getIsActive())
+            if (!$success && $session->getTransaction()->getIsActive()) {
                 $session->getTransaction()->rollBack();
+            }
         }
     }
 
@@ -630,11 +657,14 @@ class Connection extends Component
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
     */
-    public function transactionOnce(callable $actions, $transactionOptions = [], $sessionOptions = []){
-        if($this->getInTransaction())
+    public function transactionOnce(callable $actions, $transactionOptions = [], $sessionOptions = [])
+    {
+        if ($this->getInTransaction()) {
             $actions();
-        else
+        }
+        else {
             $this->transaction($actions,$transactionOptions,$sessionOptions);
+        }
     }
 
     /**
@@ -642,7 +672,8 @@ class Connection extends Component
      * @param callable $actions your block of code must be runned out of session and transaction
      * @return mixed returns a result of $actions()
     */
-    public function noTransaction(callable $actions){
+    public function noTransaction(callable $actions)
+    {
         $lastSession = $this->getSession();
         $this->setSession(null);
         try {

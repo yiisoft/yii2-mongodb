@@ -37,7 +37,7 @@ class ClientSession extends \yii\base\BaseObject
     public $mongoSession;
 
     /**
-     * @var Transaction The current transaction in session. this transaction can only be created once.
+     * @var Transaction the current transaction in session. this transaction can only be created once.
     */
     private $_transaction = null;
 
@@ -63,31 +63,47 @@ class ClientSession extends \yii\base\BaseObject
     *   ],
     * ]
     */
-    public static function prepareOptions(&$options){
+    public static function prepareOptions(&$options)
+    {
+        if (array_key_exists('defaultTransactionOptions', $options)) {
 
-        if(array_key_exists('defaultTransactionOptions',$options)){
-
-            #convert readConcern
-            if(
-                array_key_exists('readConcern',$options['defaultTransactionOptions']) &&
+            //convert readConcern
+            if (
+                array_key_exists('readConcern', $options['defaultTransactionOptions']) &&
                 is_string($options['defaultTransactionOptions']['readConcern'])
-            )
+            ) {
                 $options['defaultTransactionOptions']['readConcern'] = new ReadConcern($options['defaultTransactionOptions']['readConcern']);
-
-            #convert writeConcern
-            if(array_key_exists('writeConcern',$options['defaultTransactionOptions'])){
-                if(is_string($options['defaultTransactionOptions']['writeConcern']) || is_int($options['defaultTransactionOptions']['writeConcern']))
-                    $options['defaultTransactionOptions']['writeConcern'] = new WriteConcern($options['defaultTransactionOptions']['writeConcern']);
-                else if(is_array($options['defaultTransactionOptions']['writeConcern']))
-                    $options['defaultTransactionOptions']['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['defaultTransactionOptions']['writeConcern']);
             }
 
-            #convert readPreference
-            if(array_key_exists('readPreference',$options['defaultTransactionOptions'])){
-                if(is_string($options['defaultTransactionOptions']['readPreference']))
+            //convert writeConcern
+            if (array_key_exists('writeConcern',$options['defaultTransactionOptions'])) {
+                if (
+                    is_string($options['defaultTransactionOptions']['writeConcern']) ||
+                    is_int($options['defaultTransactionOptions']['writeConcern'])
+                ) {
+                    $options['defaultTransactionOptions']['writeConcern'] = new WriteConcern($options['defaultTransactionOptions']['writeConcern']);
+                } elseif (is_array($options['defaultTransactionOptions']['writeConcern'])) {
+                    $options['defaultTransactionOptions']['writeConcern'] =
+                        (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))
+                            ->newInstanceArgs(
+                                $options['defaultTransactionOptions']['writeConcern']
+                            )
+                    ;
+                }
+            }
+
+            //Convert readPreference
+            if (array_key_exists('readPreference',$options['defaultTransactionOptions'])) {
+                if (is_string($options['defaultTransactionOptions']['readPreference'])) {
                     $options['defaultTransactionOptions']['readPreference'] = new ReadPreference($options['defaultTransactionOptions']['readPreference']);
-                else if(is_array($options['defaultTransactionOptions']['readPreference']))
-                    $options['defaultTransactionOptions']['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['defaultTransactionOptions']['readPreference']);
+                } else if(is_array($options['defaultTransactionOptions']['readPreference'])) {
+                    $options['defaultTransactionOptions']['readPreference'] =
+                        (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))
+                            ->newInstanceArgs(
+                                $options['defaultTransactionOptions']['readPreference']
+                            )
+                    ;
+                }
             }
         }
     }
@@ -97,7 +113,8 @@ class ClientSession extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-session.getlogicalsessionid.php
      * @return string
     */
-    public function getId(){
+    public function getId()
+    {
         return $this->mongoSession->getLogicalSessionId()->id->jsonSerialize()['$binary'];
     }
 
@@ -108,17 +125,20 @@ class ClientSession extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/mongodb-driver-manager.startsession.php#refsect1-mongodb-driver-manager.startsession-parameters
      * @return ClientSession returns new session base on a session options for the given connection
     */
-    public static function start($db, $sessionOptions = []){
+    public static function start($db, $sessionOptions = [])
+    {
         self::prepareOptions($sessionOptions);
-        if($db->enableProfiling)
+        if ($db->enableProfiling) {
             Yii::debug('Starting mongodb session ...', __METHOD__);
+        }
         $db->trigger(Connection::EVENT_START_SESSION);
         $newSession = new self([
             'db' => $db,
             'mongoSession' => $db->manager->startSession($sessionOptions),
         ]);
-        if($db->enableProfiling)
+        if ($db->enableProfiling) {   
             Yii::debug('MongoDB session started.', __METHOD__);
+        }
         return $newSession;
     }
 
@@ -126,9 +146,11 @@ class ClientSession extends \yii\base\BaseObject
      * Gets a current transaction of session or creates a new transaction once
      * @return Transaction returns current transaction
     */
-    public function getTransaction(){
-        if($this->_transaction === null)
+    public function getTransaction()
+    {
+        if ($this->_transaction === null) {
             return $this->_transaction = new Transaction(['clientSession' => $this]);
+        }
         return $this->_transaction;
     }
 
@@ -136,14 +158,16 @@ class ClientSession extends \yii\base\BaseObject
      * Returns true if the transaction is in progress
      * @return bool
     */
-    public function getInTransaction(){
+    public function getInTransaction()
+    {
         return $this->mongoSession->isInTransaction();
     }
 
     /**
      * Ends the current session.
     */
-    public function end(){
+    public function end()
+    {
         $this->mongoSession->endSession();
         $this->db->trigger(Connection::EVENT_END_SESSION);
     }
