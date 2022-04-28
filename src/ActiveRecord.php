@@ -558,8 +558,8 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
      * When the total number of attempts to lock the document passes `try`, conflict error will be thrown
     */
-    public static function LockDocumentStubbornly($id, $options = [], $db = null){
-
+    public static function LockDocumentStubbornly($id, $options = [], $db = null)
+    {
         $db = $db ? $db : static::getDb();
 
         $options = array_replace_recursive([
