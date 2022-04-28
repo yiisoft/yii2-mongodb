@@ -331,11 +331,12 @@ abstract class ActiveRecord extends BaseActiveRecord
             return false;
         }
 
-        if(!$this->isTransactional(self::OP_UPDATE))
+        if (!$this->isTransactional(self::OP_UPDATE)) {
             return $this->updateInternal($attributeNames);
+        }
 
         $result = null;
-        static::getDb()->transaction(function()use($attributeNames,&$result){
+        static::getDb()->transaction(function() use ($attributeNames, &$result) {
             $result = $this->updateInternal($attributeNames);
         });
         return $result;
