@@ -527,7 +527,8 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return ActiveRecord|null the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
     */
-    public static function LockDocument($id, $lockFieldName = '_lock', $modifyOptions = [], $db = null){
+    public static function LockDocument($id, $lockFieldName = '_lock', $modifyOptions = [], $db = null)
+    {
         $db = $db ? $db : static::getDb();
         $db->transactionReady('lock document');
         $options['new'] = true;
