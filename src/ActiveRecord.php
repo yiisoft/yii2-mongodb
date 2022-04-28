@@ -575,8 +575,9 @@ abstract class ActiveRecord extends BaseActiveRecord
 
         $session = $options['mySession'] ? $options['mySession'] : $db->startSessionOnce(); 
 
-        if($session->getInTransaction())
+        if ($session->getInTransaction()) {
             throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
+        }
 
         #start stubborn
         $tiredCounter = 0;
