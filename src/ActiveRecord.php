@@ -569,7 +569,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             'sleep' => 1000000,
             'try' => 0,
             'lockFieldName' => '_lock',
-        ],$options);
+        ], $options);
 
         $options['modifyOptions']['new'] = true;
 
