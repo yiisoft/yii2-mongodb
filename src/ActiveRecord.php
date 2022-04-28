@@ -579,22 +579,29 @@ abstract class ActiveRecord extends BaseActiveRecord
             throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
         }
 
-        #start stubborn
+        // start stubborn
         $tiredCounter = 0;
         StartStubborn:
         $session->transaction->start($options['transactionOptions']);
-        try{
-            $doc = 
-                static::find()
-                    ->where(['_id' => $id])
-                ->modify(['$set' => [$options['lockFieldName'] => new ObjectId]], $options['modifyOptions'], $db)
-            ;
+        try {
+            $doc = static::find()
+                ->where(['_id' => $id])
+                ->modify(
+                    [
+                        '$set' => [
+                            $options['lockFieldName'] => new ObjectId
+                        ]
+                    ],
+                    $options['modifyOptions'],
+                    $db
+                );
             return $doc;
-        }catch(\Exception $e){
+        } catch(\Exception $e) {
             $session->transaction->rollBack();
             $tiredCounter++;
-            if($options['try'] !== 0 && $tiredCounter === $options['try'])
+            if ($options['try'] !== 0 && $tiredCounter === $options['try']) {
                 throw $e;
+            }
             usleep($options['sleep']);
             goto StartStubborn;
         }
