@@ -412,7 +412,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         $result = null;
-        static::getDb()->transaction(function()use(&$result){
+        static::getDb()->transaction(function() use (&$result) {
             $result = $this->deleteInternal();
         });
         return $result;
