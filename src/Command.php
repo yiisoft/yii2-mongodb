@@ -12,6 +12,7 @@ use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\ReadConcern;
 use MongoDB\Driver\ReadPreference;
+use MongoDB\Driver\Session as DriverSession;
 use MongoDB\Driver\WriteConcern;
 use MongoDB\Driver\WriteResult;
 use Yii;
@@ -85,7 +86,10 @@ class Command extends BaseObject
      * @var ReadConcern|string read concern to be used by this command
      */
     private $_readConcern;
-
+    /**
+     * @var DriverSession session to be used by this command
+     */
+    private $_session;
 
     /**
      * Returns read preference for this command.
@@ -168,6 +172,17 @@ class Command extends BaseObject
     }
 
     /**
+     * Sets session for this command.
+     * @param DriverSession $session session
+     * @return $this self reference
+     */
+    public function setSession($session)
+    {
+        $this->_session = $session;
+        return $this;
+    }
+
+    /**
      * Executes this command.
      * @return \MongoDB\Driver\Cursor result cursor.
      * @throws Exception on failure.
@@ -183,7 +198,11 @@ class Command extends BaseObject
 
             $this->db->open();
             $mongoCommand = new \MongoDB\Driver\Command($this->document);
-            $cursor = $this->db->manager->executeCommand($databaseName, $mongoCommand, $this->getReadPreference());
+            $options = array_filter([
+                'readPreference' => $this->getReadPreference(),
+                'session' => $this->_session,
+            ]);
+            $cursor = $this->db->manager->executeCommand($databaseName, $mongoCommand, $options);
             $cursor->setTypeMap($this->db->typeMap);
 
             $this->endProfile($token, __METHOD__);
@@ -236,7 +255,11 @@ class Command extends BaseObject
             }
 
             $this->db->open();
-            $writeResult = $this->db->manager->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $this->getWriteConcern());
+            $options = array_filter([
+                'writeConcern' => $this->getWriteConcern(),
+                'session' => $this->_session,
+            ]);
+            $writeResult = $this->db->manager->executeBulkWrite($databaseName . '.' . $collectionName, $batch, $options);
 
             $this->endProfile($token, __METHOD__);
         } catch (RuntimeException $e) {
@@ -283,7 +306,11 @@ class Command extends BaseObject
 
             $query = new \MongoDB\Driver\Query($this->document, $options);
             $this->db->open();
-            $cursor = $this->db->manager->executeQuery($databaseName . '.' . $collectionName, $query, $this->getReadPreference());
+            $options = array_filter([
+                'readPreference' => $this->getReadPreference(),
+                'session' => $this->_session,
+            ]);
+            $cursor = $this->db->manager->executeQuery($databaseName . '.' . $collectionName, $query, $options);
             $cursor->setTypeMap($this->db->typeMap);
 
             $this->endProfile($token, __METHOD__);
