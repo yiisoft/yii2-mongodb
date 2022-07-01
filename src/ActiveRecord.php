@@ -9,6 +9,7 @@ namespace yii\mongodb;
 
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\Type;
+use MongoDB\BSON\ObjectId;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\db\BaseActiveRecord;
@@ -25,6 +26,27 @@ use yii\helpers\StringHelper;
  */
 abstract class ActiveRecord extends BaseActiveRecord
 {
+    /**
+     * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
+     */
+    const OP_INSERT = 0x01;
+
+    /**
+     * The update operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
+     */
+    const OP_UPDATE = 0x02;
+
+    /**
+     * The delete operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
+     */
+    const OP_DELETE = 0x04;
+
+    /**
+     * All three operations: insert, update, delete.
+     * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
+     */
+    const OP_ALL = 0x07;
+
     /**
      * Returns the Mongo connection used by this AR class.
      * By default, the "mongodb" application component is used as the Mongo connection.
@@ -208,8 +230,15 @@ abstract class ActiveRecord extends BaseActiveRecord
         if ($runValidation && !$this->validate($attributes)) {
             return false;
         }
-        $result = $this->insertInternal($attributes);
 
+        if (!$this->isTransactional(self::OP_INSERT)) {
+            return $this->insertInternal($attributes);
+        }
+
+        $result = null;
+        static::getDb()->transaction(function() use ($attribute, &$result) {
+            $result = $this->insertInternal($attributes);
+        });
         return $result;
     }
 
@@ -241,6 +270,76 @@ abstract class ActiveRecord extends BaseActiveRecord
         $this->afterSave(true, $changedAttributes);
 
         return true;
+    }
+
+    /**
+     * Saves the changes to this active record into the associated database table.
+     *
+     * This method performs the following steps in order:
+     *
+     * 1. call [[beforeValidate()]] when `$runValidation` is `true`. If [[beforeValidate()]]
+     *    returns `false`, the rest of the steps will be skipped;
+     * 2. call [[afterValidate()]] when `$runValidation` is `true`. If validation
+     *    failed, the rest of the steps will be skipped;
+     * 3. call [[beforeSave()]]. If [[beforeSave()]] returns `false`,
+     *    the rest of the steps will be skipped;
+     * 4. save the record into database. If this fails, it will skip the rest of the steps;
+     * 5. call [[afterSave()]];
+     *
+     * In the above step 1, 2, 3 and 5, events [[EVENT_BEFORE_VALIDATE]],
+     * [[EVENT_AFTER_VALIDATE]], [[EVENT_BEFORE_UPDATE]], and [[EVENT_AFTER_UPDATE]]
+     * will be raised by the corresponding methods.
+     *
+     * Only the [[dirtyAttributes|changed attribute values]] will be saved into database.
+     *
+     * For example, to update a customer record:
+     *
+     * ```php
+     * $customer = Customer::findOne($id);
+     * $customer->name = $name;
+     * $customer->email = $email;
+     * $customer->update();
+     * ```
+     *
+     * Note that it is possible the update does not affect any row in the table.
+     * In this case, this method will return 0. For this reason, you should use the following
+     * code to check if update() is successful or not:
+     *
+     * ```php
+     * if ($customer->update() !== false) {
+     *     // update successful
+     * } else {
+     *     // update failed
+     * }
+     * ```
+     *
+     * @param bool $runValidation whether to perform validation (calling [[validate()]])
+     * before saving the record. Defaults to `true`. If the validation fails, the record
+     * will not be saved to the database and this method will return `false`.
+     * @param array $attributeNames list of attributes that need to be saved. Defaults to `null`,
+     * meaning all attributes that are loaded from DB will be saved.
+     * @return int|false the number of rows affected, or false if validation fails
+     * or [[beforeSave()]] stops the updating process.
+     * @throws StaleObjectException if [[optimisticLock|optimistic locking]] is enabled and the data
+     * being updated is outdated.
+     * @throws \Exception|\Throwable in case update failed.
+     */
+    public function update($runValidation = true, $attributeNames = null)
+    {
+        if ($runValidation && !$this->validate($attributeNames)) {
+            Yii::info('Model not updated due to validation error.', __METHOD__);
+            return false;
+        }
+
+        if (!$this->isTransactional(self::OP_UPDATE)) {
+            return $this->updateInternal($attributeNames);
+        }
+
+        $result = null;
+        static::getDb()->transaction(function() use ($attributeNames, &$result) {
+            $result = $this->updateInternal($attributeNames);
+        });
+        return $result;
     }
 
     /**
@@ -308,12 +407,14 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     public function delete()
     {
-        $result = false;
-        if ($this->beforeDelete()) {
-            $result = $this->deleteInternal();
-            $this->afterDelete();
+        if (!$this->isTransactional(self::OP_DELETE)) {
+            return $this->deleteInternal();
         }
 
+        $result = null;
+        static::getDb()->transaction(function() use (&$result) {
+            $result = $this->deleteInternal();
+        });
         return $result;
     }
 
@@ -323,6 +424,9 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     protected function deleteInternal()
     {
+        if (!$this->beforeDelete()) {
+            return false;
+        }
         // we do not check the return value of deleteAll() because it's possible
         // the record is already deleted in the database and thus the method will return 0
         $condition = $this->getOldPrimaryKey(true);
@@ -335,6 +439,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             throw new StaleObjectException('The object being deleted is outdated.');
         }
         $this->setOldAttributes(null);
+        $this->afterDelete();
 
         return $result;
     }
@@ -410,5 +515,147 @@ abstract class ActiveRecord extends BaseActiveRecord
             return $object->__toString();
         }
         return ArrayHelper::toArray($object);
+    }
+
+    /**
+     * Locks a document of the collection in a transaction (like `select for update` feature in MySQL)
+     * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
+     * @param mixed $id a document id (primary key > _id)
+     * @param string $lockFieldName The name of the field you want to lock.
+     * @param array $modifyOptions list of the options in format: optionName => optionValue.
+     * @param Connection $db the Mongo connection uses it to execute the query.
+     * @return ActiveRecord|null the locked document.
+     * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
+    */
+    public static function LockDocument($id, $lockFieldName, $modifyOptions = [], $db = null)
+    {
+        $db = $db ? $db : static::getDb();
+        $db->transactionReady('lock document');
+        $options['new'] = true;
+        return static::find()
+            ->where(['_id' => $id])
+            ->modify(
+                [
+                    '$set' =>[$lockFieldName => new ObjectId]
+                ],
+                $modifyOptions,
+                $db
+            )
+        ;
+    }
+
+    /**
+     * Locking a document in stubborn mode on a transaction (like `select for update` feature in MySQL)
+     * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
+     * notice : you can not use stubborn mode if transaction is started in current session (or use your session with `mySession` parameter).
+     * @param mixed $id a document id (primary key > _id)
+     * @param array $options list of options in format:
+     *   [
+     *     'mySession' => false,        # A custom session instance of ClientSession for start a transaction.
+     *     'transactionOptions' => [],  # New transaction options. see $transactionOptions in Transaction::start()
+     *     'modifyOptions' => [],       # See $options in ActiveQuery::modify()
+     *     'sleep' => 1000000,          # A time parameter in microseconds to wait. the default is one second.
+     *     'try' => 0,                  # Maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
+     *     'lockFieldName' => '_lock'   # The name of the field you want to lock. default is '_lock'
+     *   ]
+     * @param Connection $db the Mongo connection uses it to execute the query.
+     * @return ActiveRecord|null returns the locked document.
+     * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
+     * When the total number of attempts to lock the document passes `try`, conflict error will be thrown
+    */
+    public static function LockDocumentStubbornly($id, $lockFieldName, $options = [], $db = null)
+    {
+        $db = $db ? $db : static::getDb();
+
+        $options = array_replace_recursive(
+            [
+                'mySession' => false,
+                'transactionOptions' => [],
+                'modifyOptions' => [],
+                'sleep' => 1000000,
+                'try' => 0,
+            ],
+            $options
+        );
+
+        $options['modifyOptions']['new'] = true;
+
+        $session = $options['mySession'] ? $options['mySession'] : $db->startSessionOnce(); 
+
+        if ($session->getInTransaction()) {
+            throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
+        }
+
+        // start stubborn
+        $tiredCounter = 0;
+        StartStubborn:
+        $session->transaction->start($options['transactionOptions']);
+        try {
+            $doc = static::find()
+                ->where(['_id' => $id])
+                ->modify(
+                    [
+                        '$set' => [
+                            $lockFieldName => new ObjectId
+                        ]
+                    ],
+                    $options['modifyOptions'],
+                    $db
+                );
+            return $doc;
+        } catch(\Exception $e) {
+            $session->transaction->rollBack();
+            $tiredCounter++;
+            if ($options['try'] !== 0 && $tiredCounter === $options['try']) {
+                throw $e;
+            }
+            usleep($options['sleep']);
+            goto StartStubborn;
+        }
+    }
+
+    /**
+     * Declares which DB operations should be performed within a transaction in different scenarios.
+     * The supported DB operations are: [[OP_INSERT]], [[OP_UPDATE]] and [[OP_DELETE]],
+     * which correspond to the [[insert()]], [[update()]] and [[delete()]] methods, respectively.
+     * By default, these methods are NOT enclosed in a DB transaction.
+     *
+     * In some scenarios, to ensure data consistency, you may want to enclose some or all of them
+     * in transactions. You can do so by overriding this method and returning the operations
+     * that need to be transactional. For example,
+     *
+     * ```php
+     * return [
+     *     'admin' => self::OP_INSERT,
+     *     'api' => self::OP_INSERT | self::OP_UPDATE | self::OP_DELETE,
+     *     // the above is equivalent to the following:
+     *     // 'api' => self::OP_ALL,
+     *
+     * ];
+     * ```
+     *
+     * The above declaration specifies that in the "admin" scenario, the insert operation ([[insert()]])
+     * should be done in a transaction; and in the "api" scenario, all the operations should be done
+     * in a transaction.
+     *
+     * @return array the declarations of transactional operations. The array keys are scenarios names,
+     * and the array values are the corresponding transaction operations.
+     */
+    public function transactions()
+    {
+        return [];
+    }
+
+    /**
+     * Returns a value indicating whether the specified operation is transactional in the current [[$scenario]].
+     * @param int $operation the operation to check. Possible values are [[OP_INSERT]], [[OP_UPDATE]] and [[OP_DELETE]].
+     * @return bool whether the specified operation is transactional in the current [[scenario]].
+     */
+    public function isTransactional($operation)
+    {
+        $scenario = $this->getScenario();
+        $transactions = $this->transactions();
+
+        return isset($transactions[$scenario]) && ($transactions[$scenario] & $operation);
     }
 }
