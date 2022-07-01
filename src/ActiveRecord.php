@@ -547,7 +547,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     /**
      * Locking a document in stubborn mode on a transaction (like `select for update` feature in MySQL)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
-     * notice : you can not use stubborn mode if transaction is started in current session(or use your session with `mySession` parameter).
+     * notice : you can not use stubborn mode if transaction is started in current session (or use your session with `mySession` parameter).
      * @param mixed $id a document id(primary key > _id)
      * @param array $options list of options in format:
      *   [
