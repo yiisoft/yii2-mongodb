@@ -71,7 +71,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiEndProfile($token, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableProfiling) {
-            yii::endProfile($token,$category);
+            Yii::endProfile($token,$category);
         }
     }
 
