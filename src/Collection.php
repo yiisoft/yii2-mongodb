@@ -56,7 +56,7 @@ class Collection extends BaseObject
 
     /**
      * Drops this collection.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::dropCollection()}
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
@@ -69,7 +69,7 @@ class Collection extends BaseObject
      * Returns the list of defined indexes.
      * @return array list of indexes info.
      * @param array $options list of options in format: optionName => optionValue.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::listIndexes()}
      * @since 2.1
      */
     public function listIndexes($options = [], $execOptions = [])
@@ -109,7 +109,7 @@ class Collection extends BaseObject
      *
      * See [[https://docs.mongodb.com/manual/reference/method/db.collection.createIndex/#options-for-all-index-types]]
      * for the full list of options.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::createIndexes()}
      * @return bool whether operation was successful.
      * @since 2.1
      */
@@ -122,7 +122,7 @@ class Collection extends BaseObject
      * Drops collection indexes by name.
      * @param string $indexes wildcard for name of the indexes to be dropped.
      * You can use `*` to drop all indexes.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::dropIndexes()}
      * @return int count of dropped indexes.
      */
     public function dropIndexes($indexes, $execOptions = [])
@@ -148,7 +148,7 @@ class Collection extends BaseObject
      * ```
      *
      * @param array $options list of options in format: optionName => optionValue.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::createIndexes()}
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
@@ -176,7 +176,7 @@ class Collection extends BaseObject
      * ]
      * ```
      *
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::dropIndexes()}
      * @throws Exception on failure.
      * @return bool whether the operation successful.
      */
@@ -206,7 +206,7 @@ class Collection extends BaseObject
 
     /**
      * Drops all indexes for this collection.
-     * @param array $execOptions -> goto Command::execute()
+     * @param array $execOptions {@see Command::dropIndexes()}
      * @throws Exception on failure.
      * @return int count of dropped indexes.
      */
@@ -222,7 +222,7 @@ class Collection extends BaseObject
      * @param array $condition query condition
      * @param array $fields fields to be selected
      * @param array $options query options (available since 2.1).
-     * @param array $execOptions -> goto Command::executeQuery()
+     * @param array $execOptions {@see Command::find()}
      * @return \MongoDB\Driver\Cursor cursor for the search results
      * @see Query
      */
@@ -239,7 +239,7 @@ class Collection extends BaseObject
      * @param array $condition query condition
      * @param array $fields fields to be selected
      * @param array $options query options (available since 2.1).
-     * @param array $execOptions -> goto Command::executeQuery()
+     * @param array $execOptions {@see find()}
      * @return array|null the single document. Null is returned if the query results in nothing.
      */
     public function findOne($condition = [], $fields = [], $options = [], $execOptions = [])
@@ -255,6 +255,7 @@ class Collection extends BaseObject
      * @param array $condition query condition
      * @param array $update update criteria
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions {@see Command::findAndModify()}
      * @return array|null the original document, or the modified document when $options['new'] is set.
      * @throws Exception on failure.
      */
@@ -268,7 +269,7 @@ class Collection extends BaseObject
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
      * @return \MongoDB\BSON\ObjectID new record ID instance.
-     * @param array $execOptions -> goto Command::executeBatch()
+     * @param array $execOptions {@see Command::insert()}
      * @throws Exception on failure.
      */
     public function insert($data, $options = [], $execOptions = [])
@@ -280,11 +281,11 @@ class Collection extends BaseObject
      * Inserts several new rows into collection.
      * @param array $rows array of arrays or objects to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @param array $execOptions -> goto Command::executeBatch()
+     * @param array $execOptions {@see Command::batchInsert()}
      * @return array inserted data, each row will have "_id" key assigned to it.
      * @throws Exception on failure.
      */
-    public function batchInsert($rows, $options = [], $execOptions = [])
+    public function batchInsert($rows, $options = [], $r = [])
     {
         $insertedIds = $this->database->createCommand()->batchInsert($this->name, $rows, $options, $execOptions);
         foreach ($rows as $key => $row) {
@@ -300,7 +301,7 @@ class Collection extends BaseObject
      * @param array $condition description of the objects to update.
      * @param array $newData the object with which to update the matching records.
      * @param array $options list of options in format: optionName => optionValue.
-     * @param array $execOptions -> goto Command::executeBatch()
+     * @param array $execOptions {@see Command::update()}
      * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
@@ -315,7 +316,7 @@ class Collection extends BaseObject
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
      * @return \MongoDB\BSON\ObjectID updated/new record id instance.
-     * @param array $execOptions -> goto Command::executeBatch()
+     * @param array $execOptions {@see Command::insert()}
      * @throws Exception on failure.
      */
     public function save($data, $options = [], $execOptions = [])
@@ -334,7 +335,7 @@ class Collection extends BaseObject
      * Removes data from the collection.
      * @param array $condition description of records to remove.
      * @param array $options list of options in format: optionName => optionValue.
-     * @param array $execOptions -> goto Command::executeBatch()
+     * @param array $execOptions {@see Command::delete()}
      * @return int|bool number of updated documents or whether operation was successful.
      * @throws Exception on failure.
      */
@@ -349,6 +350,7 @@ class Collection extends BaseObject
      * Counts records in this collection.
      * @param array $condition query condition
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions {@see Command::count()}
      * @return int records count.
      * @since 2.1
      */
@@ -362,6 +364,7 @@ class Collection extends BaseObject
      * @param string $column column to use.
      * @param array $condition query parameters.
      * @param array $options list of options in format: optionName => optionValue.
+     * @param array $execOptions {@see Command::distinct()}
      * @return array|bool array of distinct values, or "false" on failure.
      * @throws Exception on failure.
      */
@@ -376,6 +379,7 @@ class Collection extends BaseObject
      * otherwise - an array of aggregation results.
      * @param array $pipelines list of pipeline operators.
      * @param array $options optional parameters.
+     * @param array $execOptions {@see Command::aggregate()}
      * @return array|\MongoDB\Driver\Cursor the result of the aggregation.
      * @throws Exception on failure.
      */
@@ -396,6 +400,7 @@ class Collection extends BaseObject
      * @param array $options optional parameters to the group command. Valid options include:
      *  - condition - criteria for including a document in the aggregation.
      *  - finalize - function called once per unique key that takes the final output of the reduce function.
+     * @param array $execOptions {@see Command::group()}
      * @return array the result of the aggregation.
      * @throws Exception on failure.
      */
@@ -440,6 +445,7 @@ class Collection extends BaseObject
      * - jsMode: bool, specifies whether to convert intermediate data into BSON format between the execution of the map and reduce functions.
      * - verbose: bool, specifies whether to include the timing information in the result information.
      *
+     * @param array $execOptions {@see Command::mapReduce()}
      * @return string|array the map reduce output collection name or output results.
      * @throws Exception on failure.
      */

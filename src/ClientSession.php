@@ -121,8 +121,7 @@ class ClientSession extends \yii\base\BaseObject
     /**
      * Starts a new mongodb session in a connection.
      * @param Connection $db 
-     * @param Array $sessionOptions Creates a ClientSession for the given options
-     * @see https://www.php.net/manual/en/mongodb-driver-manager.startsession.php#refsect1-mongodb-driver-manager.startsession-parameters
+     * @param Array $sessionOptions Creates a ClientSession for the given options {@see https://www.php.net/manual/en/mongodb-driver-manager.startsession.php#refsect1-mongodb-driver-manager.startsession-parameters}
      * @return ClientSession returns new session base on a session options for the given connection
     */
     public static function start($db, $sessionOptions = [])

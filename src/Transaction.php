@@ -103,7 +103,7 @@ class Transaction extends \yii\base\BaseObject
     */
     public function start($transactionOptions = [])
     {
-        Command::prepareCPOptions($transactionOptions);
+        Command::prepareManagerOptions($transactionOptions);
         $this->yiiDebug('Starting mongodb transaction ...', __METHOD__);
         if ($this->clientSession->getInTransaction()) {
             throw new Exception('Nested transaction not supported');

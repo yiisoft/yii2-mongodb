@@ -176,9 +176,19 @@ class Connection extends Component
     public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
 
     /**
-    * @var array default options for `executeCommand` method of MongoDB\Driver\Manager in `Command` class.
+    * @var array default options for `executeCommand` , executeBulkWrite and executeQuery method of MongoDB\Driver\Manager in `Command` class.
     */
-    public $globalExecOptions = [];
+    public $globalExecOptions = [
+        /**
+         * Shared between some(or all) methods(executeCommand|executeBulkWrite|executeQuery).
+         * This options are :
+         * - session
+        */
+        'share' => [],
+        'command' => [],
+        'bulkWrite' => [],
+        'query' => [],
+    ];
 
     /**
      * @var string name of the MongoDB database to use by default.
@@ -460,17 +470,17 @@ class Connection extends Component
     }
 
     /**
-     * Sets global execOptions for Command::execute() and Command::executeBatch() and Command::query()
-     * @param array $execOptions see docs of Command::execute() and Command::executeBatch() and Command::query()
+     * Recursive replacement on $this->globalExecOptions with new options. {@see $this->globalExecOptions}
+     * @param array $newExecOptions {@see $this->globalExecOptions}
      * @return $this
      */
-    public function execOptions($execOptions)
+    public function execOptions($newExecOptions)
     {
-        if (empty($execOptions)) {
+        if (empty($newExecOptions)) {
             $this->globalExecOptions = [];
         }
         else {
-            $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $execOptions);
+            $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $newExecOptions);
         }
         return $this;
     }
@@ -521,7 +531,7 @@ class Connection extends Component
     */
     public function getInSession()
     {
-        return array_key_exists('session',$this->globalExecOptions);
+        return array_key_exists('session',$this->globalExecOptions['share']);
     }
 
     /**
@@ -553,7 +563,7 @@ class Connection extends Component
     */
     public function getSession()
     {
-        return $this->getInSession() ? $this->globalExecOptions['session'] : null;
+        return $this->getInSession() ? $this->globalExecOptions['share']['session'] : null;
     }
 
     /**
@@ -613,10 +623,10 @@ class Connection extends Component
     {
         #drop session
         if (empty($clientSession)) {
-            unset($this->globalExecOptions['session']);
+            unset($this->globalExecOptions['share']['session']);
         }
         else {
-            $this->globalExecOptions['session'] = $clientSession;
+            $this->globalExecOptions['share']['session'] = $clientSession;
         }
         return $this;
     }
