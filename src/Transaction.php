@@ -59,7 +59,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiBeginProfile($token, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableProfiling) {
-            yii::beginProfile($token,$category);
+            Yii::beginProfile($token,$category);
         }
     }
 
