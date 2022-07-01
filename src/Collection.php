@@ -285,7 +285,7 @@ class Collection extends BaseObject
      * @return array inserted data, each row will have "_id" key assigned to it.
      * @throws Exception on failure.
      */
-    public function batchInsert($rows, $options = [], $r = [])
+    public function batchInsert($rows, $options = [], $execOptions = [])
     {
         $insertedIds = $this->database->createCommand()->batchInsert($this->name, $rows, $options, $execOptions);
         foreach ($rows as $key => $row) {
