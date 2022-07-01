@@ -548,15 +548,15 @@ abstract class ActiveRecord extends BaseActiveRecord
      * Locking a document in stubborn mode on a transaction (like `select for update` feature in MySQL)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
      * notice : you can not use stubborn mode if transaction is started in current session (or use your session with `mySession` parameter).
-     * @param mixed $id a document id(primary key > _id)
+     * @param mixed $id a document id (primary key > _id)
      * @param array $options list of options in format:
      *   [
-     *     'mySession' => false,        #A custom session instance of ClientSession for start a transaction.
-     *     'transactionOptions' => [],  #New transaction options. see $transactionOptions in Transaction::start()
-     *     'modifyOptions' => [],       #See $options in ActiveQuery::modify()
-     *     'sleep' => 1000000,          #A time parameter in microseconds to wait. the default is one second.
-     *     'try' => 0,                  #Maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
-     *     'lockFieldName' => '_lock'   #The name of the field you want to lock. default is '_lock'
+     *     'mySession' => false,        # A custom session instance of ClientSession for start a transaction.
+     *     'transactionOptions' => [],  # New transaction options. see $transactionOptions in Transaction::start()
+     *     'modifyOptions' => [],       # See $options in ActiveQuery::modify()
+     *     'sleep' => 1000000,          # A time parameter in microseconds to wait. the default is one second.
+     *     'try' => 0,                  # Maximum count of retry. throw write conflict error after reached this value. the zero default is unlimited.
+     *     'lockFieldName' => '_lock'   # The name of the field you want to lock. default is '_lock'
      *   ]
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null returns the locked document.
