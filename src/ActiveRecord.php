@@ -407,7 +407,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      */
     public function delete()
     {
-        if(!$this->isTransactional(self::OP_DELETE)) {
+        if (!$this->isTransactional(self::OP_DELETE)) {
             return $this->deleteInternal();
         }
 
