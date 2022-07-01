@@ -518,7 +518,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     }
 
     /**
-     * Locks a document of the collection in a transaction(like `select for update` feature in mysql)
+     * Locks a document of the collection in a transaction (like `select for update` feature in MySQL)
      * @see https://www.mongodb.com/blog/post/how-to-select--for-update-inside-mongodb-transactions
      * @param mixed $id a document id(primary key > _id)
      * @param string $lockFieldName The name of the field you want to lock.
