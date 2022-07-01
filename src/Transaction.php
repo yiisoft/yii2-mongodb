@@ -47,7 +47,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiDebug($message, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableLogging) {
-            yii::debug($message,$category);
+            Yii::debug($message,$category);
         }
     }
 
