@@ -158,7 +158,7 @@ class Query extends Component implements QueryInterface
     public function andFilterCompare($name, $value, $defaultOperator = '=')
     {
         $matches = [];
-        if (preg_match('/^(<>|>=|>|<=|<|=)/', $value, $matches)) {
+        if (preg_match('/^(<>|>=|>|<=|<|=)/', (string)$value, $matches)) {
             $op = $matches[1];
             $value = substr($value, strlen($op));
         } else {
