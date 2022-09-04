@@ -7,6 +7,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #294: Add transactions support (ziaratban)
 - Bug #299: Drop limit of `batchSize` cursor option in application level according to [jira.mongodb(PHP-457)](https://jira.mongodb.org/browse/PHP-457) (ziaratban)
 - Bug #297: Fixed zero-index key problem in `ActiveQuery::Each()` (ziaratban)
+- Bug #348: Add PHP 8.1 support (scrummitch, samdark)
 
 
 2.1.12 August 09, 2021
