@@ -73,6 +73,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the batch query.
      * This method will clean up the existing batch query so that a new batch query can be performed.
      */
+    #[\ReturnTypeWillChange]
     public function reset()
     {
         $this->_iterator = null;
@@ -85,6 +86,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the iterator to the initial state.
      * This method is required by the interface Iterator.
      */
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->reset();
@@ -95,6 +97,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Moves the internal pointer to the next dataset.
      * This method is required by the interface Iterator.
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         if ($this->_batch === null || !$this->each || $this->each && next($this->_batch) === false) {
@@ -160,6 +163,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return int the index of the current row.
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->_key;
@@ -170,6 +174,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return mixed the current dataset.
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->_value;
@@ -180,7 +185,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return bool whether there is a valid dataset at the current position.
      */
-    public function valid()
+    public function valid(): bool
     {
         return !empty($this->_batch);
     }
