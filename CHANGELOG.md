@@ -1,16 +1,31 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-2.2.0 under development
+3.0.0 under development
+-----------------------
+
+- Enh #294: Add transactions support (ziaratban)
+- Bug #299: Drop limit of `batchSize` cursor option in application level according to [jira.mongodb(PHP-457)](https://jira.mongodb.org/browse/PHP-457) (ziaratban)
+
+
+2.1.12 August 09, 2021
+----------------------
+
+- Enh #342: Use `random_int()` for cache garbage collection (samdark)
+
+
+2.1.11 December 23, 2020
 ------------------------
 
-- Bug #299: drop limit of `batchSize` cursor option in application level according to [jira.mongodb(PHP-457)](https://jira.mongodb.org/browse/PHP-457) (ziaratban)
+- Bug #327: Fix `yii\mongodb\BatchQueryResult` to be compatible with PECL MongoDb 1.9.0 driver (bizley)
 
 
-2.1.10 under development
+2.1.10 November 10, 2020
 ------------------------
 
 - Bug #308: Fix `yii\mongodb\file\Upload::addFile()` error when uploading file with readonly permissions (sparchatus)
+- Enh #319: Added support for the 'session.use_strict_mode' ini directive in `yii\web\Session` (rhertogh)
+
 
 
 2.1.9 November 19, 2019
