@@ -55,6 +55,7 @@ class Cursor extends \IteratorIterator implements \Countable
      * This method is required by the interface [[\Countable]].
      * @return int elements count.
      */
+    #[\ReturnTypeWillChange]
     public function count()
     {
         return count($this->cursor);
