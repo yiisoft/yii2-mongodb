@@ -40,6 +40,7 @@ class Cursor extends \IteratorIterator implements \Countable
      * This method is required by the interface [[\Iterator]].
      * @return mixed current row
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         $value = parent::current();
