@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -30,22 +30,20 @@ abstract class ActiveRecord extends BaseActiveRecord
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
     const OP_INSERT = 0x01;
-
     /**
      * The update operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
     const OP_UPDATE = 0x02;
-
     /**
      * The delete operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
     const OP_DELETE = 0x04;
-
     /**
      * All three operations: insert, update, delete.
      * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
      */
     const OP_ALL = 0x07;
+
 
     /**
      * Returns the Mongo connection used by this AR class.
@@ -526,7 +524,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
-    */
+     */
     public static function LockDocument($id, $lockFieldName, $modifyOptions = [], $db = null)
     {
         $db = $db ? $db : static::getDb();
@@ -562,7 +560,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @return ActiveRecord|null returns the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
      * When the total number of attempts to lock the document passes `try`, conflict error will be thrown
-    */
+     */
     public static function LockDocumentStubbornly($id, $lockFieldName, $options = [], $db = null)
     {
         $db = $db ? $db : static::getDb();

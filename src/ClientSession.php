@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -19,16 +19,19 @@ use MongoDB\Driver\ReadPreference;
  * Note : The minimum supported version of MongoDB server is 3.6
  * @see https://github.com/mongodb/mongo-php-driver/releases/tag/1.4.0
  * @see https://docs.mongodb.com/ecosystem/drivers/php/#mongodb-compatibility
+ *
+ * @property-read string $id
+ * @property-read bool $inTransaction
+ * @property-read Transaction $transaction Returns current transaction.
+ *
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
  */
 class ClientSession extends \yii\base\BaseObject
 {
-
     /**
      * @var Connection the database connection that this transaction is associated with.
      */
     public $db;
-
     /**
      * @var MongoDB\Driver\Session class represents a client session and Commands,
      * queries, and write operations may then be associated the session.
@@ -38,31 +41,32 @@ class ClientSession extends \yii\base\BaseObject
 
     /**
      * @var Transaction the current transaction in session. this transaction can only be created once.
-    */
+     */
     private $_transaction = null;
 
+
     /**
-    * Prepares options for some purposes
-    * @param array by reference
-    * convert string option to object
-    * [
-    *   'defaultTransactionOptions' => [
-    *       'readConcern' => 'snapshot', 
-    *       'writeConcern' => 'majority',
-    *       'writeConcern' => ['majority',true],
-    *       'readPreference' => 'primary',
-    *   ],
-    * ]
-    * convert to :
-    * [
-    *   'defaultTransactionOptions' => [
-    *       'readConcern' => new \MongoDB\Driver\ReadConcern('snapshot'), 
-    *       'writeConcern' => new \MongoDB\Driver\WriteConcern('majority'),
-    *       'writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true),
-    *       'readPreference' => new \MongoDB\Driver\ReadPreference('primary'), 
-    *   ],
-    * ]
-    */
+     * Prepares options for some purposes
+     * @param array by reference
+     * convert string option to object
+     * [
+     * 'defaultTransactionOptions' => [
+     * 'readConcern' => 'snapshot',
+     * 'writeConcern' => 'majority',
+     * 'writeConcern' => ['majority',true],
+     * 'readPreference' => 'primary',
+     * ],
+     * ]
+     * convert to :
+     * [
+     * 'defaultTransactionOptions' => [
+     * 'readConcern' => new \MongoDB\Driver\ReadConcern('snapshot'),
+     * 'writeConcern' => new \MongoDB\Driver\WriteConcern('majority'),
+     * 'writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true),
+     * 'readPreference' => new \MongoDB\Driver\ReadPreference('primary'),
+     * ],
+     * ]
+     */
     public static function prepareOptions(&$options)
     {
         if (array_key_exists('defaultTransactionOptions', $options)) {
@@ -109,10 +113,10 @@ class ClientSession extends \yii\base\BaseObject
     }
 
     /**
-     * Returns the logical session ID as string for this session, which may be used to identify this session's operations on the server. 
+     * Returns the logical session ID as string for this session, which may be used to identify this session's operations on the server.
      * @see https://www.php.net/manual/en/mongodb-driver-session.getlogicalsessionid.php
      * @return string
-    */
+     */
     public function getId()
     {
         return $this->mongoSession->getLogicalSessionId()->id->jsonSerialize()['$binary'];
@@ -120,10 +124,10 @@ class ClientSession extends \yii\base\BaseObject
 
     /**
      * Starts a new mongodb session in a connection.
-     * @param Connection $db 
+     * @param Connection $db
      * @param Array $sessionOptions Creates a ClientSession for the given options {@see https://www.php.net/manual/en/mongodb-driver-manager.startsession.php#refsect1-mongodb-driver-manager.startsession-parameters}
      * @return ClientSession returns new session base on a session options for the given connection
-    */
+     */
     public static function start($db, $sessionOptions = [])
     {
         self::prepareOptions($sessionOptions);
@@ -144,7 +148,7 @@ class ClientSession extends \yii\base\BaseObject
     /**
      * Gets a current transaction of session or creates a new transaction once
      * @return Transaction returns current transaction
-    */
+     */
     public function getTransaction()
     {
         if ($this->_transaction === null) {
@@ -156,7 +160,7 @@ class ClientSession extends \yii\base\BaseObject
     /**
      * Returns true if the transaction is in progress
      * @return bool
-    */
+     */
     public function getInTransaction()
     {
         return $this->mongoSession->isInTransaction();
@@ -164,7 +168,7 @@ class ClientSession extends \yii\base\BaseObject
 
     /**
      * Ends the current session.
-    */
+     */
     public function end()
     {
         $this->mongoSession->endSession();

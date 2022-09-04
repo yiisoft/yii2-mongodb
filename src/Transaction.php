@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -14,8 +14,8 @@ use Yii;
  * arrays to capture relationships between data in a single document structure instead of normalizing
  * across multiple documents and collections, this single-document atomicity obviates the need for multi-document
  * transactions for many practical use cases.
- * For situations that require atomicity of reads and writes to multiple documents (in a single or multiple collections), 
- * MongoDB supports multi-document transactions. With distributed transactions, transactions can be used across multiple operations, 
+ * For situations that require atomicity of reads and writes to multiple documents (in a single or multiple collections),
+ * MongoDB supports multi-document transactions. With distributed transactions, transactions can be used across multiple operations,
  * collections, databases, documents, and shards.
  * @see https://docs.mongodb.com/core/transactions/
  * Note : At least 1.5 mongodb php driver version is supported.
@@ -23,11 +23,14 @@ use Yii;
  * @see https://docs.mongodb.com/ecosystem/drivers/php/#mongodb-compatibility
  * Note : Nested transaction not supported.
  * @see https://docs.mongodb.com/manual/core/transactions/#transactions-and-sessions
+ *
+ * @property-read bool $isActive Whether this transaction is active. Only an active transaction can
+ * [[commit()]] or [[rollBack()]].
+ *
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
  */
 class Transaction extends \yii\base\BaseObject
 {
-
     const STATE_NONE = 'none';
     const STATE_STARTING = 'starting';
     const STATE_ABORTED = 'aborted';
@@ -38,6 +41,7 @@ class Transaction extends \yii\base\BaseObject
      * @see https://www.php.net/manual/en/class.mongodb-driver-session.php
      */
     public $clientSession;
+
 
     /**
      * Set debug message if `enableLogging` property is enable in yii\mongodb\Connection
@@ -100,7 +104,7 @@ class Transaction extends \yii\base\BaseObject
      * Each element in this options array overrides the corresponding option from the "sessionOptions" option,
      * if set when starting the session with ClientSession::start().
      * @see https://www.php.net/manual/en/mongodb-driver-session.starttransaction.php#refsect1-mongodb-driver-session.starttransaction-parameters
-    */
+     */
     public function start($transactionOptions = [])
     {
         Command::prepareManagerOptions($transactionOptions);

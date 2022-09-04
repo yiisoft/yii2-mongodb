@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb\file;
@@ -16,7 +16,7 @@ use Yii;
  * Found files will be represented as arrays of file document attributes with
  * additional 'file' key, which stores [[\MongoGridFSFile]] instance.
  *
- * @property Collection $collection Collection instance. This property is read-only.
+ * @property-read Collection $collection Collection instance.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

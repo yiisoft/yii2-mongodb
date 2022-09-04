@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -64,15 +64,16 @@ use Yii;
  * ]
  * ```
  *
- * @property Database $database Database instance. This property is read-only.
+ * @property-read Database $database Database instance.
  * @property string $defaultDatabaseName Default database name.
- * @property file\Collection $fileCollection Mongo GridFS collection instance. This property is read-only.
- * @property bool $isActive Whether the Mongo connection is established. This property is read-only.
+ * @property-read file\Collection $fileCollection Mongo GridFS collection instance.
+ * @property-read bool $isActive Whether the Mongo connection is established.
  * @property LogBuilder $logBuilder The log builder for this connection. Note that the type of this property
  * differs in getter and setter. See [[getLogBuilder()]] and [[setLogBuilder()]] for details.
  * @property QueryBuilder $queryBuilder The query builder for the this MongoDB connection. Note that the type
  * of this property differs in getter and setter. See [[getQueryBuilder()]] and [[setQueryBuilder()]] for
  * details.
+ * @property-write ClientSession|null $session New instance of ClientSession to replace return $this.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
@@ -174,22 +175,21 @@ class Connection extends Component
      * @since 2.1
      */
     public $fileStreamWrapperClass = 'yii\mongodb\file\StreamWrapper';
-
     /**
-    * @var array default options for `executeCommand` , executeBulkWrite and executeQuery method of MongoDB\Driver\Manager in `Command` class.
-    */
+     * @var array default options for `executeCommand` , executeBulkWrite and executeQuery method of MongoDB\Driver\Manager in `Command` class.
+     */
     public $globalExecOptions = [
         /**
          * Shared between some(or all) methods(executeCommand|executeBulkWrite|executeQuery).
+
          * This options are :
          * - session
-        */
+         */
         'share' => [],
         'command' => [],
         'bulkWrite' => [],
         'query' => [],
     ];
-
     /**
      * @var string name of the MongoDB database to use by default.
      * If this field left blank, connection instance will attempt to determine it from
@@ -489,7 +489,7 @@ class Connection extends Component
      * Ends the previous session and starts the new session.
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
-    */
+     */
     public function startSession($sessionOptions = [])
     {
 
@@ -506,7 +506,7 @@ class Connection extends Component
      * Starts a new session if the session has not started, otherwise returns previous session.
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
-    */
+     */
     public function startSessionOnce($sessionOptions = [])
     {
         if ($this->getInSession()) {   
@@ -519,7 +519,7 @@ class Connection extends Component
      * Only starts the new session for current connection but this session does not set for current connection.
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
-    */
+     */
     public function newSession($sessionOptions = [])
     {
         return ClientSession::start($this, $sessionOptions);
@@ -528,7 +528,7 @@ class Connection extends Component
     /**
      * Checks whether the current connection is in session.
      * return bool
-    */
+     */
     public function getInSession()
     {
         return array_key_exists('session',$this->globalExecOptions['share']);
@@ -537,16 +537,16 @@ class Connection extends Component
     /**
      * Checks that the current connection is in session and transaction
      * return bool
-    */
+     */
     public function getInTransaction()
     {
         return $this->getInSession() && $this->getSession()->getInTransaction();
     }
 
     /**
-     * Throws custom error if transaction is not ready in connection 
+     * Throws custom error if transaction is not ready in connection
      * @param string $operation a custom message to be shown
-    */
+     */
     public function transactionReady($operation)
     {
         if (!$this->getInSession()) {
@@ -560,7 +560,7 @@ class Connection extends Component
     /**
      * Returns current session
      * return ClientSession|null
-    */
+     */
     public function getSession()
     {
         return $this->getInSession() ? $this->globalExecOptions['share']['session'] : null;
@@ -574,7 +574,7 @@ class Connection extends Component
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
-    */
+     */
     public function startTransaction($transactionOptions = [], $sessionOptions = [])
     {
         $session = $this->startSession($sessionOptions,true);
@@ -587,7 +587,7 @@ class Connection extends Component
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
      * return ClientSession
-    */
+     */
     public function startTransactionOnce($transactionOptions = [], $sessionOptions = [])
     {
         if ($this->getInTransaction()) {
@@ -597,8 +597,8 @@ class Connection extends Component
     }
 
     /**
-    * Commits transaction in current session
-    */
+     * Commits transaction in current session
+     */
     public function commitTransaction()
     {
         $this->transactionReady('commit transaction');
@@ -606,8 +606,8 @@ class Connection extends Component
     }
 
     /**
-    * Rollbacks transaction in current session
-    */
+     * Rollbacks transaction in current session
+     */
     public function rollBackTransaction()
     {
         $this->transactionReady('roll back transaction');
@@ -618,7 +618,7 @@ class Connection extends Component
      * Changes the current session of connection to execute commands (or drop session)
      * @param ClientSession|null $clientSession new instance of ClientSession to replace
      * return $this
-    */
+     */
     public function setSession($clientSession)
     {
         #drop session
@@ -637,7 +637,7 @@ class Connection extends Component
      * if the $actions returns false then transaction rolls back.
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
-    */
+     */
     public function transaction(callable $actions, $transactionOptions = [], $sessionOptions = [])
     {
         $session = $this->startTransaction($transactionOptions, $sessionOptions);
@@ -666,7 +666,7 @@ class Connection extends Component
      * @param callable $actions your block of code must be runned after transaction started and before commit
      * @param array $transactionOptions see doc of Transaction::start()
      * @param array $sessionOptions see doc of ClientSession::start()
-    */
+     */
     public function transactionOnce(callable $actions, $transactionOptions = [], $sessionOptions = [])
     {
         if ($this->getInTransaction()) {
@@ -681,7 +681,7 @@ class Connection extends Component
      * Runs your mongodb command out of session and transaction.
      * @param callable $actions your block of code must be runned out of session and transaction
      * @return mixed returns a result of $actions()
-    */
+     */
     public function noTransaction(callable $actions)
     {
         $lastSession = $this->getSession();

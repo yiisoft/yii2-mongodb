@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -54,7 +54,7 @@ use yii\db\ActiveRelationTrait;
  * This methods may only be called in a relational context. Same is true for [[inverseOf()]], which
  * marks a relation as inverse of another relation.
  *
- * @property Collection $collection Collection instance. This property is read-only.
+ * @property-read Collection $collection Collection instance.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

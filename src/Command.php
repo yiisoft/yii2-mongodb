@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb;
@@ -72,16 +72,16 @@ class Command extends BaseObject
      * @var array command document contents.
      */
     public $document = [];
-
     /**
-    * @var array default options for `executeCommand` method of MongoDB\Driver\Manager.
-    */
+     * @var array default options for `executeCommand` method of MongoDB\Driver\Manager.
+     */
     public $globalExecOptions = [];
 
+
     /**
-    * prepares execOptions for some purposes
-    * @param array|object|null $execOptions {@see prepareManagerOptions()}
-    */
+     * prepares execOptions for some purposes
+     * @param array|object|null $execOptions {@see prepareManagerOptions()}
+     */
     private function prepareExecCommandOptions(&$execOptions)
     {
         if (empty($execOptions)) {
@@ -91,9 +91,9 @@ class Command extends BaseObject
     }
 
     /**
-    * prepares execOptions for some purposes
-    * @param array|object|null $execOptions {@see prepareManagerOptions()}
-    */
+     * prepares execOptions for some purposes
+     * @param array|object|null $execOptions {@see prepareManagerOptions()}
+     */
     private function prepareExecBulkWriteOptions(&$execOptions)
     {
         if (empty($execOptions)) {
@@ -103,9 +103,9 @@ class Command extends BaseObject
     }
 
     /**
-    * prepares execOptions for some purposes
-    * @param array|object|null $execOptions {@see prepareManagerOptions()}
-    */
+     * prepares execOptions for some purposes
+     * @param array|object|null $execOptions {@see prepareManagerOptions()}
+     */
     private function prepareExecQueryOptions(&$execOptions)
     {
         if (empty($execOptions)) {
@@ -115,17 +115,17 @@ class Command extends BaseObject
     }
 
     /**
-    * preapare Concern and Preference options for easy use
-    * @param array|object $options by reference
-    * convert string option to object
-    * ['readConcern' => 'snapshot'] > ['readConcern' => new \MongoDB\Driver\ReadConcern('snapshot')]
-    * ['writeConcern' => 'majority'] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority')]
-    * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
-    * ['readPreference' => 'snapshot'] > ['readPreference' => new \MongoDB\Driver\ReadPreference('primary')]
-    * {@see https://www.php.net/manual/en/mongodb-driver-manager.executecommand.php#refsect1-mongodb-driver-manager.executecommand-parameters}
-    * {@see https://www.php.net/manual/en/mongodb-driver-manager.executebulkwrite.php#refsect1-mongodb-driver-manager.executebulkwrite-parameters}
-    * {@see https://www.php.net/manual/en/mongodb-driver-server.executequery.php#refsect1-mongodb-driver-server.executequery-parameters}
-    */
+     * preapare Concern and Preference options for easy use
+     * @param array|object $options by reference
+     * convert string option to object
+     * ['readConcern' => 'snapshot'] > ['readConcern' => new \MongoDB\Driver\ReadConcern('snapshot')]
+     * ['writeConcern' => 'majority'] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority')]
+     * ['writeConcern' => ['majority',true]] > ['writeConcern' => new \MongoDB\Driver\WriteConcern('majority',true)]
+     * ['readPreference' => 'snapshot'] > ['readPreference' => new \MongoDB\Driver\ReadPreference('primary')]
+     * {@see https://www.php.net/manual/en/mongodb-driver-manager.executecommand.php#refsect1-mongodb-driver-manager.executecommand-parameters}
+     * {@see https://www.php.net/manual/en/mongodb-driver-manager.executebulkwrite.php#refsect1-mongodb-driver-manager.executebulkwrite-parameters}
+     * {@see https://www.php.net/manual/en/mongodb-driver-server.executequery.php#refsect1-mongodb-driver-server.executequery-parameters}
+     */
     public static function prepareManagerOptions(&$options)
     {
         //Convert readConcern option

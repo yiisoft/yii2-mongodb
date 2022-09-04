@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb\file;
@@ -19,8 +19,8 @@ use yii\web\UploadedFile;
  *
  * File collection inherits all interface from regular [[\yii\mongo\Collection]], adding methods to store files.
  *
- * @property \yii\mongodb\Collection $chunkCollection Mongo collection instance. This property is read-only.
- * @property \yii\mongodb\Collection $fileCollection Mongo collection instance. This property is read-only.
+ * @property-read \yii\mongodb\Collection $chunkCollection Mongo collection instance.
+ * @property-read \yii\mongodb\Collection $fileCollection Mongo collection instance.
  * @property string $prefix Prefix of this file collection.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>

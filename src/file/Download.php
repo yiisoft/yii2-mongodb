@@ -1,8 +1,8 @@
 <?php
 /**
- * @link http://www.yiiframework.com/
+ * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
- * @license http://www.yiiframework.com/license/
+ * @license https://www.yiiframework.com/license/
  */
 
 namespace yii\mongodb\file;
@@ -31,14 +31,14 @@ use yii\helpers\StringHelper;
  * $filePart = Yii::$app->mongodb->getFileCollection()->createDownload($document['_id'])->substr(256, 1024);
  * ```
  *
- * @property string $bytes File content. This property is read-only.
- * @property \MongoDB\Driver\Cursor $chunkCursor Chuck list cursor. This property is read-only.
- * @property \Iterator $chunkIterator Chuck cursor iterator. This property is read-only.
+ * @property-read string $bytes File content.
+ * @property-read \MongoDB\Driver\Cursor $chunkCursor Chuck list cursor.
+ * @property-read \Iterator $chunkIterator Chuck cursor iterator.
  * @property array $document Document to be downloaded. Note that the type of this property differs in getter
  * and setter. See [[getDocument()]] and [[setDocument()]] for details.
- * @property string|null $filename File name. This property is read-only.
- * @property resource $resource File stream resource. This property is read-only.
- * @property int $size File size. This property is read-only.
+ * @property-read string|null $filename File name.
+ * @property-read resource $resource File stream resource.
+ * @property-read int $size File size.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
