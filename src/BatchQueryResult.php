@@ -73,6 +73,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the batch query.
      * This method will clean up the existing batch query so that a new batch query can be performed.
      */
+    #[\ReturnTypeWillChange]
     public function reset()
     {
         $this->_iterator = null;
@@ -85,6 +86,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Resets the iterator to the initial state.
      * This method is required by the interface Iterator.
      */
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         $this->reset();
@@ -95,6 +97,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * Moves the internal pointer to the next dataset.
      * This method is required by the interface Iterator.
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         if ($this->_batch === null || !$this->each || $this->each && next($this->_batch) === false) {
@@ -124,11 +127,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
     protected function fetchData()
     {
         if ($this->_iterator === null) {
-            if (empty($this->query->orderBy)) {
-                // setting cursor batch size may setup implicit limit on the query with 'sort'
-                // @see https://jira.mongodb.org/browse/PHP-457
-                $this->query->addOptions(['batchSize' => $this->batchSize]);
-            }
+            $this->query->addOptions(['batchSize' => $this->batchSize]);
             $cursor = $this->query->buildCursor($this->db);
             $token = 'fetch cursor id = ' . $cursor->getId();
             Yii::info($token, __METHOD__);
@@ -146,13 +145,11 @@ class BatchQueryResult extends BaseObject implements \Iterator
         $count = 0;
 
         while ($count++ < $this->batchSize) {
-            $row = $this->_iterator->current();
-            if ($row === null) {
+            if (!$this->_iterator->valid()) {
                 break;
             }
+            $rows[] = $this->_iterator->current();
             $this->_iterator->next();
-            //var_dump($row);
-            $rows[] = $row;
         }
         return $this->query->populate($rows);
     }
@@ -162,6 +159,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return int the index of the current row.
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return $this->_key;
@@ -172,6 +170,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return mixed the current dataset.
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->_value;
@@ -182,7 +181,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
      * This method is required by the interface Iterator.
      * @return bool whether there is a valid dataset at the current position.
      */
-    public function valid()
+    public function valid(): bool
     {
         return !empty($this->_batch);
     }

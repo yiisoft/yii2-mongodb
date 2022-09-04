@@ -185,7 +185,8 @@ class Cache extends \yii\caching\Cache
      */
     public function gc($force = false)
     {
-        if ($force || mt_rand(0, 1000000) < $this->gcProbability) {
+
+        if ($force || random_int(0, 1000000) < $this->gcProbability) {
             $this->db->getCollection($this->cacheCollection)
                 ->remove([
                     'expire' => [
