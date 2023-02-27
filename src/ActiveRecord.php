@@ -234,7 +234,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         $result = null;
-        static::getDb()->transaction(function() use ($attribute, &$result) {
+        static::getDb()->transaction(function() use ($attributes, &$result) {
             $result = $this->insertInternal($attributes);
         });
         return $result;
