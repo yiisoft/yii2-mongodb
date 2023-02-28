@@ -184,8 +184,8 @@ abstract class ActiveRecord extends BaseActiveRecord
                 unset($this->$attribute);
             }
             else {
-                $this->unsetAttrs[$attribute] = '';
                 $this->$attribute = null;
+                $this->unsetAttrs[$attribute] = '';
             }
         }
     }
