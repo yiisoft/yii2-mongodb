@@ -577,7 +577,7 @@ class Connection extends Component
      */
     public function startTransaction($transactionOptions = [], $sessionOptions = [])
     {
-        $session = $this->startSession($sessionOptions,true);
+        $session = $this->startSession($sessionOptions);
         $session->getTransaction()->start($transactionOptions);
         return $session;
     }
