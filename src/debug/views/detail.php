@@ -20,7 +20,7 @@ echo GridView::widget([
             'attribute' => 'seq',
             'label' => 'Time',
             'value' => function ($data) {
-                $timeInSeconds = $data['timestamp'] / 1000;
+                $timeInSeconds = round($data['timestamp'] / 1000);
                 $millisecondsDiff = (int) (($timeInSeconds - (int) $timeInSeconds) * 1000);
 
                 return date('H:i:s.', $timeInSeconds) . sprintf('%03d', $millisecondsDiff);
