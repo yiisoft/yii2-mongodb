@@ -1,8 +1,8 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-3.0.1 under development
------------------------
+3.0.1 May 22, 2023
+------------------
 
 - Bug #356 Fixed error "implicit conversion from float" in debug panel (squio)
 

@@ -181,7 +181,7 @@ class Connection extends Component
     public $globalExecOptions = [
         /**
          * Shared between some(or all) methods(executeCommand|executeBulkWrite|executeQuery).
-
+         *
          * This options are :
          * - session
          */
