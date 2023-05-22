@@ -1,6 +1,12 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
+3.0.2 under development
+-----------------------
+
+- no changes in this release.
+
+
 3.0.1 May 22, 2023
 ------------------
 
