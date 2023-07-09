@@ -3,7 +3,7 @@
 
 ## Требования
 
-Это расширение требует [MongoDB PHP Extension](https://us1.php.net/manual/en/set.mongodb.php) версии 1.0.0 или выше.
+Это расширение требует [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) версии 1.0.0 или выше.
 
 ## Получение с помощью Composer
 

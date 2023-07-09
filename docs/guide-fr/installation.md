@@ -3,7 +3,7 @@ Installation
 
 ## Requirements
 
-l'extention  [MongoDB PHP Extension](https://us1.php.net/manual/en/set.mongodb.php) version 1.0.0 ou plus.
+l'extention  [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.0.0 ou plus.
 
 ## Installation du composer:
 
