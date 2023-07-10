@@ -3,11 +3,11 @@
 
 ## Требования
 
-Это расширение требует [MongoDB PHP Extension](http://us1.php.net/manual/en/set.mongodb.php) версии 1.0.0 или выше.
+Это расширение требует [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) версии 1.0.0 или выше.
 
 ## Получение с помощью Composer
 
-Предпочтительный способ установки расширения через  [composer](http://getcomposer.org/download/).
+Предпочтительный способ установки расширения через  [composer](https://getcomposer.org/download/).
 
 Для этого запустите
 

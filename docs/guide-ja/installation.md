@@ -3,11 +3,11 @@
 
 ## 必要条件
 
-このエクステンションは [MongoDB PHP 拡張](http://us1.php.net/manual/en/set.mongodb.php) バージョン 1.0.0 以降を必要とします。
+このエクステンションは [MongoDB PHP 拡張](https://www.php.net/manual/en/set.mongodb.php) バージョン 1.0.0 以降を必要とします。
 
 ## Composer パッケージを取得する
 
-このエクステンションをインストールするのに推奨される方法は [composer](http://getcomposer.org/download/) によるものです。
+このエクステンションをインストールするのに推奨される方法は [composer](https://getcomposer.org/download/) によるものです。
 
 下記のコマンドを実行してください。
 
