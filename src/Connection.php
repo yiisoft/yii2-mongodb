@@ -16,7 +16,7 @@ use Yii;
  * Connection represents a connection to a MongoDb server.
  *
  * Connection works together with [[Database]] and [[Collection]] to provide data access
- * to the Mongo database. They are wrappers of the [[MongoDB PHP extension]](http://us1.php.net/manual/en/book.mongo.php).
+ * to the Mongo database. They are wrappers of the [[MongoDB PHP extension]](https://www.php.net/manual/en/book.mongodb.php).
  *
  * To establish a DB connection, set [[dsn]] and then call [[open()]] to be true.
  *
@@ -134,7 +134,7 @@ class Connection extends Component
      * @var array options for the MongoDB driver.
      * Any driver-specific options not included in MongoDB connection string specification.
      *
-     * @see http://php.net/manual/en/mongodb-driver-manager.construct.php
+     * @see https://php.net/manual/en/mongodb-driver-manager.construct.php
      */
     public $driverOptions = [];
     /**
@@ -145,7 +145,7 @@ class Connection extends Component
     /**
      * @var array type map to use for BSON unserialization.
      * Note: default type map will be automatically merged into this field, possibly overriding user-defined values.
-     * @see http://php.net/manual/en/mongodb-driver-cursor.settypemap.php
+     * @see https://php.net/manual/en/mongodb-driver-cursor.settypemap.php
      * @since 2.1
      */
     public $typeMap = [];
@@ -509,7 +509,7 @@ class Connection extends Component
      */
     public function startSessionOnce($sessionOptions = [])
     {
-        if ($this->getInSession()) {   
+        if ($this->getInSession()) {
             return $this->getSession();
         }
         return $this->startSession($sessionOptions);

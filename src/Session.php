@@ -101,7 +101,7 @@ class Session extends MultiFieldSession
 
     /**
      * Updates the current session ID with a newly generated one.
-     * Please refer to <http://php.net/session_regenerate_id> for more details.
+     * Please refer to <https://php.net/session_regenerate_id> for more details.
      * @param bool $deleteOldSession Whether to delete the old associated session file or not.
      */
     public function regenerateID($deleteOldSession = false)
@@ -173,7 +173,7 @@ class Session extends MultiFieldSession
         }
 
         // exception must be caught in session write handler
-        // http://us.php.net/manual/en/function.session-set-save-handler.php
+        // https://www.php.net/manual/en/function.session-set-save-handler.php
         try {
 
             // ensure backwards compatability, related to:
