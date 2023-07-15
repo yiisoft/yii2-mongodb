@@ -6,7 +6,7 @@
     <br>
 </p>
 
-This extension provides the [MongoDB](https://www.mongodb.com/) integration for the [Yii framework 2.0](http://www.yiiframework.com).
+This extension provides the [MongoDB](https://www.mongodb.com/) integration for the [Yii framework 2.0](https://www.yiiframework.com).
 
 For license information check the [LICENSE](LICENSE.md)-file.
 
@@ -20,11 +20,11 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 Installation
 ------------
 
-This extension requires [MongoDB PHP Extension](http://us1.php.net/manual/en/set.mongodb.php) version 1.0.0 or higher.
+This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.0.0 or higher.
 
 This extension requires MongoDB server version 3.0 or higher.
 
-The preferred way to install this extension is through [composer](http://getcomposer.org/download/).
+The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 
 Either run
 
