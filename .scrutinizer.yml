@@ -22,7 +22,8 @@ build:
 
     phpunit:
       services:
-        mongo: 3
+        mongo-db:
+          image: mongo:3
 
       dependencies:
         override:
