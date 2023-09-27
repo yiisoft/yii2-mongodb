@@ -343,7 +343,7 @@ class CommandTest extends TestCase
 
         $collections = $connection->createCommand()->listCollections();
         $collectionNames = ArrayHelper::getColumn($collections, 'name');
-        $this->assertStringContainsString('customer', $collectionNames);
+        $this->assertContains('customer', $collectionNames);
     }
 
     /**

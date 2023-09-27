@@ -160,8 +160,8 @@ class MongoDbManagerTest extends TestCase
             $ruleNames[] = $rule->name;
         }
 
-        $this->assertStringContainsString('isReallyReallyAuthor', $ruleNames);
-        $this->assertStringContainsString('isAuthor', $ruleNames);
+        $this->assertContains('isReallyReallyAuthor', $ruleNames);
+        $this->assertContains('isAuthor', $ruleNames);
     }
 
     public function testRemoveRule()
@@ -362,8 +362,8 @@ class MongoDbManagerTest extends TestCase
             $roleNames[] = $role->name;
         }
 
-        $this->assertStringContainsString('reader', $roleNames, 'Roles should contain reader. Currently it has: ' . implode(', ', $roleNames));
-        $this->assertStringContainsString('author', $roleNames, 'Roles should contain author. Currently it has: ' . implode(', ', $roleNames));
+        $this->assertContains('reader', $roleNames, 'Roles should contain reader. Currently it has: ' . implode(', ', $roleNames));
+        $this->assertContains('author', $roleNames, 'Roles should contain author. Currently it has: ' . implode(', ', $roleNames));
     }
 
     public function testAssignmentsToIntegerId()

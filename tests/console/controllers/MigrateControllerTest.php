@@ -368,7 +368,7 @@ CODE;
         $files = FileHelper::findFiles($this->migrationPath);
         $fileContent = file_get_contents($files[0]);
         $this->assertStringContainsString("namespace {$this->migrationNamespace};", $fileContent);
-        $this->assertRegExp('/class M[0-9]{12}' . ucfirst($migrationName) . '/s', $fileContent);
+        $this->assertMatchesRegularExpression('/class M[0-9]{12}' . ucfirst($migrationName) . '/s', $fileContent);
         unlink($files[0]);
 
         // namespace specify :
@@ -454,8 +454,8 @@ CODE;
         $this->runMigrateControllerAction('up', [], $controllerConfig);
 
         $output = $this->runMigrateControllerAction('history', [], $controllerConfig);
-        $this->assertRegExp('/' . preg_quote($this->migrationNamespace) . '.*History1/s', $output);
-        $this->assertRegExp('/' . preg_quote($this->migrationNamespace) . '.*History2/s', $output);
+        $this->assertMatchesRegularExpression('/' . preg_quote($this->migrationNamespace) . '.*History1/s', $output);
+        $this->assertMatchesRegularExpression('/' . preg_quote($this->migrationNamespace) . '.*History2/s', $output);
     }
 
     /**
