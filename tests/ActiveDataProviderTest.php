@@ -10,7 +10,7 @@ use yiiunit\extensions\mongodb\data\ar\Customer;
 
 class ActiveDataProviderTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockApplication();
@@ -18,7 +18,7 @@ class ActiveDataProviderTest extends TestCase
         $this->setUpTestRows();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection(Customer::collectionName());
         parent::tearDown();

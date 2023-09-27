@@ -8,7 +8,7 @@ use yii\mongodb\file\Collection as FileCollection;
 
 class DatabaseTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         $this->dropFileCollection('testfs');

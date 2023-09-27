@@ -8,7 +8,7 @@ use yii\helpers\ArrayHelper;
 
 class CommandTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         parent::tearDown();
@@ -343,7 +343,7 @@ class CommandTest extends TestCase
 
         $collections = $connection->createCommand()->listCollections();
         $collectionNames = ArrayHelper::getColumn($collections, 'name');
-        $this->assertContains('customer', $collectionNames);
+        $this->assertStringContainsString('customer', $collectionNames);
     }
 
     /**

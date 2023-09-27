@@ -14,7 +14,7 @@ class MongoDbMessageSourceTest extends TestCase
     public $i18n;
 
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockApplication();
         parent::setUp();
@@ -22,7 +22,7 @@ class MongoDbMessageSourceTest extends TestCase
         $this->setupI18N();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('message');
         parent::tearDown();

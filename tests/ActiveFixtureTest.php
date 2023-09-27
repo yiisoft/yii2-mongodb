@@ -10,13 +10,13 @@ use yiiunit\extensions\mongodb\data\ar\Customer;
 
 class ActiveFixtureTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockApplication();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection(Customer::collectionName());
         FileHelper::removeDirectory(Yii::getAlias('@runtime/fixtures'));

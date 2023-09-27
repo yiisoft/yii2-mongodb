@@ -8,7 +8,7 @@ use yiiunit\extensions\mongodb\TestCase;
 
 class MongoDbTargetTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('log');
         parent::tearDown();
