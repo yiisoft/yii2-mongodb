@@ -52,7 +52,7 @@ class MigrateControllerTest extends TestCase
         Yii::$app->setComponents(['mongodb' => $this->getConnection()]);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         if (extension_loaded('mongodb')) {
