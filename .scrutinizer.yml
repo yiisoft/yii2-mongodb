@@ -25,6 +25,9 @@ build:
         mongo-db:
           image: mongo:3
 
+          ports:
+            - 27017
+
       dependencies:
         override:
           - pecl install mongodb
