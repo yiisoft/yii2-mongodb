@@ -15,7 +15,12 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-mongodb/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Total Downloads](https://poser.pugx.org/yiisoft/yii2-mongodb/downloads.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Build Status](https://github.com/yiisoft/yii2-mongodb/workflows/build/badge.svg)](https://github.com/yiisoft/yii2-mongodb/actions)
+[![codecov](https://codecov.io/gh/yiisoft/yii2-mongodb/graph/badge.svg?token=1Xo867R6He)](https://codecov.io/gh/yiisoft/yii2-mongodb)
 
+Requirements
+------------
+
+- PHP 7.3 or higher.
 
 Installation
 ------------
