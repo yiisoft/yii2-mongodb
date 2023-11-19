@@ -9,7 +9,7 @@ use yiiunit\extensions\mongodb\TestCase;
  */
 class DownloadTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropFileCollection('fs');
         parent::tearDown();

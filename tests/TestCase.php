@@ -24,7 +24,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
      */
     protected $mongodb;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         if (!extension_loaded('mongodb')) {
@@ -37,7 +37,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         //$this->mockApplication();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         if ($this->mongodb) {
             $this->mongodb->close();
