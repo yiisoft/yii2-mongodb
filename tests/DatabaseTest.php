@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use yii;
 use yii\mongodb\Collection;
 use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;
@@ -19,7 +20,7 @@ class DatabaseTest extends TestCase
 
     public function testGetCollection()
     {
-        $database = $this->getConnection()->getDatabase();
+        $database = yii::$app->mongodb->getDatabase();
 
         $collection = $database->getCollection('customer');
         $this->assertTrue($collection instanceof Collection);
@@ -34,7 +35,7 @@ class DatabaseTest extends TestCase
 
     public function testGetFileCollection()
     {
-        $database = $this->getConnection()->getDatabase();
+        $database = yii::$app->mongodb->getDatabase();
 
         $collection = $database->getFileCollection('testfs');
         $this->assertTrue($collection instanceof FileCollection);
@@ -49,7 +50,7 @@ class DatabaseTest extends TestCase
 
     public function testCreateCommand()
     {
-        $database = $this->getConnection()->getDatabase();
+        $database = yii::$app->mongodb->getDatabase();
 
         $command = $database->createCommand();
         $this->assertTrue($command instanceof Command);
@@ -58,7 +59,7 @@ class DatabaseTest extends TestCase
 
     public function testCreateCollection()
     {
-        $database = $this->getConnection()->getDatabase();
+        $database = yii::$app->mongodb->getDatabase();
         $this->assertTrue($database->createCollection('customer'));
     }
 }

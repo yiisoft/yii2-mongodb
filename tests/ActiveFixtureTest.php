@@ -10,11 +10,6 @@ use yiiunit\extensions\mongodb\data\ar\Customer;
 
 class ActiveFixtureTest extends TestCase
 {
-    protected function setUp()
-    {
-        parent::setUp();
-        $this->mockApplication();
-    }
 
     protected function tearDown()
     {
@@ -32,7 +27,7 @@ class ActiveFixtureTest extends TestCase
         $fixture = $this->getMockBuilder(ActiveFixture::className())
             ->setConstructorArgs([
                 [
-                    'db' => $this->getConnection(),
+                    'db' => Yii::$app->mongodb,
                     'collectionName' => Customer::collectionName()
                 ]
             ])
@@ -45,7 +40,7 @@ class ActiveFixtureTest extends TestCase
 
         $fixture->load();
 
-        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(Yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertCount(2, $rows);
     }
 
@@ -55,7 +50,7 @@ class ActiveFixtureTest extends TestCase
         $fixture = $this->getMockBuilder(ActiveFixture::className())
             ->setConstructorArgs([
                 [
-                    'db' => $this->getConnection(),
+                    'db' => yii::$app->mongodb,
                     'collectionName' => Customer::collectionName()
                 ]
             ])
@@ -68,7 +63,7 @@ class ActiveFixtureTest extends TestCase
 
         $fixture->load();
 
-        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertCount(2, $rows);
     }
 
@@ -83,7 +78,7 @@ class ActiveFixtureTest extends TestCase
         $fixture = $this->getMockBuilder(ActiveFixture::className())
             ->setConstructorArgs([
                 [
-                    'db' => $this->getConnection(),
+                    'db' => Yii::$app->mongodb,
                     'collectionName' => Customer::collectionName()
                 ]
             ])
@@ -95,7 +90,7 @@ class ActiveFixtureTest extends TestCase
 
         $fixture->load(); // should be no error
 
-        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(Yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertEmpty($rows);
     }
 
@@ -106,7 +101,6 @@ class ActiveFixtureTest extends TestCase
      */
     public function testDefaultDataFile()
     {
-        $db = $this->getConnection();
 
         $fixturePath = Yii::getAlias('@runtime/fixtures');
         $fixtureDataPath = $fixturePath . DIRECTORY_SEPARATOR . 'data';
@@ -138,29 +132,27 @@ PHP;
             ['name' => 'name2'],
             ['name' => 'name3'],
         ];
-        $fixtureDataFile = $fixtureDataPath . DIRECTORY_SEPARATOR . $db->getDefaultDatabaseName() . '.' . Customer::collectionName() . '.php';
+        $fixtureDataFile = $fixtureDataPath . DIRECTORY_SEPARATOR . Yii::$app->mongodb->getDefaultDatabaseName() . '.' . Customer::collectionName() . '.php';
         $fixtureDataContent = '<?php return ' . VarDumper::export($fixtureData) . ';';
         file_put_contents($fixtureDataFile, $fixtureDataContent);
 
         /* @var $fixture ActiveFixture */
 
         $fixture = new $className([
-            'db' => $db,
             'collectionName' => Customer::collectionName(),
         ]);
         $fixture->load();
-        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(Yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertCount(2, $rows);
 
         $fixture = new $className([
-            'db' => $db,
             'collectionName' => [
-                $db->getDefaultDatabaseName(),
+                Yii::$app->mongodb->getDefaultDatabaseName(),
                 Customer::collectionName()
             ],
         ]);
         $fixture->load();
-        $rows = $this->findAll($this->getConnection()->getCollection(Customer::collectionName()));
+        $rows = $this->findAll(yii::$app->mongodb->getCollection(Customer::collectionName()));
         $this->assertCount(3, $rows);
     }
 }

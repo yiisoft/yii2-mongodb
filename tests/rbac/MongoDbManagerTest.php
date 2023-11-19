@@ -23,7 +23,7 @@ class MongoDbManagerTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->auth = $this->createManager();
+        $this->auth = new MongoDbManager();
     }
 
     protected function tearDown()
@@ -32,14 +32,6 @@ class MongoDbManagerTest extends TestCase
         $this->dropCollection('auth_assignment');
         $this->dropCollection('auth_rule');
         parent::tearDown();
-    }
-
-    /**
-     * @return MongoDbManager
-     */
-    protected function createManager()
-    {
-        return new MongoDbManager(['db' => $this->getConnection()]);
     }
 
     // Tests :
@@ -354,7 +346,7 @@ class MongoDbManagerTest extends TestCase
         $this->auth->assign($reader, 'readingAuthor');
         $this->auth->assign($author, 'readingAuthor');
 
-        $this->auth = $this->createManager();
+        $this->auth = new MongoDbManager();
 
         $roles = $this->auth->getRolesByUser('readingAuthor');
         $roleNames = [];
@@ -376,7 +368,7 @@ class MongoDbManagerTest extends TestCase
         $this->auth->assign($author, 1337);
         $this->auth->assign($reader, 1337);
 
-        $this->auth = $this->createManager();
+        $this->auth = new MongoDbManager();
 
         $this->assertEquals(0, count($this->auth->getAssignments(0)));
         $this->assertEquals(1, count($this->auth->getAssignments(42)));
@@ -389,7 +381,7 @@ class MongoDbManagerTest extends TestCase
         $reader = $this->auth->getRole('reader');
         $this->auth->assign($reader, 123);
 
-        $this->auth = $this->createManager();
+        $this->auth = new MongoDbManager();
 
         $this->assertEquals([], $this->auth->getUserIdsByRole('nonexisting'));
         $this->assertEquals(['reader A', '123'], $this->auth->getUserIdsByRole('reader'), '', 0.0, 10, true);
