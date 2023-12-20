@@ -35,10 +35,6 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     private static $batchInsertQueue = [];
     /*
-     * @var array array of document for insert
-    */
-    private static $batchInsertDocuments = [];
-    /*
      * @var int size of batch for insert operations
     */
     public  static $batchInsertSize = 500;
@@ -51,10 +47,6 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @var integer count of update operation in queue
     */
     private static $batchUpdateQueue = [];
-    /*
-     * @var array array of document for update
-    */
-    private static $batchUpdateDocuments = [];
     /*
      * @var int size of batch for update operations
     */
@@ -533,8 +525,10 @@ abstract class ActiveRecord extends BaseActiveRecord
         $className = static::className();
         if(!@self::$batchInsertCommand[$className][$scope])
             return;
-        self::$batchInsertQueue[$className][$scope] = 0;
-        self::$batchInsertCommand[$className][$scope]->document = [];
+        unset(
+            self::$batchInsertQueue[$className][$scope],
+            self::$batchInsertCommand[$className][$scope]
+        );
     }
 
     /**
@@ -625,8 +619,10 @@ abstract class ActiveRecord extends BaseActiveRecord
         $className = static::className();
         if(!@self::$batchUpdateCommand[$className][$scope])
             return;
-        self::$batchUpdateQueue[$className][$scope] = 0;
-        self::$batchUpdateCommand[$className][$scope]->document = [];
+        unset(
+            self::$batchUpdateQueue[$className][$scope],
+            self::$batchUpdateCommand[$className][$scope]
+        );
     }
 
     /**
@@ -710,8 +706,10 @@ abstract class ActiveRecord extends BaseActiveRecord
         $className = static::className();
         if(!@self::$batchDeleteCommand[$className][$scope])
             return;
-        self::$batchDeleteQueue[$className][$scope] = 0;
-        self::$batchDeleteCommand[$className][$scope]->document = [];
+        unset(
+            self::$batchDeleteQueue[$className][$scope],
+            self::$batchDeleteCommand[$className][$scope]
+        );
     }
 
     /**
