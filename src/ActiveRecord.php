@@ -470,7 +470,7 @@ abstract class ActiveRecord extends BaseActiveRecord
     */
     public static function hasBatchInsert($scope = ''){
         $className = static::className();
-        return @self::$batchInsertCommand[$className][$scope] ? true : false;
+        return @self::$batchInsertQueue[$className][$scope] ? true : false;
     }
 
     /**
