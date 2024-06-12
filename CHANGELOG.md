@@ -5,7 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - no changes in this release.
-
+- Bug #373: fix generator trim validator and strtolower causes exception in PHP8.1 (dorkdomain)
 
 3.0.1 May 22, 2023
 ------------------

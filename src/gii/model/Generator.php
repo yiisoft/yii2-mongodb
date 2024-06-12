@@ -24,10 +24,10 @@ class Generator extends \yii\gii\Generator
 {
     public $db = 'mongodb';
     public $ns = 'app\models';
-    public $collectionName;
-    public $databaseName;
+    public $collectionName = '';
+    public $databaseName = '';
     public $attributeList;
-    public $modelClass;
+    public $modelClass = '';
     public $baseClass = 'yii\mongodb\ActiveRecord';
 
 
@@ -53,7 +53,7 @@ class Generator extends \yii\gii\Generator
     public function rules()
     {
         return array_merge(parent::rules(), [
-            [['db', 'ns', 'collectionName', 'databaseName', 'attributeList', 'modelClass', 'baseClass'], 'filter', 'filter' => 'trim'],
+            [['db', 'ns', 'collectionName', 'databaseName', 'attributeList', 'modelClass', 'baseClass'], 'filter', 'filter' => 'trim', 'skipOnEmpty' => true],
             [['ns'], 'filter', 'filter' => function($value) { return trim($value, '\\'); }],
 
             [['db', 'ns', 'collectionName', 'baseClass'], 'required'],
