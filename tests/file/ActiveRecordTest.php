@@ -20,7 +20,7 @@ class ActiveRecordTest extends TestCase
      */
     protected $testRows = [];
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         ActiveRecord::$db = $this->getConnection();
@@ -32,7 +32,7 @@ class ActiveRecordTest extends TestCase
         }
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $filePath = $this->getTestFilePath();
         if (file_exists($filePath)) {
