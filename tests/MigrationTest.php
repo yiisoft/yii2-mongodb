@@ -12,19 +12,11 @@ class MigrationTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @return Migration migration instance.
-     */
-    protected function createMigration()
-    {
-        return new Migration(['db' => $this->getConnection()]);
-    }
-
     // Tests :
 
     public function testCollectionOperations()
     {
-        $migration = $this->createMigration();
+        $migration = new Migration;
 
         $migration->createCollection('customer');
         $this->assertNotEmpty($migration->db->getDatabase()->listCollections(['name' => 'customer']));
@@ -35,7 +27,7 @@ class MigrationTest extends TestCase
 
     public function testIndexOperations()
     {
-        $migration = $this->createMigration();
+        $migration = new Migration;
 
         $migration->createIndexes('customer', [
             ['key' => 'name']
@@ -58,7 +50,7 @@ class MigrationTest extends TestCase
 
     public function testDataOperations()
     {
-        $migration = $this->createMigration();
+        $migration = new Migration;
 
         $id = $migration->insert('customer', ['name' => 'John Doe']);
         $this->assertTrue($id instanceof ObjectID);
@@ -85,7 +77,7 @@ class MigrationTest extends TestCase
      */
     public function testCommandOutput()
     {
-        $migration = $this->createMigration();
+        $migration = new Migration;
 
         $migration->compact = false;
         $migration->createCollection('customer');

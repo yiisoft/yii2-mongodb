@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
+use yii;
 use yii\mongodb\Collection;
 use yii\mongodb\Command;
 use yii\mongodb\file\Collection as FileCollection;
@@ -13,7 +14,7 @@ class ConnectionTest extends TestCase
 {
     public function testConstruct()
     {
-        $connection = $this->getConnection(false);
+        $connection = $this->getConnection(true,false);
         $params = $this->mongoDbConfig;
 
         $connection->open();
@@ -25,7 +26,7 @@ class ConnectionTest extends TestCase
 
     public function testOpenClose()
     {
-        $connection = $this->getConnection(false, false);
+        $connection = $this->getConnection(true, false);
 
         $this->assertFalse($connection->isActive);
         $this->assertEquals(null, $connection->manager);
@@ -46,17 +47,16 @@ class ConnectionTest extends TestCase
 
     public function testGetDatabase()
     {
-        $connection = $this->getConnection();
 
-        $database = $connection->getDatabase($connection->defaultDatabaseName);
+        $database = yii::$app->mongodb->getDatabase(yii::$app->mongodb->defaultDatabaseName);
         $this->assertTrue($database instanceof Database);
-        $this->assertSame($connection, $database->connection);
-        $this->assertSame($connection->defaultDatabaseName, $database->name);
+        $this->assertSame(yii::$app->mongodb, $database->connection);
+        $this->assertSame(yii::$app->mongodb->defaultDatabaseName, $database->name);
 
-        $database2 = $connection->getDatabase($connection->defaultDatabaseName);
+        $database2 = yii::$app->mongodb->getDatabase(yii::$app->mongodb->defaultDatabaseName);
         $this->assertTrue($database === $database2);
 
-        $databaseRefreshed = $connection->getDatabase($connection->defaultDatabaseName, true);
+        $databaseRefreshed = yii::$app->mongodb->getDatabase(yii::$app->mongodb->defaultDatabaseName, true);
         $this->assertFalse($database === $databaseRefreshed);
     }
 
@@ -110,15 +110,14 @@ class ConnectionTest extends TestCase
      */
     public function testGetCollection()
     {
-        $connection = $this->getConnection();
 
-        $collection = $connection->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $this->assertTrue($collection instanceof Collection);
 
-        $collection2 = $connection->getCollection('customer');
+        $collection2 = yii::$app->mongodb->getCollection('customer');
         $this->assertTrue($collection === $collection2);
 
-        $collection2 = $connection->getCollection('customer', true);
+        $collection2 = yii::$app->mongodb->getCollection('customer', true);
         $this->assertFalse($collection === $collection2);
     }
 
@@ -127,31 +126,28 @@ class ConnectionTest extends TestCase
      */
     public function testGetFileCollection()
     {
-        $connection = $this->getConnection();
 
-        $collection = $connection->getFileCollection('testfs');
+        $collection = yii::$app->mongodb->getFileCollection('testfs');
         $this->assertTrue($collection instanceof FileCollection);
 
-        $collection2 = $connection->getFileCollection('testfs');
+        $collection2 = yii::$app->mongodb->getFileCollection('testfs');
         $this->assertTrue($collection === $collection2);
 
-        $collection2 = $connection->getFileCollection('testfs', true);
+        $collection2 = yii::$app->mongodb->getFileCollection('testfs', true);
         $this->assertFalse($collection === $collection2);
     }
 
     public function testGetQueryBuilder()
     {
-        $connection = $this->getConnection();
 
-        $this->assertTrue($connection->getQueryBuilder() instanceof QueryBuilder);
+        $this->assertTrue(yii::$app->mongodb->getQueryBuilder() instanceof QueryBuilder);
     }
 
     public function testCreateCommand()
     {
-        $connection = $this->getConnection();
 
-        $command = $connection->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $this->assertTrue($command instanceof Command);
-        $this->assertSame($connection, $command->db);
+        $this->assertSame(yii::$app->mongodb, $command->db);
     }
 }
