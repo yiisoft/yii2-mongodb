@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -212,7 +213,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'fetch cursor id = ' . $cursor->getId();
+        $token = 'fetch cursor id = ' . $cursor->getId(true);
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
