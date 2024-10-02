@@ -213,7 +213,14 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'fetch cursor id = ' . $cursor->getId(true);
+        try {
+            # MongoDB >= 1.20
+            $token = 'fetch cursor id = ' . $cursor->getId(true);
+        } catch (\ArgumentCountError $e) {
+            # MongoDB < 1.20
+            $token = 'fetch cursor id = ' . $cursor->getId();
+        }
+
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
