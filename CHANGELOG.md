@@ -5,6 +5,7 @@ Yii Framework 2 mongodb extension Change Log
 -----------------------
 
 - Bug #373: Fix generator `trim` validator and `strtolower` causes exception in PHP 8.1 (dorkdomain)
+- Bug #379: Fix method `getId` option to match changes in MongoDB 1.20 (radeox)
 
 3.0.1 May 22, 2023
 ------------------
