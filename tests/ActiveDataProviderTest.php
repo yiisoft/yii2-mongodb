@@ -3,9 +3,9 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 
 class ActiveDataProviderTest extends TestCase
@@ -13,8 +13,6 @@ class ActiveDataProviderTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->mockApplication();
-        ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 
@@ -29,7 +27,7 @@ class ActiveDataProviderTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = Yii::$app->mongodb->getCollection('customer');
         $rows = [];
         for ($i = 1; $i <= 10; $i++) {
             $rows[] = [
@@ -51,14 +49,12 @@ class ActiveDataProviderTest extends TestCase
 
         $provider = new ActiveDataProvider([
             'query' => $query,
-            'db' => $this->getConnection(),
         ]);
         $models = $provider->getModels();
         $this->assertEquals(10, count($models));
 
         $provider = new ActiveDataProvider([
             'query' => $query,
-            'db' => $this->getConnection(),
             'pagination' => [
                 'pageSize' => 5,
             ]

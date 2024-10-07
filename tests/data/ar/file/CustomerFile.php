@@ -1,6 +1,7 @@
 <?php
-
 namespace yiiunit\extensions\mongodb\data\ar\file;
+
+use yii\mongodb\file\ActiveRecord;
 
 class CustomerFile extends ActiveRecord
 {

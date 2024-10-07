@@ -14,21 +14,11 @@ class MongoDbTargetTest extends TestCase
         parent::tearDown();
     }
 
-    /**
-     * @return MongoDbTarget test log target
-     */
-    protected function createLogTarget()
-    {
-        return new MongoDbTarget([
-            'db' => $this->getConnection(),
-        ]);
-    }
-
     // Tests :
 
     public function testExport()
     {
-        $target = $this->createLogTarget();
+        $target = new MongoDbTarget();
 
         $target->messages = [
             [

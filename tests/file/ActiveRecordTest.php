@@ -23,7 +23,6 @@ class ActiveRecordTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        ActiveRecord::$db = $this->getConnection();
         $this->dropFileCollection(CustomerFile::collectionName());
         $this->setUpTestRows();
         $filePath = $this->getTestFilePath();
@@ -55,7 +54,7 @@ class ActiveRecordTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $collection = $this->getConnection()->getFileCollection(CustomerFile::collectionName());
+        $collection = yii::$app->mongodb->getFileCollection(CustomerFile::collectionName());
         $rows = [];
         for ($i = 1; $i <= 10; $i++) {
             $record = [

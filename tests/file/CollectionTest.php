@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yii\mongodb\file\Cursor;
 use yii\mongodb\file\Download;
 use yiiunit\extensions\mongodb\TestCase;
@@ -22,7 +23,7 @@ class CollectionTest extends TestCase
 
     public function testGetChunkCollection()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         $chunkCollection = $collection->getChunkCollection();
         $this->assertTrue($chunkCollection instanceof \yii\mongodb\Collection);
         $this->assertTrue($chunkCollection->database instanceof \yii\mongodb\Database);
@@ -30,7 +31,7 @@ class CollectionTest extends TestCase
 
     public function testGetFileCollection()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         $fileCollection = $collection->getFileCollection();
         $this->assertTrue($fileCollection instanceof \yii\mongodb\Collection);
         $this->assertTrue($fileCollection->database instanceof \yii\mongodb\Database);
@@ -38,7 +39,7 @@ class CollectionTest extends TestCase
 
     public function testEnsureIndexes()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $collection->ensureIndexes();
         $this->assertCount(2, $collection->listIndexes());
@@ -54,14 +55,14 @@ class CollectionTest extends TestCase
 
     public function testFind()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         $cursor = $collection->find();
         $this->assertTrue($cursor instanceof Cursor);
     }
 
     public function testInsertFile()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $filename = __FILE__;
         $id = $collection->insertFile($filename);
@@ -77,7 +78,7 @@ class CollectionTest extends TestCase
 
     public function testInsertFileContent()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
@@ -97,7 +98,7 @@ class CollectionTest extends TestCase
      */
     public function testGet()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
@@ -112,7 +113,7 @@ class CollectionTest extends TestCase
      */
     public function testDeleteFile()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
@@ -128,7 +129,7 @@ class CollectionTest extends TestCase
      */
     public function testRemove()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         for ($i = 1; $i <=10; $i++) {
             $bytes = 'Test file content ' . $i;

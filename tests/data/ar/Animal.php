@@ -2,6 +2,8 @@
 
 namespace yiiunit\extensions\mongodb\data\ar;
 
+use yii\mongodb\ActiveRecord;
+
 /**
  * Animal
  *

@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\ObjectID;
 use MongoDB\Driver\Cursor;
+use yii;
 use yii\helpers\ArrayHelper;
 
 class CommandTest extends TestCase
@@ -16,7 +17,7 @@ class CommandTest extends TestCase
 
     public function testCreateCollection()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $this->assertTrue($command->createCollection('customer'));
     }
 
@@ -25,20 +26,20 @@ class CommandTest extends TestCase
      */
     public function testDropCollection()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->createCollection('customer');
         $this->assertTrue($command->dropCollection('customer'));
     }
 
     public function testCount()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $this->assertEquals(0, $command->count('customer'));
     }
 
     public function testCreateIndexes()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $this->assertTrue($command->createIndexes('customer', [
             [
                 'key' => ['name' => +1],
@@ -57,7 +58,7 @@ class CommandTest extends TestCase
      */
     public function testListIndexes()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->createIndexes('customer', [
             [
                 'key' => ['name' => +1],
@@ -75,7 +76,7 @@ class CommandTest extends TestCase
      */
     public function testDropIndexes()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->createIndexes('customer', [
             [
                 'key' => ['name' => +1],
@@ -100,7 +101,7 @@ class CommandTest extends TestCase
 
     public function testInsert()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $insertedId = $command->insert('customer', ['name' => 'John']);
         $this->assertTrue($insertedId instanceof ObjectID);
     }
@@ -110,7 +111,7 @@ class CommandTest extends TestCase
      */
     public function testBatchInsert()
     {
-        $command = $this->getConnection()->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $insertedIds = $command->batchInsert('customer', [
             ['name' => 'John'],
             ['name' => 'Sara'],
@@ -124,11 +125,10 @@ class CommandTest extends TestCase
      */
     public function testUpdate()
     {
-        $connection = $this->getConnection();
 
-        $newRecordId = $connection->createCommand()->insert('customer', ['name' => 'John']);
+        $newRecordId = yii::$app->mongodb->createCommand()->insert('customer', ['name' => 'John']);
 
-        $result = $connection->createCommand()->update('customer', ['_id' => $newRecordId], ['name' => 'Mike']);
+        $result = yii::$app->mongodb->createCommand()->update('customer', ['_id' => $newRecordId], ['name' => 'Mike']);
 
         $this->assertEquals(1, $result->getModifiedCount());
     }
@@ -138,11 +138,10 @@ class CommandTest extends TestCase
      */
     public function testDelete()
     {
-        $connection = $this->getConnection();
 
-        $newRecordId = $connection->createCommand()->insert('customer', ['name' => 'John']);
+        $newRecordId = yii::$app->mongodb->createCommand()->insert('customer', ['name' => 'John']);
 
-        $result = $connection->createCommand()->delete('customer', ['_id' => $newRecordId]);
+        $result = yii::$app->mongodb->createCommand()->delete('customer', ['_id' => $newRecordId]);
 
         $this->assertEquals(1, $result->getDeletedCount());
     }
@@ -152,11 +151,10 @@ class CommandTest extends TestCase
      */
     public function testFind()
     {
-        $connection = $this->getConnection();
 
-        $connection->createCommand()->insert('customer', ['name' => 'John']);
+        yii::$app->mongodb->createCommand()->insert('customer', ['name' => 'John']);
 
-        $cursor = $connection->createCommand()->find('customer', []);
+        $cursor = yii::$app->mongodb->createCommand()->find('customer', []);
         $rows = $cursor->toArray();
         $this->assertCount(1, $rows);
         $this->assertEquals('John', $rows[0]['name']);
@@ -167,7 +165,6 @@ class CommandTest extends TestCase
      */
     public function testFindAndModify()
     {
-        $connection = $this->getConnection();
         $rows = [
             [
                 'name' => 'customer 1',
@@ -180,20 +177,20 @@ class CommandTest extends TestCase
                 'amount' => 200,
             ],
         ];
-        $command = $connection->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->batchInsert('customer', $rows);
 
         // increment field
-        $result = $connection->createCommand()->findAndModify('customer', ['name' => 'customer 1'], ['$inc' => ['status' => 1]]);
+        $result = yii::$app->mongodb->createCommand()->findAndModify('customer', ['name' => 'customer 1'], ['$inc' => ['status' => 1]]);
         $this->assertEquals('customer 1', $result['name']);
         $this->assertEquals(1, $result['status']);
 
-        $cursor = $connection->createCommand()->find('customer', ['name' => 'customer 1']);
+        $cursor = yii::$app->mongodb->createCommand()->find('customer', ['name' => 'customer 1']);
         $newResult = current($cursor->toArray());
         $this->assertEquals(2, $newResult['status']);
 
         // $set and return modified document
-        $result = $connection->createCommand()->findAndModify(
+        $result = yii::$app->mongodb->createCommand()->findAndModify(
             'customer',
             ['name' => 'customer 2'],
             ['$set' => ['status' => 2]],
@@ -207,7 +204,7 @@ class CommandTest extends TestCase
             'name' => 'customer 3',
             'city' => 'Minsk'
         ];
-        $result = $connection->createCommand()->findAndModify(
+        $result = yii::$app->mongodb->createCommand()->findAndModify(
             'customer',
             ['name' => 'customer 2'],
             $data,
@@ -219,7 +216,7 @@ class CommandTest extends TestCase
 
         // Test exceptions
         $this->expectException('\yii\mongodb\Exception');
-        $connection->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
+        yii::$app->mongodb->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
     }
 
     /**
@@ -227,7 +224,6 @@ class CommandTest extends TestCase
      */
     public function testAggregate()
     {
-        $connection = $this->getConnection();
         $rows = [
             [
                 'name' => 'customer 1',
@@ -240,7 +236,7 @@ class CommandTest extends TestCase
                 'amount' => 200,
             ],
         ];
-        $command = $connection->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->batchInsert('customer', $rows);
 
         $pipelines = [
@@ -256,7 +252,7 @@ class CommandTest extends TestCase
                 ]
             ]
         ];
-        $result = $connection->createCommand()->aggregate('customer', $pipelines);
+        $result = yii::$app->mongodb->createCommand()->aggregate('customer', $pipelines);
 
         $this->assertEquals(['_id' => '1', 'total' => 300], $result[0]);
     }
@@ -268,7 +264,6 @@ class CommandTest extends TestCase
      */
     public function testAggregateCursor()
     {
-        $connection = $this->getConnection();
         $rows = [
             [
                 'name' => 'customer 1',
@@ -291,7 +286,7 @@ class CommandTest extends TestCase
                 'amount' => 200,
             ],
         ];
-        $command = $connection->createCommand();
+        $command = yii::$app->mongodb->createCommand();
         $command->batchInsert('customer', $rows);
 
         $pipelines = [
@@ -307,7 +302,7 @@ class CommandTest extends TestCase
                 ]
             ]
         ];
-        $result = $connection->createCommand()->aggregate('customer', $pipelines, ['cursor' => ['batchSize' => 2]]);
+        $result = yii::$app->mongodb->createCommand()->aggregate('customer', $pipelines, ['cursor' => ['batchSize' => 2]]);
         $this->assertTrue($result instanceof Cursor);
 
         $this->assertEquals(['_id' => '1', 'total' => 600], $result->toArray()[0]);
@@ -318,11 +313,10 @@ class CommandTest extends TestCase
      */
     public function testExplain()
     {
-        $connection = $this->getConnection();
 
-        $connection->createCommand()->insert('customer', ['name' => 'John']);
+        yii::$app->mongodb->createCommand()->insert('customer', ['name' => 'John']);
 
-        $result = $connection->createCommand()->explain('customer', [
+        $result = yii::$app->mongodb->createCommand()->explain('customer', [
             'filter' => [
                 'name' => 'John'
             ],
@@ -337,11 +331,10 @@ class CommandTest extends TestCase
      */
     public function testListCollections()
     {
-        $connection = $this->getConnection();
 
-        $connection->createCommand()->createCollection('customer');
+        yii::$app->mongodb->createCommand()->createCollection('customer');
 
-        $collections = $connection->createCommand()->listCollections();
+        $collections = yii::$app->mongodb->createCommand()->listCollections();
         $collectionNames = ArrayHelper::getColumn($collections, 'name');
         $this->assertContains('customer', $collectionNames);
     }
@@ -354,22 +347,21 @@ class CommandTest extends TestCase
      */
     public function testUpdateUpsert()
     {
-        $connection = $this->getConnection();
 
-        $connection->createCommand()->insert('customer', ['name' => 'John']);
+        yii::$app->mongodb->createCommand()->insert('customer', ['name' => 'John']);
 
-        $result = $connection->createCommand()
+        $result = yii::$app->mongodb->createCommand()
             ->update('customer', ['name' => 'Mike'], ['name' => 'Jack']);
 
         $this->assertEquals(0, $result->getModifiedCount());
         $this->assertEquals(0, $result->getUpsertedCount());
-        $this->assertEquals(1, $connection->createCommand()->count('customer'));
+        $this->assertEquals(1, yii::$app->mongodb->createCommand()->count('customer'));
 
-        $result = $connection->createCommand()
+        $result = yii::$app->mongodb->createCommand()
             ->update('customer', ['name' => 'Mike'], ['name' => 'Jack'], ['upsert' => true]);
 
         $this->assertEquals(0, $result->getModifiedCount());
         $this->assertEquals(1, $result->getUpsertedCount());
-        $this->assertEquals(2, $connection->createCommand()->count('customer'));
+        $this->assertEquals(2, yii::$app->mongodb->createCommand()->count('customer'));
     }
 }

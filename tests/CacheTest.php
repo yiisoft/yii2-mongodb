@@ -26,7 +26,6 @@ class CacheTest extends TestCase
     {
         return Yii::createObject([
             'class' => Cache::className(),
-            'db' => $this->getConnection(),
             'cacheCollection' => static::$cacheCollection,
             'gcProbability' => 0,
         ]);

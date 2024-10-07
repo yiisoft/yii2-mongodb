@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb\data\ar;
 
 use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
+use yii\mongodb\ActiveRecord;
 
 /**
  * @property \MongoDB\BSON\ObjectID|string $_id
