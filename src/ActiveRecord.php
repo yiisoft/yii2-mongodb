@@ -26,6 +26,9 @@ use yii\helpers\StringHelper;
  */
 abstract class ActiveRecord extends BaseActiveRecord
 {
+
+    protected $unsetAttrs = [];
+
     /**
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
@@ -183,6 +186,28 @@ abstract class ActiveRecord extends BaseActiveRecord
     public function attributes()
     {
         throw new InvalidConfigException('The attributes() method of mongodb ActiveRecord has to be implemented by child classes.');
+    }
+
+    public function __set($name, $value)
+    {
+        unset($this->unsetAttrs[$name]);
+        parent::__set($name,$value);
+    }
+
+    public function unset()
+    {
+        foreach(func_get_args() as $attribute) {
+            if (!$this->hasAttribute($attribute)) {
+                throw new UnknownPropertyException('Unsetting unknown property: ' . get_class($this) . '::' . $attribute);
+            }
+            if ($this->getIsNewRecord()) {
+                unset($this->$attribute);
+            }
+            else {
+                $this->$attribute = null;
+                $this->unsetAttrs[$attribute] = '';
+            }
+        }
     }
 
     /**
@@ -350,7 +375,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             return false;
         }
         $values = $this->getDirtyAttributes($attributes);
-        if (empty($values)) {
+        if (empty($values) && empty($this->unsetAttrs)) {
             $this->afterSave(false, $values);
             return 0;
         }
@@ -362,9 +387,25 @@ abstract class ActiveRecord extends BaseActiveRecord
             }
             $condition[$lock] = $this->$lock;
         }
+
+        $document = $values;
+        if (!empty($this->unsetAttrs)){
+            foreach ($this->unsetAttrs as $attr => $_) {
+                unset($document[$attr],$values[$attr],$this->$attr);
+            }
+            if (empty($document)) {
+                $document = ['$unset' => $this->unsetAttrs];
+            } else {
+                $document = [
+                    '$set' => $document,
+                    '$unset' => $this->unsetAttrs,
+                ];
+            }
+            $this->unsetAttrs = [];
+        }
         // We do not check the return value of update() because it's possible
         // that it doesn't change anything and thus returns 0.
-        $rows = static::getCollection()->update($condition, $values);
+        $rows = static::getCollection()->update($condition, $document);
 
         if ($lock !== null && !$rows) {
             throw new StaleObjectException('The object being updated is outdated.');
