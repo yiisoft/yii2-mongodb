@@ -13,7 +13,7 @@ class SessionTest extends TestCase
      */
     protected static $sessionCollection = '_test_session';
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection(static::$sessionCollection);
         parent::tearDown();
