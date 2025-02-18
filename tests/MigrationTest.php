@@ -6,7 +6,7 @@ use MongoDB\BSON\ObjectID;
 
 class MigrationTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         parent::tearDown();

@@ -7,13 +7,13 @@ use yii\mongodb\Query;
 
 class QueryRunTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->setUpTestRows();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         parent::tearDown();
