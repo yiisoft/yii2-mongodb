@@ -2,15 +2,15 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use yii;
 use yiiunit\extensions\mongodb\TestCase;
 
 class StreamWrapperTest extends TestCase
 {
     protected function tearDown()
     {
-        $connection = $this->getConnection();
-        if (in_array($connection->fileStreamProtocol, stream_get_wrappers())) {
-            stream_wrapper_unregister($connection->fileStreamProtocol);
+        if (in_array(yii::$app->mongodb->fileStreamProtocol, stream_get_wrappers())) {
+            stream_wrapper_unregister(yii::$app->mongodb->fileStreamProtocol);
         }
 
         $this->dropFileCollection('fs');
@@ -22,7 +22,7 @@ class StreamWrapperTest extends TestCase
 
     public function testCreateFromDownload()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $document = $upload->addContent('test content')->complete();
@@ -36,15 +36,8 @@ class StreamWrapperTest extends TestCase
 
     public function testWriteResource()
     {
-        $connection = $this->getConnection();
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => $connection
-            ],
-        ]);
-
-        $connection->registerFileStreamWrapper(true);
-        $databaseName = $connection->getDefaultDatabaseName();
+        yii::$app->mongodb->registerFileStreamWrapper(true);
+        $databaseName = yii::$app->mongodb->getDefaultDatabaseName();
 
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'w');
@@ -52,7 +45,7 @@ class StreamWrapperTest extends TestCase
         fwrite($resource, 'end');
         fclose($resource);
 
-        $collection = $connection->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         $document = $collection->findOne(['filename' => 'test.txt']);
         $this->assertNotEmpty($document);
 
@@ -61,19 +54,12 @@ class StreamWrapperTest extends TestCase
 
     public function testReadResource()
     {
-        $connection = $this->getConnection();
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => $connection
-            ],
-        ]);
-
-        $collection = $connection->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         $upload = $collection->createUpload();
         $document = $upload->addContent('test content')->complete();
 
-        $connection->registerFileStreamWrapper(true);
-        $databaseName = $connection->getDefaultDatabaseName();
+        yii::$app->mongodb->registerFileStreamWrapper(true);
+        $databaseName = yii::$app->mongodb->getDefaultDatabaseName();
 
         $url = "gridfs://{$databaseName}.fs?_id=" . $document['_id'];
         $resource = fopen($url, 'r');
@@ -83,15 +69,8 @@ class StreamWrapperTest extends TestCase
     
     public function testSeek()
     {
-        $connection = $this->getConnection();
-        $this->mockApplication([
-            'components' => [
-                'mongodb' => $connection
-            ],
-        ]);
-
-        $connection->registerFileStreamWrapper(true);
-        $databaseName = $connection->getDefaultDatabaseName();
+        yii::$app->mongodb->registerFileStreamWrapper(true);
+        $databaseName = yii::$app->mongodb->getDefaultDatabaseName();
 
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'w');

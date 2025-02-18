@@ -34,7 +34,7 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
         if (!empty($config)) {
             $this->mongoDbConfig = $config;
         }
-        //$this->mockApplication();
+        $this->mockApplication();
     }
 
     protected function tearDown()
@@ -74,6 +74,9 @@ abstract class TestCase extends \PHPUnit\Framework\TestCase
             'basePath' => __DIR__,
             'vendorPath' => $this->getVendorPath(),
             'runtimePath' => dirname(__DIR__) . '/runtime',
+            'components' => [
+                'mongodb' => $this->getConnection(),
+            ],
         ], $config));
     }
 

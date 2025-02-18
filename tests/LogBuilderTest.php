@@ -4,6 +4,7 @@ namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\ObjectID;
+use yii;
 
 class LogBuilderTest extends TestCase
 {
@@ -37,7 +38,7 @@ class LogBuilderTest extends TestCase
      */
     public function testEncodeData($data, $expectedResult)
     {
-        $logBuilder = $this->getConnection()->getLogBuilder();
+        $logBuilder = yii::$app->mongodb->getLogBuilder();
         $this->assertTrue(strcasecmp($expectedResult, $logBuilder->encodeData($data)) === 0);
     }
 }

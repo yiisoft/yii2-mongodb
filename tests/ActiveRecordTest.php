@@ -5,8 +5,8 @@ namespace yiiunit\extensions\mongodb;
 use MongoDB\BSON\Binary;
 use MongoDB\BSON\ObjectID;
 use MongoDB\BSON\Regex;
+use yii;
 use yii\mongodb\ActiveQuery;
-use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
 use yiiunit\extensions\mongodb\data\ar\Customer;
 use yiiunit\extensions\mongodb\data\ar\Animal;
 use yiiunit\extensions\mongodb\data\ar\Dog;
@@ -22,7 +22,6 @@ class ActiveRecordTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        ActiveRecord::$db = $this->getConnection();
         $this->setUpTestRows();
     }
 
@@ -37,7 +36,7 @@ class ActiveRecordTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $collection = $this->getConnection()->getCollection('customer');
+        $collection = yii::$app->mongodb->getCollection('customer');
         $rows = [];
         for ($i = 1; $i <= 10; $i++) {
             $rows[] = [
@@ -282,44 +281,42 @@ class ActiveRecordTest extends TestCase
 
     public function testScalar()
     {
-        $connection = $this->getConnection();
 
         $result = Customer::find()
             ->select(['name' => true, '_id' => false])
             ->orderBy(['name' => SORT_ASC])
             ->limit(1)
-            ->scalar($connection);
+            ->scalar();
         $this->assertSame('name1', $result);
 
         $result = Customer::find()
             ->select(['name' => true, '_id' => false])
             ->andWhere(['status' => -1])
-            ->scalar($connection);
+            ->scalar();
         $this->assertSame(false, $result);
 
         $result = Customer::find()
             ->select(['name'])
             ->orderBy(['name' => SORT_ASC])
             ->limit(1)
-            ->scalar($connection);
+            ->scalar();
         $this->assertSame('name1', $result);
 
         $result = Customer::find()
             ->select(['_id'])
             ->limit(1)
-            ->scalar($connection);
+            ->scalar();
         $this->assertTrue($result instanceof ObjectID);
     }
 
     public function testColumn()
     {
-        $connection = $this->getConnection();
 
         $result = Customer::find()
             ->select(['name' => true, '_id' => false])
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
-            ->column($connection);
+            ->column();
         $this->assertEquals(['name1', 'name10'], $result);
 
         $result = Customer::find()
@@ -327,21 +324,21 @@ class ActiveRecordTest extends TestCase
             ->andWhere(['status' => -1])
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
-            ->column($connection);
+            ->column();
         $this->assertEquals([], $result);
 
         $result = Customer::find()
             ->select(['name'])
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
-            ->column($connection);
+            ->column();
         $this->assertEquals(['name1', 'name10'], $result);
 
         $result = Customer::find()
             ->select(['_id'])
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
-            ->column($connection);
+            ->column();
         $this->assertTrue($result[0] instanceof ObjectID);
         $this->assertTrue($result[1] instanceof ObjectID);
     }

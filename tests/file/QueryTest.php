@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
+use yii;
 use yii\mongodb\file\Download;
 use yii\mongodb\file\Query;
 use yiiunit\extensions\mongodb\TestCase;
@@ -28,7 +29,7 @@ class QueryTest extends TestCase
      */
     protected function setUpTestRows()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
         for ($i = 1; $i <= 10; $i++) {
             $collection->insertFileContent('content' . $i, [
                 'filename' => 'name' . $i,
@@ -41,28 +42,25 @@ class QueryTest extends TestCase
 
     public function testAll()
     {
-        $connection = $this->getConnection();
         $query = new Query();
-        $rows = $query->from('fs')->all($connection);
+        $rows = $query->from('fs')->all();
         $this->assertEquals(10, count($rows));
     }
 
     public function testOne()
     {
-        $connection = $this->getConnection();
         $query = new Query();
-        $row = $query->from('fs')->one($connection);
+        $row = $query->from('fs')->one();
         $this->assertTrue(is_array($row));
         $this->assertTrue($row['file'] instanceof Download);
     }
 
     public function testDirectMatch()
     {
-        $connection = $this->getConnection();
         $query = new Query();
         $rows = $query->from('fs')
             ->where(['file_index' => 5])
-            ->all($connection);
+            ->all();
         $this->assertEquals(1, count($rows));
 
         $file = $rows[0];

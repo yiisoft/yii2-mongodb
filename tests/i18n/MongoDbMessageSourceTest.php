@@ -2,6 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\i18n;
 
+use yii;
 use yii\i18n\I18N;
 use yii\mongodb\i18n\MongoDbMessageSource;
 use yiiunit\extensions\mongodb\TestCase;
@@ -33,8 +34,7 @@ class MongoDbMessageSourceTest extends TestCase
      */
     protected function setupTestRows()
     {
-        $db = $this->getConnection();
-        $collection = $db->getCollection('message');
+        $collection = yii::$app->mongodb->getCollection('message');
         $collection->batchInsert([
             [
                 'language' => 'de',
@@ -104,7 +104,6 @@ class MongoDbMessageSourceTest extends TestCase
         $this->i18n = new I18N([
             'translations' => [
                 '*' => new MongoDbMessageSource([
-                    'db' => $this->getConnection(),
                     'sourceLanguage' => 'en-US',
                 ])
             ]

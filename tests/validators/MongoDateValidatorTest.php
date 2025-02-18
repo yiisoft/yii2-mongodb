@@ -12,7 +12,6 @@ class MongoDateValidatorTest extends TestCase
     protected function setUp()
     {
         parent::setUp();
-        $this->mockApplication();
         date_default_timezone_set('UTC');
     }
 

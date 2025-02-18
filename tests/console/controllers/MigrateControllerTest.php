@@ -47,22 +47,17 @@ class MigrateControllerTest extends TestCase
         $this->migrationNamespace = 'yiiunit\extensions\mongodb\runtime\test_migrations';
 
         $this->setUpMigrationPath();
-
-        $this->mockApplication();
-        Yii::$app->setComponents(['mongodb' => $this->getConnection()]);
     }
 
     public function tearDown()
     {
-        parent::tearDown();
-        if (extension_loaded('mongodb')) {
-            try {
-                $this->getConnection()->getCollection('migration')->drop();
-            } catch (Exception $e) {
-                // shutdown exception
-            }
+        try {
+            yii::$app->mongodb->getCollection('migration')->drop();
+        } catch (Exception $e) {
+            // shutdown exception
         }
         $this->tearDownMigrationPath();
+        parent::tearDown();
     }
 
     public function setUpMigrationPath()
@@ -501,7 +496,6 @@ CODE;
      */
     public function testGetMigrationHistory()
     {
-        $connection = $this->getConnection();
 
         $controllerConfig = [
             'migrationPath' => null,
@@ -509,9 +503,9 @@ CODE;
         ];
 
         $controller = $this->createMigrateController($controllerConfig);
-        $controller->db = $this->getConnection();
+        $controller->db = yii::$app->mongodb;
 
-        $connection->createCommand()->batchInsert('migration', [
+        yii::$app->mongodb->createCommand()->batchInsert('migration', [
             [
                 'version' => 'app\migrations\M140506102106One',
                 'apply_time' => 10,
@@ -574,9 +568,7 @@ CODE;
             $this->markTestSkipped('Method "yii\console\controllers\BaseMigrateController::actionFresh()" does not exist in this Yii framework version.');
         }
 
-        $connection = $this->getConnection();
-
-        $collection = $connection->getCollection('hall_of_fame');
+        $collection = yii::$app->mongodb->getCollection('hall_of_fame');
         $collection->insert(['name' => 'Qiang Xue']);
         $collection->insert(['name' => 'Alexander Makarov']);
 
@@ -585,6 +577,6 @@ CODE;
         $this->assertContains('Collection hall_of_fame dropped.', $result);
         $this->assertContains('No new migrations found. Your system is up-to-date.', $result);
 
-        $this->assertEmpty($connection->getDatabase()->listCollections(['name' => $collection->name]));
+        $this->assertEmpty(yii::$app->mongodb->getDatabase()->listCollections(['name' => $collection->name]));
     }
 }

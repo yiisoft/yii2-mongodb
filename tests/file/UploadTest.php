@@ -3,6 +3,7 @@
 namespace yiiunit\extensions\mongodb\file;
 
 use MongoDB\BSON\ObjectID;
+use yii;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
@@ -20,7 +21,7 @@ class UploadTest extends TestCase
 
     public function testAddContent()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $document = $upload->addContent('content line 1')
@@ -37,7 +38,7 @@ class UploadTest extends TestCase
      */
     public function testAddContentChunk()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $upload->chunkSize = 10;
@@ -50,7 +51,7 @@ class UploadTest extends TestCase
 
     public function testAddStream()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
 
@@ -68,7 +69,7 @@ class UploadTest extends TestCase
      */
     public function testCancel()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $upload = $collection->createUpload();
         $document = $upload->addContent('content line 1');
@@ -85,7 +86,7 @@ class UploadTest extends TestCase
      */
     public function testCustomId()
     {
-        $collection = $this->getConnection()->getFileCollection();
+        $collection = yii::$app->mongodb->getFileCollection();
 
         $id = new ObjectID();
         $upload = $collection->createUpload([
