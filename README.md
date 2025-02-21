@@ -20,9 +20,9 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 Installation
 ------------
 
-This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.0.0 or higher.
+This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.20.1 or higher.
 
-This extension requires MongoDB server version 3.0 or higher.
+This extension requires MongoDB server version 4.0 or higher.
 
 The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 
@@ -60,3 +60,10 @@ return [
     ],
 ];
 ```
+
+Known issues
+------------
+<ul>
+<li>yii\mongodb\Exception: no such command: 'group' with MongoDB server version 4.2 or higher.<br/>
+Starting in version 4.2, MongoDB removes the group command (deprecated since version 3.4) and its mongo shell helper db.collection.group().</li>
+</ul>

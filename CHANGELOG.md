@@ -4,7 +4,8 @@ Yii Framework 2 mongodb extension Change Log
 3.0.3 under development
 -----------------------
 
-- no changes in this release.
+- Bug #379, #382: Fixed usage of `getId` method in BatchQueryResult and Cursor classes to match changes in MongoDB PHP Extension 1.20.1 (shaperman)
+- Chg: MongoDB PHP extension min version raised up to 1.20.1 (shaperman)
 
 
 3.0.2 February 13, 2025

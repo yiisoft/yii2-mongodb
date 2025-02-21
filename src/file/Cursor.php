@@ -78,11 +78,11 @@ class Cursor extends \IteratorIterator implements \Countable
 
     /**
      * Returns the ID for this cursor.
-     * @return \MongoDB\Driver\CursorId cursor ID.
+     * @return \MongoDB\BSON\Int64 cursor ID.
      */
     public function getId()
     {
-        return $this->getInnerIterator()->getId();
+        return $this->getInnerIterator()->getId(true);
     }
 
     /**
