@@ -1,12 +1,12 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-3.0.3 under development
------------------------
+3.0.3 May 06, 2025
+------------------
 
 - Bug #379, #382: Fixed usage of `getId` method in BatchQueryResult and Cursor classes to match changes in MongoDB PHP Extension 1.20.1 (shaperman)
-- Chg: MongoDB PHP extension min version raised up to 1.20.1 (shaperman)
 - Bug #385: Fix `yii\base\ErrorException: MongoDB\BSON\UTCDateTime::__construct(): Creating a MongoDB\BSON\UTCDateTime instance with a float is deprecated and will be removed in ext-mongodb 2.0` (asminog)
+- Chg: MongoDB PHP extension min version raised up to 1.20.1 (shaperman)
 
 
 3.0.2 February 13, 2025
