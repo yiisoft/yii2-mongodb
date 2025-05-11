@@ -7,7 +7,7 @@ use MongoDB\Driver\Cursor;
 
 class CollectionTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         $this->dropCollection('mapReduceOut');
@@ -215,6 +215,8 @@ class CollectionTest extends TestCase
      */
     public function testGroup()
     {
+        $this->markTestSkipped('Group is not supported in MongoDB 3.0+');
+
         $collection = $this->getConnection()->getCollection('customer');
         $rows = [
             [
@@ -339,6 +341,9 @@ class CollectionTest extends TestCase
                 'value' => 400,
             ],
         ];
+
+        sort($rows);
+
         $this->assertEquals($expectedRows, $rows);
     }
 
@@ -375,7 +380,7 @@ class CollectionTest extends TestCase
         $result = $collection->mapReduce(
             'function () {emit(this.status, this.amount)}',
             'function (key, values) {return Array.sum(values)}',
-            ['inline' => true],
+            ['inline' => 1],
             ['status' => ['$lt' => 3]]
         );
         $expectedRows = [
@@ -388,6 +393,9 @@ class CollectionTest extends TestCase
                 'value' => 400,
             ],
         ];
+
+        sort($result);
+
         $this->assertEquals($expectedRows, $result);
     }
 

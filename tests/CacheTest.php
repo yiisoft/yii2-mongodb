@@ -12,7 +12,7 @@ class CacheTest extends TestCase
      */
     protected static $cacheCollection = '_test_cache';
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection(static::$cacheCollection);
         parent::tearDown();
