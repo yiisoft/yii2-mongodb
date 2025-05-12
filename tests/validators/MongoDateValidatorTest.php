@@ -9,7 +9,7 @@ use yiiunit\extensions\mongodb\TestCase;
 
 class MongoDateValidatorTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockApplication();
