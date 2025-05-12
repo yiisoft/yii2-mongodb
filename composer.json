@@ -35,11 +35,6 @@
     "autoload": {
         "psr-4": { "yii\\mongodb\\": "src" }
     },
-    "extra": {
-        "branch-alias": {
-            "dev-master": "22.0.x-dev"
-        }
-    },
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true
