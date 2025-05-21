@@ -11,7 +11,7 @@ use yiiunit\extensions\mongodb\TestCase;
  */
 class ActiveRelationTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         \yiiunit\extensions\mongodb\data\ar\ActiveRecord::$db = $this->getConnection();
@@ -19,7 +19,7 @@ class ActiveRelationTest extends TestCase
         $this->setUpTestRows();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection(Customer::collectionName());
         $this->dropCollection(CustomerFile::collectionName());

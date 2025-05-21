@@ -9,7 +9,7 @@ use yiiunit\extensions\mongodb\TestCase;
 
 class MongoIdValidatorTest extends TestCase
 {
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->mockApplication();

@@ -6,7 +6,7 @@ use yiiunit\extensions\mongodb\TestCase;
 
 class StreamWrapperTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $connection = $this->getConnection();
         if (in_array($connection->fileStreamProtocol, stream_get_wrappers())) {
@@ -80,7 +80,7 @@ class StreamWrapperTest extends TestCase
 
         $this->assertEquals('test content', stream_get_contents($resource));
     }
-    
+
     public function testSeek()
     {
         $connection = $this->getConnection();
@@ -97,19 +97,19 @@ class StreamWrapperTest extends TestCase
         $resource = fopen($url, 'w');
         fwrite($resource, 'begin end');
         fclose($resource);
-        
+
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'r');
         $data = fgets($resource);
-        
+
         fseek($resource, 0);
         $position = ftell($resource);
         $this->assertEquals(0, $position);
-        
+
         fseek($resource, 2, SEEK_CUR);
         $position = ftell($resource);
         $this->assertEquals(2, $position);
-        
+
         fseek($resource, 0, SEEK_END);
         $position = ftell($resource);
         $this->assertEquals(9, $position);
