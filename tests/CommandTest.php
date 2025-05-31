@@ -8,7 +8,7 @@ use yii\helpers\ArrayHelper;
 
 class CommandTest extends TestCase
 {
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('customer');
         parent::tearDown();

@@ -444,7 +444,7 @@ class Collection extends BaseObject
      * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
      * @param string|array $out output collection name. It could be a string for simple output
      * ('outputCollection'), or an array for parametrized output (['merge' => 'outputCollection']).
-     * You can pass ['inline' => true] to fetch the result at once without temporary collection usage.
+     * You can pass ['inline' => 1] to fetch the result at once without temporary collection usage.
      * @param array $condition criteria for including a document in the aggregation.
      * @param array $options additional optional parameters to the mapReduce command. Valid options include:
      *

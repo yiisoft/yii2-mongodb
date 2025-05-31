@@ -138,7 +138,7 @@ class Command extends BaseObject
             if (is_string($options['writeConcern']) || is_int($options['writeConcern'])) {
                 $options['writeConcern'] = new WriteConcern($options['writeConcern']);
             } elseif (is_array($options['writeConcern'])) {
-                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);   
+                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);
             }
         }
 
@@ -150,7 +150,7 @@ class Command extends BaseObject
                 $options['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['readPreference']);
             }
         }
- 
+
         //Convert session option
         if (array_key_exists('session', $options) && $options['session'] instanceof ClientSession) {
             $options['session'] = $options['session']->mongoSession;
@@ -701,7 +701,7 @@ class Command extends BaseObject
      * Argument will be automatically cast to [[\MongoDB\BSON\Javascript]].
      * @param string|array $out output collection name. It could be a string for simple output
      * ('outputCollection'), or an array for parametrized output (['merge' => 'outputCollection']).
-     * You can pass ['inline' => true] to fetch the result at once without temporary collection usage.
+     * You can pass ['inline' => 1] to fetch the result at once without temporary collection usage.
      * @param array $condition filter condition for including a document in the aggregation.
      * @param array $options additional optional parameters to the mapReduce command. Valid options include:
      *
