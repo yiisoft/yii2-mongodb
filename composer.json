@@ -18,7 +18,6 @@
         }
     ],
     "require": {
-        "php": ">=7.3",
         "ext-mongodb": ">=1.0.0",
         "yiisoft/yii2": "~2.0.39"
     },
