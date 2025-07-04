@@ -40,8 +40,6 @@ jobs:
         mongo: ['4.0']
         mongoext: ['1.20.1']
 
-    runs-on: ${{ matrix.os }}
-
     steps:
       - name: Checkout.
         uses: actions/checkout@v2
