@@ -34,11 +34,11 @@ jobs:
           - 27017:27017
     strategy:
       fail-fast: false
-        matrix:
-          os: [ubuntu-latest]
-          php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-          mongo: ['4.0']
-          mongoext: ['1.20.1']
+      matrix:
+        os: [ubuntu-latest]
+        php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+        mongo: ['4.0']
+        mongoext: ['1.20.1']
 
     runs-on: ${{ matrix.os }}
 
