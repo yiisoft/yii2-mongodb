@@ -256,7 +256,7 @@ class Upload extends BaseObject
     {
         $fileDocument = [
             '_id' => $this->_documentId,
-            'uploadDate' => new UTCDateTime(round(microtime(true) * 1000)),
+            'uploadDate' => new UTCDateTime(),
         ];
         if ($this->filename === null) {
             $fileDocument['filename'] = $this->_documentId . '.dat';

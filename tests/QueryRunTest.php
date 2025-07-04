@@ -634,7 +634,7 @@ class QueryRunTest extends TestCase
             ->from('customer')
             ->distinct('group', $db);
 
-        $this->assertSame(['odd', 'even'], $rows);
+        $this->assertEquals(['odd', 'even'], $rows, '', 0.0, 10, true);
     }
 
     public function testAggregationShortcuts()

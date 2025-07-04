@@ -8,6 +8,12 @@ if you want to upgrade from version A to version C and there is
 version B between A and C, you need to following the instructions
 for both A and B.
 
+Upgrade from 3.0.2
+----------------------
+* MongoDB PHP extension min version raised up to 1.20.1. You should upgrade your environment in case you are
+  using older version.
+* MongoDB server versions < 4.0 are no longer supported. Make sure you are running MongoDB server >= 4.0
+
 Upgrade from 2.1.9
 ----------------------
 
@@ -51,7 +57,7 @@ Upgrade from 2.1.9
 Upgrade from 2.0.5
 ----------------------
 
-* PHP [mongodb](https://php.net/manual/en/set.mongodb.php) extension is now used instead of [mongo](http://php.net/manual/en/book.mongo.php).
+* PHP [mongodb](https://php.net/manual/en/set.mongodb.php) extension is now used instead of [mongo](https://php.net/manual/en/book.mongo.php).
   Make sure you have 'mongodb' extension at your environment. Some features based on old driver may become unavailable.
   In particular: fields `Connection::mongoClient`, `Database::mongoDb` and `Collection::mongoCollection` are no longer exist.
   Old driver type classes such as `\MongoId`, `\MongoCode`, `\MongoDate` and so on, are no longer returned or

@@ -31,13 +31,16 @@ jobs:
       mongodb:
         image: mongo:${{ matrix.mongo }}
         ports:
-                    - 27017:27017
+          - 27017:27017
     strategy:
-      matrix:
-        os: [ubuntu-latest]
-        php: ['7.3', '7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
-        mongo: ['3']
-        mongoext: ['1.8.2', '1.9.0']
+      fail-fast: false
+        matrix:
+          os: [ubuntu-latest]
+          php: ['7.4', '8.0', '8.1', '8.2', '8.3', '8.4']
+          mongo: ['4.0']
+          mongoext: ['1.20.1']
+
+    runs-on: ${{ matrix.os }}
 
     steps:
       - name: Checkout.
