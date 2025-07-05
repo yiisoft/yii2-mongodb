@@ -10,7 +10,7 @@ build:
 
   environment:
     php:
-      version: 8.0.18
+      version: 8.2
       ini:
         xdebug.mode: coverage
 
@@ -23,7 +23,7 @@ build:
     phpunit:
       services:
         mongo-db:
-          image: mongo:3
+          image: mongo:4.0
 
           ports:
             - 27017
