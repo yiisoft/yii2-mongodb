@@ -30,7 +30,7 @@ build:
 
       dependencies:
         override:
-          - printf "no\n" | pecl install mongodb
+          - yes "" | pecl install mongodb-1.20.1
           - composer self-update
           - composer update --prefer-dist --no-interaction --no-progress --optimize-autoloader --ansi
 
