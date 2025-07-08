@@ -20,13 +20,13 @@ class MongoDbManagerTest extends TestCase
     protected $auth;
 
 
-    protected function setUp()
+    protected function setUp(): void
     {
         parent::setUp();
         $this->auth = $this->createManager();
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->dropCollection('auth_item');
         $this->dropCollection('auth_assignment');

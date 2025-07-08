@@ -37,7 +37,7 @@ class MigrateControllerTest extends TestCase
     protected $migrationNamespace;
 
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->migrateControllerClass = EchoMigrateController::className();
         $this->migrationBaseClass = Migration::className();
@@ -52,7 +52,7 @@ class MigrateControllerTest extends TestCase
         Yii::$app->setComponents(['mongodb' => $this->getConnection()]);
     }
 
-    public function tearDown()
+    protected function tearDown(): void
     {
         parent::tearDown();
         if (extension_loaded('mongodb')) {
@@ -232,7 +232,7 @@ CODE;
         $this->runMigrateControllerAction('create', [$migrationName]);
         $files = FileHelper::findFiles($this->migrationPath);
         $this->assertCount(1, $files, 'Unable to create new migration!');
-        $this->assertContains($migrationName, basename($files[0]), 'Wrong migration name!');
+        $this->assertStringContainsString($migrationName, basename($files[0]), 'Wrong migration name!');
     }
 
     public function testUp()
@@ -292,15 +292,15 @@ CODE;
     public function testHistory()
     {
         $output = $this->runMigrateControllerAction('history');
-        $this->assertContains('No migration', $output);
+        $this->assertStringContainsString('No migration', $output);
 
         $this->createMigration('test1');
         $this->createMigration('test2');
         $this->runMigrateControllerAction('up');
 
         $output = $this->runMigrateControllerAction('history');
-        $this->assertContains('_test1', $output);
-        $this->assertContains('_test2', $output);
+        $this->assertStringContainsString('_test1', $output);
+        $this->assertStringContainsString('_test2', $output);
     }
 
     /**
@@ -311,12 +311,12 @@ CODE;
         $this->createMigration('test1');
 
         $output = $this->runMigrateControllerAction('new');
-        $this->assertContains('_test1', $output);
+        $this->assertStringContainsString('_test1', $output);
 
         $this->runMigrateControllerAction('up');
 
         $output = $this->runMigrateControllerAction('new');
-        $this->assertNotContains('_test1', $output);
+        $this->assertStringNotContainsString('_test1', $output);
     }
 
     public function testMark()
@@ -367,8 +367,8 @@ CODE;
         ]);
         $files = FileHelper::findFiles($this->migrationPath);
         $fileContent = file_get_contents($files[0]);
-        $this->assertContains("namespace {$this->migrationNamespace};", $fileContent);
-        $this->assertRegExp('/class M[0-9]{12}' . ucfirst($migrationName) . '/s', $fileContent);
+        $this->assertStringContainsString("namespace {$this->migrationNamespace};", $fileContent);
+        $this->assertMatchesRegularExpression('/class M[0-9]{12}' . ucfirst($migrationName) . '/s', $fileContent);
         unlink($files[0]);
 
         // namespace specify :
@@ -379,7 +379,7 @@ CODE;
         ]);
         $files = FileHelper::findFiles($this->migrationPath);
         $fileContent = file_get_contents($files[0]);
-        $this->assertContains("namespace {$this->migrationNamespace};", $fileContent);
+        $this->assertStringContainsString("namespace {$this->migrationNamespace};", $fileContent);
         unlink($files[0]);
 
         // no namespace:
@@ -390,7 +390,7 @@ CODE;
         ]);
         $files = FileHelper::findFiles($this->migrationPath);
         $fileContent = file_get_contents($files[0]);
-        $this->assertNotContains("namespace {$this->migrationNamespace};", $fileContent);
+        $this->assertStringNotContainsString("namespace {$this->migrationNamespace};", $fileContent);
     }
 
     /**
@@ -447,15 +447,15 @@ CODE;
         ];
 
         $output = $this->runMigrateControllerAction('history', [], $controllerConfig);
-        $this->assertContains('No migration', $output);
+        $this->assertStringContainsString('No migration', $output);
 
         $this->createNamespaceMigration('history1');
         $this->createNamespaceMigration('history2');
         $this->runMigrateControllerAction('up', [], $controllerConfig);
 
         $output = $this->runMigrateControllerAction('history', [], $controllerConfig);
-        $this->assertRegExp('/' . preg_quote($this->migrationNamespace) . '.*History1/s', $output);
-        $this->assertRegExp('/' . preg_quote($this->migrationNamespace) . '.*History2/s', $output);
+        $this->assertMatchesRegularExpression('/' . preg_quote($this->migrationNamespace) . '.*History1/s', $output);
+        $this->assertMatchesRegularExpression('/' . preg_quote($this->migrationNamespace) . '.*History2/s', $output);
     }
 
     /**
@@ -582,8 +582,8 @@ CODE;
 
         $result = $this->runMigrateControllerAction('fresh');
 
-        $this->assertContains('Collection hall_of_fame dropped.', $result);
-        $this->assertContains('No new migrations found. Your system is up-to-date.', $result);
+        $this->assertStringContainsString('Collection hall_of_fame dropped.', $result);
+        $this->assertStringContainsString('No new migrations found. Your system is up-to-date.', $result);
 
         $this->assertEmpty($connection->getDatabase()->listCollections(['name' => $collection->name]));
     }
