@@ -129,7 +129,7 @@ class BatchQueryResult extends BaseObject implements \Iterator
         if ($this->_iterator === null) {
             $this->query->addOptions(['batchSize' => $this->batchSize]);
             $cursor = $this->query->buildCursor($this->db);
-            $token = 'fetch cursor id = ' . $cursor->getId(true);
+            $token = 'fetch cursor id = ' . $cursor->getId();
             Yii::info($token, __METHOD__);
 
             if ($cursor instanceof \Iterator) {

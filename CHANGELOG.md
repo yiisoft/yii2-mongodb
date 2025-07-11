@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 3.0.4 under development
 -----------------------
 
-- no changes in this release.
+- Bug #388: Fix `MongoDB\Driver\Cursor::getId() expects exactly 0 arguments, 1 given` (vanyabrovary)
 
 
 3.0.3 May 06, 2025

@@ -82,7 +82,7 @@ class Cursor extends \IteratorIterator implements \Countable
      */
     public function getId()
     {
-        return $this->getInnerIterator()->getId(true);
+        return $this->getInnerIterator()->getId();
     }
 
     /**
