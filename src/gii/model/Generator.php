@@ -155,7 +155,7 @@ class Generator extends \yii\gii\Generator
             $attributes = array_merge(['_id'], $customAttributes);
         }
 
-        $className = $this->generateClassName($collectionName);
+        $className = $this->modelClass ?: $this->generateClassName($collectionName);
         $params = [
             'collectionName' => $collectionName,
             'className' => $className,
