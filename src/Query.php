@@ -495,7 +495,28 @@ class Query extends Component implements QueryInterface
         if (!empty($this->emulateExecution)) {
             return false;
         }
+
+        /**
+         * better performance
+         * please read this article : Checking if a document exists – MongoDB slow findOne vs find
+         * https://blog.serverdensity.com/checking-if-a-document-exists-mongodb-slow-findone-vs-find/
+         */
+        #save last options
+        $tmpOrderBy = $this->orderBy;
+        $tmpLimit = $this->limit;
+        $tmpOffset = $this->offset;
+        $tmpSelect = $this->select;
+        $this->orderBy = [];
+        $this->limit = 1;
+        $this->offset = null;
+        $this->select = ['_id'];
         $cursor = $this->buildCursor($db);
+        #return last options
+        $this->orderBy = $tmpOrderBy;
+        $this->limit = $tmpLimit;
+        $this->offset = $tmpOffset;
+        $this->select = $tmpSelect;
+
         foreach ($cursor as $row) {
             return true;
         }
