@@ -18,7 +18,7 @@
         }
     ],
     "require": {
-        "ext-mongodb": ">=1.20.1",
+        "ext-mongodb": ">=2.0.0",
         "yiisoft/yii2": "~2.0.39"
     },
     "require-dev": {
