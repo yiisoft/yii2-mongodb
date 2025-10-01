@@ -38,7 +38,7 @@ jobs:
         os: [ubuntu-latest]
         php: ['8.1', '8.2', '8.3', '8.4']
         mongo: ['4.2', '4.4', '5.0', '6.0', '7.0', '8.0']
-        mongoext: ['1.20.1', '2.0.0', '2.1.1']
+        mongoext: ['2.0.0', '2.1.1']
 
     steps:
       - name: Checkout.
