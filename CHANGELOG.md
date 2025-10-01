@@ -6,6 +6,7 @@ Yii Framework 2 mongodb extension Change Log
 
 - Bug #388: Fix `MongoDB\Driver\Cursor::getId() expects exactly 0 arguments, 1 given` (vanyabrovary)
 - Chg #394: Update php-mongodb extension version requirement to 2.x (samuelrajan747)
+- Chg: Update PHP requirement to min 8.1 and update version matrix in CI testing (samuelrajan747)
 
 
 3.0.3 May 06, 2025
