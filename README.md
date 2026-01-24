@@ -20,14 +20,16 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 Requirements
 ------------
 
-- PHP 7.3 or higher.
+This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.20.1 or higher.
+
+This extension requires MongoDB server version 4.0 or higher.
 
 Installation
 ------------
 
-This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.20.1 or higher.
-
-This extension requires MongoDB server version 4.0 or higher.
+> [!IMPORTANT]
+> - The minimum required [PHP](https://www.php.net/) version is PHP `7.4`.
+> - It works best with PHP `8`.
 
 The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -51,6 +52,7 @@ use yii\mongodb\Connection;
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
+ * @phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
  */
 class StreamWrapper extends BaseObject
 {

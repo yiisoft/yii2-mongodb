@@ -58,7 +58,7 @@ class ActiveRelationTest extends TestCase
                 'number' => $customer['status'],
                 'item_ids' => [
                     $items[$i]['_id'],
-                    $items[$i+5]['_id'],
+                    $items[$i + 5]['_id'],
                 ],
             ];
             $customerOrders[] = [
@@ -66,7 +66,7 @@ class ActiveRelationTest extends TestCase
                 'number' => $customer['status'] + 100,
                 'item_ids' => [
                     $items[$i]['_id'],
-                    $items[$i+5]['_id'],
+                    $items[$i + 5]['_id'],
                 ],
             ];
         }

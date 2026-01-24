@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -198,6 +199,8 @@ class MigrateController extends BaseMigrateController
         return $history;
     }
 
+    // Temporary inspection suppression
+    // phpcs:disable Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore
     private $baseMigrationEnsured = false;
 
     /**
@@ -206,7 +209,7 @@ class MigrateController extends BaseMigrateController
     protected function ensureBaseMigrationHistory()
     {
         if (!$this->baseMigrationEnsured) {
-            $query = new Query;
+            $query = new Query();
             $row = $query->select(['version'])
                 ->from($this->migrationCollection)
                 ->andWhere(['version' => self::BASE_MIGRATION])

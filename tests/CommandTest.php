@@ -219,7 +219,7 @@ class CommandTest extends TestCase
 
         // Test exceptions
         $this->expectException('\yii\mongodb\Exception');
-        $connection->createCommand()->findAndModify('customer',['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
+        $connection->createCommand()->findAndModify('customer', ['name' => 'customer 1'], ['$wrongOperator' => ['status' => 1]]);
     }
 
     /**

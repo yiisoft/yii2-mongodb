@@ -230,7 +230,7 @@ class CollectionTest extends TestCase
 
         $keys = ['address' => 1];
         $initial = ['items' => []];
-        $reduce = "function (obj, prev) { prev.items.push(obj.name); }";
+        $reduce = 'function (obj, prev) { prev.items.push(obj.name); }';
         $result = $collection->group($keys, $initial, $reduce);
         $this->assertEquals(2, count($result));
         $this->assertNotEmpty($result[0]['address']);

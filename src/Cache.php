@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -76,7 +77,7 @@ class Cache extends \yii\caching\Cache
      */
     protected function getValue($key)
     {
-        $query = new Query;
+        $query = new Query();
         $row = $query->select(['data'])
             ->from($this->cacheCollection)
             ->where([
@@ -185,7 +186,6 @@ class Cache extends \yii\caching\Cache
      */
     public function gc($force = false)
     {
-
         if ($force || random_int(0, 1000000) < $this->gcProbability) {
             $this->db->getCollection($this->cacheCollection)
                 ->remove([

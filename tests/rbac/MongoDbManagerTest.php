@@ -118,7 +118,7 @@ class MongoDbManagerTest extends TestCase
         $this->prepareData();
 
         $rule = $this->auth->getRule('isAuthor');
-        $rule->name = "newName";
+        $rule->name = 'newName';
         $rule->reallyReally = false;
         $this->auth->update('isAuthor', $rule);
 
@@ -126,7 +126,7 @@ class MongoDbManagerTest extends TestCase
         $this->assertEquals(null, $rule);
 
         $rule = $this->auth->getRule('newName');
-        $this->assertEquals("newName", $rule->name);
+        $this->assertEquals('newName', $rule->name);
         $this->assertEquals(false, $rule->reallyReally);
 
         $rule->reallyReally = true;
@@ -217,7 +217,7 @@ class MongoDbManagerTest extends TestCase
 
     protected function prepareData()
     {
-        $rule = new AuthorRule;
+        $rule = new AuthorRule();
         $this->auth->add($rule);
 
         $uniqueTrait = $this->auth->createPermission('Fast Metabolism');
