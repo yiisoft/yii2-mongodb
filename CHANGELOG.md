@@ -4,9 +4,9 @@ Yii Framework 2 mongodb extension Change Log
 4.0.0 under development
 -----------------------
 
-- Enh #395: Static analysis with PHPStan has been added (@s1lver)
-- Enh #395: PHP 7.3 support was removed to align with Yii2 minimum PHP version (@s1lver)
-- Enh #395: Applying Yii2 coding standards (@s1lver)
+- Enh #397: Static analysis with PHPStan has been added (@s1lver)
+- Enh #397: PHP 7.3 support was removed to align with Yii2 minimum PHP version (@s1lver)
+- Enh #397: Applying Yii2 coding standards (@s1lver)
 
 
 3.0.4 October 08, 2025
