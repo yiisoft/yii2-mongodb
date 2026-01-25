@@ -18,11 +18,17 @@
         }
     ],
     "require": {
+        "php": "^7.4 || ^8.0",
         "ext-mongodb": ">=1.20.1",
-        "yiisoft/yii2": "~2.0.39"
+        "yiisoft/yii2": "~2.0.54"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6"
+        "phpunit/phpunit": "^9.6",
+        "phpstan/phpstan": "^2.1",
+        "phpstan/phpstan-phpunit": "^2.0",
+        "yiisoft/yii2-gii": "^2.2",
+        "yiisoft/yii2-debug": "^2.1",
+        "yiisoft/yii2-coding-standards": "^3.0"
     },
     "repositories": [
         {
@@ -31,7 +37,9 @@
         }
     ],
     "autoload": {
-        "psr-4": { "yii\\mongodb\\": "src" }
+        "psr-4": {
+            "yii\\mongodb\\": "src"
+        }
     },
     "extra": {
         "branch-alias": {
@@ -42,5 +50,9 @@
         "allow-plugins": {
             "yiisoft/yii2-composer": true
         }
+    },
+    "scripts": {
+        "phpcbf": "./vendor/bin/phpcbf -q src/ tests/",
+        "phpcs": "./vendor/bin/phpcs -q src/ tests/"
     }
 }

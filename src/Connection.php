@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -83,27 +84,27 @@ class Connection extends Component
     /**
      * @event Event an event that is triggered after a DB connection is established
      */
-    const EVENT_AFTER_OPEN = 'afterOpen';
+    public const EVENT_AFTER_OPEN = 'afterOpen';
     /**
      * @event yii\base\Event an event that is triggered right before a mongo client session is started
      */
-    const EVENT_START_SESSION = 'startSession';
+    public const EVENT_START_SESSION = 'startSession';
     /**
      * @event yii\base\Event an event that is triggered right after a mongo client session is ended
      */
-    const EVENT_END_SESSION = 'endSession';
+    public const EVENT_END_SESSION = 'endSession';
     /**
      * @event yii\base\Event an event that is triggered right before a transaction is started
      */
-    const EVENT_START_TRANSACTION = 'startTransaction';
+    public const EVENT_START_TRANSACTION = 'startTransaction';
     /**
      * @event yii\base\Event an event that is triggered right after a transaction is committed
      */
-    const EVENT_COMMIT_TRANSACTION = 'commitTransaction';
+    public const EVENT_COMMIT_TRANSACTION = 'commitTransaction';
     /**
      * @event yii\base\Event an event that is triggered right after a transaction is rolled back
      */
-    const EVENT_ROLLBACK_TRANSACTION = 'rollbackTransaction';
+    public const EVENT_ROLLBACK_TRANSACTION = 'rollbackTransaction';
 
     /**
      * @var string host:port
@@ -238,7 +239,7 @@ class Connection extends Component
             if (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
                 $this->_defaultDatabaseName = $matches[1];
             } else {
-                throw new InvalidConfigException("Unable to determine default database name from dsn.");
+                throw new InvalidConfigException('Unable to determine default database name from dsn.');
             }
         }
 
@@ -478,8 +479,7 @@ class Connection extends Component
     {
         if (empty($newExecOptions)) {
             $this->globalExecOptions = [];
-        }
-        else {
+        } else {
             $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $newExecOptions);
         }
         return $this;
@@ -531,7 +531,7 @@ class Connection extends Component
      */
     public function getInSession()
     {
-        return array_key_exists('session',$this->globalExecOptions['share']);
+        return array_key_exists('session', $this->globalExecOptions['share']);
     }
 
     /**
@@ -593,7 +593,7 @@ class Connection extends Component
         if ($this->getInTransaction()) {
             return $this->getSession();
         }
-        return $this->startTransaction($transactionOptions,$sessionOptions);
+        return $this->startTransaction($transactionOptions, $sessionOptions);
     }
 
     /**
@@ -624,8 +624,7 @@ class Connection extends Component
         #drop session
         if (empty($clientSession)) {
             unset($this->globalExecOptions['share']['session']);
-        }
-        else {
+        } else {
             $this->globalExecOptions['share']['session'] = $clientSession;
         }
         return $this;
@@ -647,8 +646,7 @@ class Connection extends Component
             if ($session->getTransaction()->getIsActive()) {
                 if ($result === false) {
                     $session->getTransaction()->rollBack();
-                }
-                else {
+                } else {
                     $session->getTransaction()->commit();
                 }
             }
@@ -671,9 +669,8 @@ class Connection extends Component
     {
         if ($this->getInTransaction()) {
             $actions();
-        }
-        else {
-            $this->transaction($actions,$transactionOptions,$sessionOptions);
+        } else {
+            $this->transaction($actions, $transactionOptions, $sessionOptions);
         }
     }
 

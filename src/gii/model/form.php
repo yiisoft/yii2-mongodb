@@ -1,4 +1,5 @@
 <?php
+
 /* @var $this yii\web\View */
 /* @var $form yii\widgets\ActiveForm */
 /* @var $generator yii\mongodb\gii\model\Generator */

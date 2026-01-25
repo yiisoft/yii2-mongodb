@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -46,10 +47,10 @@ class Collection extends \yii\mongodb\Collection
      */
     private $_fileCollection;
     /**
+     * phpcs:disable Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore
      * @var bool whether file related fields indexes are ensured for this collection.
      */
     private $indexesEnsured = false;
-
 
     /**
      * @return string prefix of this file collection.
@@ -136,7 +137,7 @@ class Collection extends \yii\mongodb\Collection
      */
     public function drop($execOptions = [])
     {
-        return parent::drop($execOptions) && $this->database->dropCollection($this->getChunkCollection()->name,$execOptions);
+        return parent::drop($execOptions) && $this->database->dropCollection($this->getChunkCollection()->name, $execOptions);
     }
 
     /**

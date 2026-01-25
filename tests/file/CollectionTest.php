@@ -130,18 +130,18 @@ class CollectionTest extends TestCase
     {
         $collection = $this->getConnection()->getFileCollection();
 
-        for ($i = 1; $i <=10; $i++) {
+        for ($i = 1; $i <= 10; $i++) {
             $bytes = 'Test file content ' . $i;
             $collection->insertFileContent($bytes, [
                 'index' => $i
             ], ['chunkSize' => 15]);
         }
 
-        $this->assertEquals(1, $collection->remove(['index' => ['$in' =>[1, 2, 3]]], ['limit' => 1]));
+        $this->assertEquals(1, $collection->remove(['index' => ['$in' => [1, 2, 3]]], ['limit' => 1]));
         $this->assertEquals(9, $collection->count());
         $this->assertEquals(18, $collection->getChunkCollection()->count());
 
-        $this->assertEquals(3, $collection->remove(['index' => ['$in' =>[5, 7, 9]]]));
+        $this->assertEquals(3, $collection->remove(['index' => ['$in' => [5, 7, 9]]]));
         $this->assertEquals(6, $collection->count());
         $this->assertEquals(12, $collection->getChunkCollection()->count());
 

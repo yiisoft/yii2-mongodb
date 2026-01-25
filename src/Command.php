@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -85,7 +86,7 @@ class Command extends BaseObject
     private function prepareExecCommandOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['command'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['command'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -97,7 +98,7 @@ class Command extends BaseObject
     private function prepareExecBulkWriteOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['bulkWrite'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['bulkWrite'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -109,7 +110,7 @@ class Command extends BaseObject
     private function prepareExecQueryOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['query'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['query'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -138,7 +139,7 @@ class Command extends BaseObject
             if (is_string($options['writeConcern']) || is_int($options['writeConcern'])) {
                 $options['writeConcern'] = new WriteConcern($options['writeConcern']);
             } elseif (is_array($options['writeConcern'])) {
-                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);   
+                $options['writeConcern'] = (new \ReflectionClass('\MongoDB\Driver\WriteConcern'))->newInstanceArgs($options['writeConcern']);
             }
         }
 
@@ -150,12 +151,12 @@ class Command extends BaseObject
                 $options['readPreference'] = (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))->newInstanceArgs($options['readPreference']);
             }
         }
- 
+
         //Convert session option
         if (array_key_exists('session', $options) && $options['session'] instanceof ClientSession) {
             $options['session'] = $options['session']->mongoSession;
         }
-   }
+    }
 
     /**
      * Executes this command.
