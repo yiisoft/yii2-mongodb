@@ -21,6 +21,10 @@ on:
 
 name: build
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 jobs:
@@ -31,7 +35,7 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:${{ matrix.mongo }}
+        image: mongo:${{ matrix.mongo }}@sha256:4ca81c89ad08f4cfa9906005126112bffe8fb363800466ef5e50f6238f6f6af1
         ports:
           - 27017:27017
     strategy:
