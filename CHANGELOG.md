@@ -7,7 +7,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #397: Static analysis with PHPStan has been added (@s1lver)
 - Enh #397: PHP 7.3 support was removed to align with Yii2 minimum PHP version (@s1lver)
 - Enh #397: Applying Yii2 coding standards (@s1lver)
-- Bug #TBD: Fix `@property` annotations in `Command`, `Connection`, `MongoDbPanel` and `Download` (mspirkov)
+- Bug #406: Fix `@property` annotations in `Command`, `Connection`, `MongoDbPanel` and `Download` (mspirkov)
 
 
 3.0.4 October 08, 2025
