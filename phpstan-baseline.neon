@@ -187,12 +187,6 @@ parameters:
 			path: src/ActiveRecord.php
 
 		-
-			message: '#^Method yii\\mongodb\\ActiveRecord\:\:LockDocumentStubbornly\(\) should return yii\\mongodb\\ActiveRecord\|null but return statement is missing\.$#'
-			identifier: return.missing
-			count: 1
-			path: src/ActiveRecord.php
-
-		-
 			message: '#^Method yii\\mongodb\\ActiveRecord\:\:LockDocumentStubbornly\(\) should return yii\\mongodb\\ActiveRecord\|null but returns array\|yii\\mongodb\\ActiveRecord\|null\.$#'
 			identifier: return.type
 			count: 1
@@ -367,7 +361,7 @@ parameters:
 			path: src/ActiveRecord.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, string given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/ActiveRecord.php
@@ -1653,6 +1647,18 @@ parameters:
 			path: src/Connection.php
 
 		-
+			message: '#^Class yii\\mongodb\\Connection has PHPDoc tag @property for property \$logBuilder with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Connection.php
+
+		-
+			message: '#^Class yii\\mongodb\\Connection has PHPDoc tag @property for property \$queryBuilder with no value type specified in iterable type array\.$#'
+			identifier: missingType.iterableValue
+			count: 1
+			path: src/Connection.php
+
+		-
 			message: '#^Method yii\\mongodb\\Connection\:\:close\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -1875,7 +1881,7 @@ parameters:
 			path: src/Connection.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\|string given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\|string given\.$#'
 			identifier: argument.type
 			count: 2
 			path: src/Connection.php
@@ -2491,13 +2497,13 @@ parameters:
 			path: src/Query.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, query\: \$this\(yii\\mongodb\\Query\), batchSize\: int, db\: yii\\mongodb\\Connection\|null, each\: false\} given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, query\: \$this\(yii\\mongodb\\Query\), batchSize\: int, db\: yii\\mongodb\\Connection\|null, each\: false\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Query.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, query\: \$this\(yii\\mongodb\\Query\), batchSize\: int, db\: yii\\mongodb\\Connection\|null, each\: true\} given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, query\: \$this\(yii\\mongodb\\Query\), batchSize\: int, db\: yii\\mongodb\\Connection\|null, each\: true\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/Query.php
@@ -2989,12 +2995,6 @@ parameters:
 			path: src/Session.php
 
 		-
-			message: '#^Left side of && is always true\.$#'
-			identifier: booleanAnd.leftAlwaysTrue
-			count: 1
-			path: src/Session.php
-
-		-
 			message: '#^Method yii\\mongodb\\Session\:\:init\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -3205,20 +3205,8 @@ parameters:
 			path: src/console/controllers/MigrateController.php
 
 		-
-			message: '#^Class yii\\mongodb\\console\\controllers\\MigrateController extends generic class yii\\console\\controllers\\BaseMigrateController but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/console/controllers/MigrateController.php
-
-		-
 			message: '#^Method yii\\mongodb\\console\\controllers\\MigrateController\:\:addMigrationHistory\(\) has no return type specified\.$#'
 			identifier: missingType.return
-			count: 1
-			path: src/console/controllers/MigrateController.php
-
-		-
-			message: '#^Method yii\\mongodb\\console\\controllers\\MigrateController\:\:beforeAction\(\) has parameter \$action with generic class yii\\base\\Action but does not specify its types\: T$#'
-			identifier: missingType.generics
 			count: 1
 			path: src/console/controllers/MigrateController.php
 
@@ -3301,12 +3289,6 @@ parameters:
 			path: src/debug/ExplainAction.php
 
 		-
-			message: '#^Class yii\\mongodb\\debug\\ExplainAction extends generic class yii\\base\\Action but does not specify its types\: T$#'
-			identifier: missingType.generics
-			count: 1
-			path: src/debug/ExplainAction.php
-
-		-
 			message: '#^Method yii\\mongodb\\debug\\ExplainAction\:\:explainQuery\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -3355,7 +3337,7 @@ parameters:
 			path: src/debug/MongoDbPanel.php
 
 		-
-			message: '#^Class yii\\mongodb\\debug\\MongoDbPanel has PHPDoc tag @property for property \$profileLogs with no value type specified in iterable type array\.$#'
+			message: '#^Class yii\\mongodb\\debug\\MongoDbPanel has PHPDoc tag @property\-read for property \$profileLogs with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: src/debug/MongoDbPanel.php
@@ -3385,7 +3367,7 @@ parameters:
 			path: src/debug/MongoDbPanel.php
 
 		-
-			message: '#^Cannot access property \$summary on yii\\base\\Controller\<yii\\base\\Module\>\|null\.$#'
+			message: '#^Cannot access property \$summary on yii\\base\\Controller\|null\.$#'
 			identifier: property.nonObject
 			count: 1
 			path: src/debug/views/detail.php
@@ -3541,7 +3523,7 @@ parameters:
 			path: src/file/ActiveRecord.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, string given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, string given\.$#'
 			identifier: argument.type
 			count: 1
 			path: src/file/ActiveRecord.php
@@ -3741,7 +3723,7 @@ parameters:
 		-
 			message: '#^Class yii\\mongodb\\file\\Download has PHPDoc tag @property for property \$document with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
+			count: 2
 			path: src/file/Download.php
 
 		-
@@ -5149,7 +5131,7 @@ parameters:
 			path: tests/CacheTest.php
 
 		-
-			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, db\: yii\\mongodb\\Connection, cacheCollection\: string, gcProbability\: 0\} given\.$#'
+			message: '#^Parameter \#1 \$type of static method yii\\BaseYii\<yii\\web\\IdentityInterface\>\:\:createObject\(\) expects array\{class\?\: class\-string\<mixed\>, __class\?\: class\-string\<mixed\>, \.\.\.\}\|\(callable\(\)\: mixed\)\|class\-string\<mixed\>, array\{class\: string, db\: yii\\mongodb\\Connection, cacheCollection\: string, gcProbability\: 0\} given\.$#'
 			identifier: argument.type
 			count: 1
 			path: tests/CacheTest.php
@@ -6207,12 +6189,6 @@ parameters:
 		-
 			message: '#^Method yiiunit\\extensions\\mongodb\\console\\controllers\\MigrateControllerTest\:\:createMigrateController\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: tests/console/controllers/MigrateControllerTest.php
-
-		-
-			message: '#^Method yiiunit\\extensions\\mongodb\\console\\controllers\\MigrateControllerTest\:\:createMigrateController\(\) return type with generic class yii\\console\\controllers\\BaseMigrateController does not specify its types\: T$#'
-			identifier: missingType.generics
 			count: 1
 			path: tests/console/controllers/MigrateControllerTest.php
 

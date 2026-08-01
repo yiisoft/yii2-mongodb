@@ -50,12 +50,6 @@ use yii\base\BaseObject;
  *     ->executeBatch('some_collection');
  * ```
  *
- * @property ReadConcern|string $readConcern Read concern to be used in this command.
- * @property ReadPreference $readPreference Read preference. Note that the type of this property differs in
- * getter and setter. See [[getReadPreference()]] and [[setReadPreference()]] for details.
- * @property WriteConcern|null $writeConcern Write concern to be used in this command. Note that the type of
- * this property differs in getter and setter. See [[getWriteConcern()]] and [[setWriteConcern()]] for details.
- *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */

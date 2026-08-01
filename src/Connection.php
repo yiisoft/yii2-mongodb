@@ -69,11 +69,10 @@ use Yii;
  * @property string $defaultDatabaseName Default database name.
  * @property-read file\Collection $fileCollection Mongo GridFS collection instance.
  * @property-read bool $isActive Whether the Mongo connection is established.
- * @property LogBuilder $logBuilder The log builder for this connection. Note that the type of this property
- * differs in getter and setter. See [[getLogBuilder()]] and [[setLogBuilder()]] for details.
- * @property QueryBuilder $queryBuilder The query builder for the this MongoDB connection. Note that the type
- * of this property differs in getter and setter. See [[getQueryBuilder()]] and [[setQueryBuilder()]] for
- * details.
+ * @property-read LogBuilder $logBuilder The log builder for this connection.
+ * @property-write array|string|LogBuilder $logBuilder The log builder for this connection.
+ * @property-read QueryBuilder $queryBuilder The query builder for the this MongoDB connection.
+ * @property-write QueryBuilder|array|string|null $queryBuilder The query builder for this MongoDB connection.
  * @property-write ClientSession|null $session New instance of ClientSession to replace return $this.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
