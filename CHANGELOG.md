@@ -4,7 +4,7 @@ Yii Framework 2 mongodb extension Change Log
 22.0 under development
 -----------------------
 
-- Chg: Raised ext-mongodb minimum to `>=2.0`; replaced `ObjectID` with `ObjectId`, `CursorId` removed (terabytesoftw)
+- Chg: Raised ext-mongodb minimum to `>=2.0`; replaced `ObjectID` with `ObjectId`, `CursorId` removed (@terabytesoftw)
 
 
 4.0.0 under development
