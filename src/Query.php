@@ -589,6 +589,7 @@ class Query extends Component implements QueryInterface
             ]
         ];
         $result = $collection->aggregate($pipelines);
+        $result = is_array($result) ? $result : iterator_to_array($result, false);
         if (array_key_exists(0, $result)) {
             return $result[0]['total'];
         }

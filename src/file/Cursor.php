@@ -104,7 +104,11 @@ class Cursor extends \IteratorIterator implements \Countable
      */
     public function __call($name, $arguments)
     {
-        return call_user_func_array([$this->getInnerIterator(), $name], $arguments);
+        $callback = [$this->getInnerIterator(), $name];
+        if (is_callable($callback)) {
+            return call_user_func_array($callback, $arguments);
+        }
+        return null;
     }
 
     /**

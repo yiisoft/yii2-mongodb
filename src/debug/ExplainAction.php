@@ -36,6 +36,10 @@ class ExplainAction extends Action
      */
     public function run($seq, $tag)
     {
+        if ($this->controller === null) {
+            throw new HttpException(500, 'Controller is not initialized.');
+        }
+
         $this->controller->loadData($tag);
 
         $timings = $this->panel->calculateTimings();

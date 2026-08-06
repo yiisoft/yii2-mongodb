@@ -121,8 +121,12 @@ class Command extends BaseObject
      * {@see https://www.php.net/manual/en/mongodb-driver-manager.executebulkwrite.php#refsect1-mongodb-driver-manager.executebulkwrite-parameters}
      * {@see https://www.php.net/manual/en/mongodb-driver-server.executequery.php#refsect1-mongodb-driver-server.executequery-parameters}
      */
-    public static function prepareManagerOptions(&$options)
+    public static function prepareManagerOptions(&$options): void
     {
+        if (!is_array($options)) {
+            return;
+        }
+
         //Convert readConcern option
         if (array_key_exists('readConcern', $options) && is_string($options['readConcern'])) {
             $options['readConcern'] = new ReadConcern($options['readConcern']);

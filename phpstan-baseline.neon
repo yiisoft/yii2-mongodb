@@ -1533,12 +1533,6 @@ parameters:
 			path: src/Command.php
 
 		-
-			message: '#^Method yii\\mongodb\\Command\:\:prepareManagerOptions\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: src/Command.php
-
-		-
 			message: '#^Method yii\\mongodb\\Command\:\:prepareManagerOptions\(\) has parameter \$options with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -1596,12 +1590,6 @@ parameters:
 			message: '#^Parameter \#1 \$token of method yii\\mongodb\\Command\:\:endProfile\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 6
-			path: src/Command.php
-
-		-
-			message: '#^Parameter \#2 \$search of function array_key_exists expects array, array\|object given\.$#'
-			identifier: argument.type
-			count: 4
 			path: src/Command.php
 
 		-
@@ -2527,12 +2515,6 @@ parameters:
 			path: src/Query.php
 
 		-
-			message: '#^Parameter \#2 \$search of function array_key_exists expects array, array\|MongoDB\\Driver\\Cursor given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/Query.php
-
-		-
 			message: '#^Parameter \#3 \$db of method yii\\mongodb\\Query\:\:aggregate\(\) expects yii\\mongodb\\Connection, yii\\mongodb\\Connection\|null given\.$#'
 			identifier: argument.type
 			count: 4
@@ -2983,12 +2965,6 @@ parameters:
 			path: src/QueryBuilder.php
 
 		-
-			message: '#^Parameter \#1 \$input of function array_values expects array, array\|MongoDB\\BSON\\ObjectId given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/QueryBuilder.php
-
-		-
 			message: '#^Cannot call method getCollection\(\) on array\|string\|yii\\mongodb\\Connection\.$#'
 			identifier: method.nonObject
 			count: 6
@@ -3373,12 +3349,6 @@ parameters:
 			path: src/debug/views/detail.php
 
 		-
-			message: '#^Parameter \#2 \$timestamp of function date expects int, float given\.$#'
-			identifier: argument.type
-			count: 1
-			path: src/debug/views/detail.php
-
-		-
 			message: '#^Variable \$dataProvider might not be defined\.$#'
 			identifier: variable.undefined
 			count: 1
@@ -3705,12 +3675,6 @@ parameters:
 		-
 			message: '#^Method yii\\mongodb\\file\\Cursor\:\:toArray\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: src/file/Cursor.php
-
-		-
-			message: '#^Parameter \#1 \$function of function call_user_func_array expects callable\(\)\: mixed, array\{MongoDB\\Driver\\Cursor, string\} given\.$#'
-			identifier: argument.type
 			count: 1
 			path: src/file/Cursor.php
 
@@ -6343,18 +6307,6 @@ parameters:
 			path: tests/console/controllers/MigrateControllerTest.php
 
 		-
-			message: '#^Negated boolean expression is always false\.$#'
-			identifier: booleanNot.alwaysFalse
-			count: 1
-			path: tests/console/controllers/MigrateControllerTest.php
-
-		-
-			message: '#^Parameter \#1 \$flag of function ob_implicit_flush expects int, false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/console/controllers/MigrateControllerTest.php
-
-		-
 			message: '#^Parameter \#2 \$haystack of method PHPUnit\\Framework\\Assert\:\:assertStringContainsString\(\) expects string, string\|false given\.$#'
 			identifier: argument.type
 			count: 2
@@ -6949,24 +6901,6 @@ parameters:
 			path: tests/file/DownloadTest.php
 
 		-
-			message: '#^Parameter \#1 \$fp of function rewind expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/file/DownloadTest.php
-
-		-
-			message: '#^Parameter \#1 \$source of function stream_get_contents expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/file/DownloadTest.php
-
-		-
-			message: '#^Parameter \#1 \$stream of method yii\\mongodb\\file\\Download\:\:toStream\(\) expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/file/DownloadTest.php
-
-		-
 			message: '#^Method yiiunit\\extensions\\mongodb\\file\\QueryTest\:\:setUpTestRows\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
@@ -7017,42 +6951,6 @@ parameters:
 		-
 			message: '#^Offset ''file'' might not exist on array\|null\.$#'
 			identifier: offsetAccess.notFound
-			count: 1
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$fp of function fclose expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 2
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$fp of function fgets expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$fp of function fseek expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$fp of function ftell expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$fp of function fwrite expects resource, resource\|false given\.$#'
-			identifier: argument.type
-			count: 3
-			path: tests/file/StreamWrapperTest.php
-
-		-
-			message: '#^Parameter \#1 \$source of function stream_get_contents expects resource, resource\|false given\.$#'
-			identifier: argument.type
 			count: 1
 			path: tests/file/StreamWrapperTest.php
 

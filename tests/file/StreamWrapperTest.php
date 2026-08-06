@@ -48,6 +48,7 @@ class StreamWrapperTest extends TestCase
 
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'w');
+        $this->assertIsResource($resource, 'Stream must be a valid resource.');
         fwrite($resource, 'begin ');
         fwrite($resource, 'end');
         fclose($resource);
@@ -77,6 +78,7 @@ class StreamWrapperTest extends TestCase
 
         $url = "gridfs://{$databaseName}.fs?_id=" . $document['_id'];
         $resource = fopen($url, 'r');
+        $this->assertIsResource($resource, 'Stream must be a valid resource.');
 
         $this->assertEquals('test content', stream_get_contents($resource));
     }
@@ -95,11 +97,13 @@ class StreamWrapperTest extends TestCase
 
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'w');
+        $this->assertIsResource($resource, 'Stream must be a valid resource.');
         fwrite($resource, 'begin end');
         fclose($resource);
 
         $url = "gridfs://{$databaseName}.fs?filename=test.txt";
         $resource = fopen($url, 'r');
+        $this->assertIsResource($resource, 'Stream must be a valid resource.');
         $data = fgets($resource);
 
         fseek($resource, 0);
