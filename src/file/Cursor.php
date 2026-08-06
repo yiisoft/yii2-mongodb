@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -82,7 +83,7 @@ class Cursor extends \IteratorIterator implements \Countable
      */
     public function getId()
     {
-        return $this->getInnerIterator()->getId(true);
+        return $this->getInnerIterator()->getId();
     }
 
     /**

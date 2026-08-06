@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -175,7 +176,6 @@ class Session extends MultiFieldSession
         // exception must be caught in session write handler
         // https://www.php.net/manual/en/function.session-set-save-handler.php
         try {
-
             // ensure backwards compatability, related to:
             // https://github.com/yiisoft/yii2/pull/17188
             // https://github.com/yiisoft/yii2/pull/17559
@@ -203,7 +203,6 @@ class Session extends MultiFieldSession
             );
 
             $this->fields = [];
-
         } catch (\Exception $e) {
             Yii::$app->errorHandler->handleException($e);
             return false;

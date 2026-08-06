@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -68,11 +69,10 @@ use Yii;
  * @property string $defaultDatabaseName Default database name.
  * @property-read file\Collection $fileCollection Mongo GridFS collection instance.
  * @property-read bool $isActive Whether the Mongo connection is established.
- * @property LogBuilder $logBuilder The log builder for this connection. Note that the type of this property
- * differs in getter and setter. See [[getLogBuilder()]] and [[setLogBuilder()]] for details.
- * @property QueryBuilder $queryBuilder The query builder for the this MongoDB connection. Note that the type
- * of this property differs in getter and setter. See [[getQueryBuilder()]] and [[setQueryBuilder()]] for
- * details.
+ * @property-read LogBuilder $logBuilder The log builder for this connection.
+ * @property-write array|string|LogBuilder $logBuilder The log builder for this connection.
+ * @property-read QueryBuilder $queryBuilder The query builder for the this MongoDB connection.
+ * @property-write QueryBuilder|array|string|null $queryBuilder The query builder for this MongoDB connection.
  * @property-write ClientSession|null $session New instance of ClientSession to replace return $this.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
@@ -83,27 +83,27 @@ class Connection extends Component
     /**
      * @event Event an event that is triggered after a DB connection is established
      */
-    const EVENT_AFTER_OPEN = 'afterOpen';
+    public const EVENT_AFTER_OPEN = 'afterOpen';
     /**
      * @event yii\base\Event an event that is triggered right before a mongo client session is started
      */
-    const EVENT_START_SESSION = 'startSession';
+    public const EVENT_START_SESSION = 'startSession';
     /**
      * @event yii\base\Event an event that is triggered right after a mongo client session is ended
      */
-    const EVENT_END_SESSION = 'endSession';
+    public const EVENT_END_SESSION = 'endSession';
     /**
      * @event yii\base\Event an event that is triggered right before a transaction is started
      */
-    const EVENT_START_TRANSACTION = 'startTransaction';
+    public const EVENT_START_TRANSACTION = 'startTransaction';
     /**
      * @event yii\base\Event an event that is triggered right after a transaction is committed
      */
-    const EVENT_COMMIT_TRANSACTION = 'commitTransaction';
+    public const EVENT_COMMIT_TRANSACTION = 'commitTransaction';
     /**
      * @event yii\base\Event an event that is triggered right after a transaction is rolled back
      */
-    const EVENT_ROLLBACK_TRANSACTION = 'rollbackTransaction';
+    public const EVENT_ROLLBACK_TRANSACTION = 'rollbackTransaction';
 
     /**
      * @var string host:port
@@ -238,7 +238,7 @@ class Connection extends Component
             if (preg_match('/^mongodb:\\/\\/.+\\/([^?&]+)/s', $this->dsn, $matches)) {
                 $this->_defaultDatabaseName = $matches[1];
             } else {
-                throw new InvalidConfigException("Unable to determine default database name from dsn.");
+                throw new InvalidConfigException('Unable to determine default database name from dsn.');
             }
         }
 
@@ -478,8 +478,7 @@ class Connection extends Component
     {
         if (empty($newExecOptions)) {
             $this->globalExecOptions = [];
-        }
-        else {
+        } else {
             $this->globalExecOptions = array_replace_recursive($this->globalExecOptions, $newExecOptions);
         }
         return $this;
@@ -531,7 +530,7 @@ class Connection extends Component
      */
     public function getInSession()
     {
-        return array_key_exists('session',$this->globalExecOptions['share']);
+        return array_key_exists('session', $this->globalExecOptions['share']);
     }
 
     /**
@@ -593,7 +592,7 @@ class Connection extends Component
         if ($this->getInTransaction()) {
             return $this->getSession();
         }
-        return $this->startTransaction($transactionOptions,$sessionOptions);
+        return $this->startTransaction($transactionOptions, $sessionOptions);
     }
 
     /**
@@ -624,8 +623,7 @@ class Connection extends Component
         #drop session
         if (empty($clientSession)) {
             unset($this->globalExecOptions['share']['session']);
-        }
-        else {
+        } else {
             $this->globalExecOptions['share']['session'] = $clientSession;
         }
         return $this;
@@ -647,8 +645,7 @@ class Connection extends Component
             if ($session->getTransaction()->getIsActive()) {
                 if ($result === false) {
                     $session->getTransaction()->rollBack();
-                }
-                else {
+                } else {
                     $session->getTransaction()->commit();
                 }
             }
@@ -671,9 +668,8 @@ class Connection extends Component
     {
         if ($this->getInTransaction()) {
             $actions();
-        }
-        else {
-            $this->transaction($actions,$transactionOptions,$sessionOptions);
+        } else {
+            $this->transaction($actions, $transactionOptions, $sessionOptions);
         }
     }
 

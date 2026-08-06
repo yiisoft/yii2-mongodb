@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -70,7 +71,6 @@ class ClientSession extends \yii\base\BaseObject
     public static function prepareOptions(&$options)
     {
         if (array_key_exists('defaultTransactionOptions', $options)) {
-
             //convert readConcern
             if (
                 array_key_exists('readConcern', $options['defaultTransactionOptions']) &&
@@ -80,7 +80,7 @@ class ClientSession extends \yii\base\BaseObject
             }
 
             //convert writeConcern
-            if (array_key_exists('writeConcern',$options['defaultTransactionOptions'])) {
+            if (array_key_exists('writeConcern', $options['defaultTransactionOptions'])) {
                 if (
                     is_string($options['defaultTransactionOptions']['writeConcern']) ||
                     is_int($options['defaultTransactionOptions']['writeConcern'])
@@ -97,10 +97,10 @@ class ClientSession extends \yii\base\BaseObject
             }
 
             //Convert readPreference
-            if (array_key_exists('readPreference',$options['defaultTransactionOptions'])) {
+            if (array_key_exists('readPreference', $options['defaultTransactionOptions'])) {
                 if (is_string($options['defaultTransactionOptions']['readPreference'])) {
                     $options['defaultTransactionOptions']['readPreference'] = new ReadPreference($options['defaultTransactionOptions']['readPreference']);
-                } else if(is_array($options['defaultTransactionOptions']['readPreference'])) {
+                } elseif (is_array($options['defaultTransactionOptions']['readPreference'])) {
                     $options['defaultTransactionOptions']['readPreference'] =
                         (new \ReflectionClass('\MongoDB\Driver\ReadPreference'))
                             ->newInstanceArgs(
@@ -139,7 +139,7 @@ class ClientSession extends \yii\base\BaseObject
             'db' => $db,
             'mongoSession' => $db->manager->startSession($sessionOptions),
         ]);
-        if ($db->enableProfiling) {   
+        if ($db->enableProfiling) {
             Yii::debug('MongoDB session started.', __METHOD__);
         }
         return $newSession;

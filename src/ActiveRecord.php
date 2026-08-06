@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -29,21 +30,20 @@ abstract class ActiveRecord extends BaseActiveRecord
     /**
      * The insert operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
-    const OP_INSERT = 0x01;
+    public const OP_INSERT = 0x01;
     /**
      * The update operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
-    const OP_UPDATE = 0x02;
+    public const OP_UPDATE = 0x02;
     /**
      * The delete operation. This is mainly used when overriding [[transactions()]] to specify which operations are transactional.
      */
-    const OP_DELETE = 0x04;
+    public const OP_DELETE = 0x04;
     /**
      * All three operations: insert, update, delete.
      * This is a shortcut of the expression: OP_INSERT | OP_UPDATE | OP_DELETE.
      */
-    const OP_ALL = 0x07;
-
+    public const OP_ALL = 0x07;
 
     /**
      * Returns the Mongo connection used by this AR class.
@@ -234,7 +234,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         $result = null;
-        static::getDb()->transaction(function() use ($attributes, &$result) {
+        static::getDb()->transaction(function () use ($attributes, &$result) {
             $result = $this->insertInternal($attributes);
         });
         return $result;
@@ -334,7 +334,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         $result = null;
-        static::getDb()->transaction(function() use ($attributeNames, &$result) {
+        static::getDb()->transaction(function () use ($attributeNames, &$result) {
             $result = $this->updateInternal($attributeNames);
         });
         return $result;
@@ -410,7 +410,7 @@ abstract class ActiveRecord extends BaseActiveRecord
         }
 
         $result = null;
-        static::getDb()->transaction(function() use (&$result) {
+        static::getDb()->transaction(function () use (&$result) {
             $result = $this->deleteInternal();
         });
         return $result;
@@ -524,6 +524,7 @@ abstract class ActiveRecord extends BaseActiveRecord
      * @param Connection $db the Mongo connection uses it to execute the query.
      * @return ActiveRecord|null the locked document.
      * Returns instance of ActiveRecord. Null will be returned if the query does not have a result.
+     * @phpcs:disable PSR1.Methods.CamelCapsMethodName.NotCamelCaps
      */
     public static function LockDocument($id, $lockFieldName, $modifyOptions = [], $db = null)
     {
@@ -534,7 +535,7 @@ abstract class ActiveRecord extends BaseActiveRecord
             ->where(['_id' => $id])
             ->modify(
                 [
-                    '$set' =>[$lockFieldName => new ObjectId]
+                    '$set' => [$lockFieldName => new ObjectId()]
                 ],
                 $modifyOptions,
                 $db
@@ -578,7 +579,7 @@ abstract class ActiveRecord extends BaseActiveRecord
 
         $options['modifyOptions']['new'] = true;
 
-        $session = $options['mySession'] ? $options['mySession'] : $db->startSessionOnce(); 
+        $session = $options['mySession'] ? $options['mySession'] : $db->startSessionOnce();
 
         if ($session->getInTransaction()) {
             throw new Exception('You can\'t use stubborn lock feature because current connection is in a transaction.');
@@ -594,14 +595,14 @@ abstract class ActiveRecord extends BaseActiveRecord
                 ->modify(
                     [
                         '$set' => [
-                            $lockFieldName => new ObjectId
+                            $lockFieldName => new ObjectId()
                         ]
                     ],
                     $options['modifyOptions'],
                     $db
                 );
             return $doc;
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $session->transaction->rollBack();
             $tiredCounter++;
             if ($options['try'] !== 0 && $tiredCounter === $options['try']) {

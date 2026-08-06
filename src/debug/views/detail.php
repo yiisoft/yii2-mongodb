@@ -1,4 +1,5 @@
 <?php
+
 /* @var $panel yii\mongodb\debug\MongoDbPanel */
 /* @var $searchModel yii\debug\models\search\Db */
 /* @var $dataProvider yii\data\ArrayDataProvider */

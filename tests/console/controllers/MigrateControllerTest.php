@@ -97,7 +97,7 @@ class MigrateControllerTest extends TestCase
         $migrateController->migrationPath = $this->migrationPath;
 
         if (array_key_exists('migrationNamespaces', $config) && !$migrateController->canSetProperty('migrationNamespaces')) {
-            $this->markTestSkipped("`migrationNamespaces` not supported by this Yii framework version");
+            $this->markTestSkipped('`migrationNamespaces` not supported by this Yii framework version');
         }
 
         return Yii::configure($migrateController, $config);
@@ -213,13 +213,13 @@ CODE;
         }
         if (!$success) {
             $message .= "\n";
-            $message .= "Expected: " . var_export($expectedMigrations, true) . "\n";
+            $message .= 'Expected: ' . var_export($expectedMigrations, true) . "\n";
 
             $actualMigrations = [];
             foreach ($migrationHistory as $row) {
                 $actualMigrations[] = $row['version'];
             }
-            $message .= "Actual: " . var_export($actualMigrations, true) . "\n";
+            $message .= 'Actual: ' . var_export($actualMigrations, true) . "\n";
         }
         $this->assertTrue($success, $message);
     }
