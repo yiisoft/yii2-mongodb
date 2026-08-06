@@ -42,6 +42,11 @@
             "yii\\mongodb\\": "src"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "yiiunit\\extensions\\mongodb\\": "tests"
+        }
+    },
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true
