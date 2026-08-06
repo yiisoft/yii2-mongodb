@@ -13,6 +13,8 @@ use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 use Yii;
 
+use function is_string;
+
 /**
  * MongoIdValidator verifies if the attribute is a valid Mongo ID.
  * Attribute will be considered as valid, if it is an instance of [[\MongoId]] or a its string value.
@@ -99,16 +101,27 @@ class MongoIdValidator extends Validator
     }
 
     /**
-     * @param mixed $value
-     * @return ObjectId|null
+     * Converts the given value into an [[ObjectId]] instance.
+     *
+     * Only [[ObjectId]], `string` and [[\Stringable]] values are supported. `ObjectId::__construct()` declares a
+     * `?string` parameter, so any other type raises a `TypeError`, which is an `\Error` and therefore escapes the
+     * `\Exception` handler below. Unsupported types are rejected up front to keep validation from aborting.
+     *
+     * @param mixed $value value to convert.
+     * @return ObjectId|null instance, or `null` when the value is not a valid Mongo ID.
      */
     private function parseMongoId($value)
     {
         if ($value instanceof ObjectId) {
             return $value;
         }
+
+        if (!is_string($value) && !$value instanceof \Stringable) {
+            return null;
+        }
+
         try {
-            return new ObjectId($value);
+            return new ObjectId((string) $value);
         } catch (\Exception $e) {
             return null;
         }

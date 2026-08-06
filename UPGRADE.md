@@ -19,8 +19,10 @@ Upgrade from 3.0.x
   if using an older version. Key breaking changes in ext-mongodb 2.0:
   - `MongoDB\BSON\ObjectID` (uppercase `D`) class alias has been removed. Use `MongoDB\BSON\ObjectId`
     (lowercase `d`) exclusively. Update any `use`, `instanceof`, `new`, or type-hint references.
-  - `MongoDB\Driver\CursorId` class has been removed. `MongoDB\Driver\Cursor::getId()` now always returns
-    `\MongoDB\BSON\Int64` with no parameters required.
+  - `MongoDB\Driver\CursorId` class has been removed, along with the `asInt64` parameter of
+    `MongoDB\Driver\Cursor::getId()`. The method now takes no arguments and always returns
+    `\MongoDB\BSON\Int64`. Replace any `getId(true)` call — the migration path introduced in
+    ext-mongodb 1.20 — with `getId()`.
   - `MongoDB\BSON\UTCDateTime::__construct()` no longer accepts float values.
 
 * `yii\base\InvalidParamException` has been removed in Yii2 22.0. Replace all usages with

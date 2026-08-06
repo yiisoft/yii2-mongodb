@@ -23,6 +23,36 @@ class MongoIdValidatorTest extends TestCase
         $this->assertTrue($validator->validate('4d3ed089fb60ab534684b7e9'));
     }
 
+    public function testValidateValueRejectsUnsupportedTypes(): void
+    {
+        $validator = new MongoIdValidator();
+
+        $this->assertFalse($validator->validate([]), 'Empty array must be rejected.');
+        $this->assertFalse($validator->validate(['4d3ed089fb60ab534684b7e9']), 'Array must be rejected.');
+        $this->assertFalse($validator->validate(new \stdClass()), 'Object without `__toString()` must be rejected.');
+        $this->assertFalse($validator->validate(null), '`null` must not yield a freshly generated ID.');
+    }
+
+    public function testValidateValueAcceptsStringable(): void
+    {
+        $validator = new MongoIdValidator();
+
+        $value = new MongoIdStringable('4d3ed089fb60ab534684b7e9');
+
+        $this->assertTrue($validator->validate($value), 'Stringable holding a valid hex ID must be accepted.');
+    }
+
+    public function testValidateAttributeRejectsArrayWithoutFatalError(): void
+    {
+        $model = new MongoIdTestModel();
+        $model->id = ['4d3ed089fb60ab534684b7e9'];
+
+        $validator = new MongoIdValidator();
+        $validator->validateAttribute($model, 'id');
+
+        $this->assertTrue($model->hasErrors('id'), 'Array attribute must record an error, not raise `TypeError`.');
+    }
+
     public function testValidateAttribute()
     {
         $model = new MongoIdTestModel();
@@ -69,4 +99,19 @@ class MongoIdValidatorTest extends TestCase
 class MongoIdTestModel extends Model
 {
     public $id;
+}
+
+class MongoIdStringable
+{
+    private string $value;
+
+    public function __construct(string $value)
+    {
+        $this->value = $value;
+    }
+
+    public function __toString(): string
+    {
+        return $this->value;
+    }
 }
