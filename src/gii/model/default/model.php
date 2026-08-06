@@ -1,4 +1,5 @@
 <?php
+
 /**
  * This is the template for generating the model class of a specified collection.
  */

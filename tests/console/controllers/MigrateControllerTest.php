@@ -97,7 +97,7 @@ class MigrateControllerTest extends TestCase
         $migrateController->migrationPath = $this->migrationPath;
 
         if (array_key_exists('migrationNamespaces', $config) && !$migrateController->canSetProperty('migrationNamespaces')) {
-            $this->markTestSkipped("`migrationNamespaces` not supported by this Yii framework version");
+            $this->markTestSkipped('`migrationNamespaces` not supported by this Yii framework version');
         }
 
         return Yii::configure($migrateController, $config);
@@ -213,13 +213,13 @@ CODE;
         }
         if (!$success) {
             $message .= "\n";
-            $message .= "Expected: " . var_export($expectedMigrations, true) . "\n";
+            $message .= 'Expected: ' . var_export($expectedMigrations, true) . "\n";
 
             $actualMigrations = [];
             foreach ($migrationHistory as $row) {
                 $actualMigrations[] = $row['version'];
             }
-            $message .= "Actual: " . var_export($actualMigrations, true) . "\n";
+            $message .= 'Actual: ' . var_export($actualMigrations, true) . "\n";
         }
         $this->assertTrue($success, $message);
     }
@@ -570,10 +570,6 @@ CODE;
      */
     public function testRefreshMigration()
     {
-        if (!is_callable(['yii\console\controllers\BaseMigrateController', 'actionFresh'])) {
-            $this->markTestSkipped('Method "yii\console\controllers\BaseMigrateController::actionFresh()" does not exist in this Yii framework version.');
-        }
-
         $connection = $this->getConnection();
 
         $collection = $connection->getCollection('hall_of_fame');

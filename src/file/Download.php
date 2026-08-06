@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -34,8 +35,8 @@ use yii\helpers\StringHelper;
  * @property-read string $bytes File content.
  * @property-read \MongoDB\Driver\Cursor $chunkCursor Chuck list cursor.
  * @property-read \Iterator $chunkIterator Chuck cursor iterator.
- * @property array $document Document to be downloaded. Note that the type of this property differs in getter
- * and setter. See [[getDocument()]] and [[setDocument()]] for details.
+ * @property-read array $document Document to be downloaded.
+ * @property-write array|ObjectID $document Document raw data or document ID.
  * @property-read string|null $filename File name.
  * @property-read resource $resource File stream resource.
  * @property-read int $size File size.

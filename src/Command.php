@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -49,12 +50,6 @@ use yii\base\BaseObject;
  *     ->executeBatch('some_collection');
  * ```
  *
- * @property ReadConcern|string $readConcern Read concern to be used in this command.
- * @property ReadPreference $readPreference Read preference. Note that the type of this property differs in
- * getter and setter. See [[getReadPreference()]] and [[setReadPreference()]] for details.
- * @property WriteConcern|null $writeConcern Write concern to be used in this command. Note that the type of
- * this property differs in getter and setter. See [[getWriteConcern()]] and [[setWriteConcern()]] for details.
- *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.1
  */
@@ -85,7 +80,7 @@ class Command extends BaseObject
     private function prepareExecCommandOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['command'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['command'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -97,7 +92,7 @@ class Command extends BaseObject
     private function prepareExecBulkWriteOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['bulkWrite'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['bulkWrite'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -109,7 +104,7 @@ class Command extends BaseObject
     private function prepareExecQueryOptions(&$execOptions)
     {
         if (empty($execOptions)) {
-            $execOptions = array_merge($this->globalExecOptions['query'],$this->globalExecOptions['share']);
+            $execOptions = array_merge($this->globalExecOptions['query'], $this->globalExecOptions['share']);
         }
         self::prepareManagerOptions($execOptions);
     }
@@ -126,8 +121,12 @@ class Command extends BaseObject
      * {@see https://www.php.net/manual/en/mongodb-driver-manager.executebulkwrite.php#refsect1-mongodb-driver-manager.executebulkwrite-parameters}
      * {@see https://www.php.net/manual/en/mongodb-driver-server.executequery.php#refsect1-mongodb-driver-server.executequery-parameters}
      */
-    public static function prepareManagerOptions(&$options)
+    public static function prepareManagerOptions(&$options): void
     {
+        if (!is_array($options)) {
+            return;
+        }
+
         //Convert readConcern option
         if (array_key_exists('readConcern', $options) && is_string($options['readConcern'])) {
             $options['readConcern'] = new ReadConcern($options['readConcern']);
@@ -155,7 +154,7 @@ class Command extends BaseObject
         if (array_key_exists('session', $options) && $options['session'] instanceof ClientSession) {
             $options['session'] = $options['session']->mongoSession;
         }
-   }
+    }
 
     /**
      * Executes this command.

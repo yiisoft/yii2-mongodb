@@ -1,4 +1,5 @@
 <?php
+
 /* @var $panel yii\mongodb\debug\MongoDbPanel */
 /* @var $searchModel yii\debug\models\search\Db */
 /* @var $dataProvider yii\data\ArrayDataProvider */
@@ -23,7 +24,7 @@ echo GridView::widget([
                 $timeInSeconds = $data['timestamp'] / 1000;
                 $millisecondsDiff = (int) (($timeInSeconds - floor($timeInSeconds)) * 1000);
 
-                return date('H:i:s.', floor($timeInSeconds)) . sprintf('%03d', $millisecondsDiff);
+                return date('H:i:s.', (int) floor($timeInSeconds)) . sprintf('%03d', $millisecondsDiff);
             },
             'headerOptions' => [
                 'class' => 'sort-numerical'

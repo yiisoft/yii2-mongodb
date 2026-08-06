@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -31,17 +32,16 @@ use Yii;
  */
 class Transaction extends \yii\base\BaseObject
 {
-    const STATE_NONE = 'none';
-    const STATE_STARTING = 'starting';
-    const STATE_ABORTED = 'aborted';
-    const STATE_COMMITTED = 'committed';
+    public const STATE_NONE = 'none';
+    public const STATE_STARTING = 'starting';
+    public const STATE_ABORTED = 'aborted';
+    public const STATE_COMMITTED = 'committed';
 
     /**
      * @var MongoDB\Driver\Session class represents a client session and Commands, queries, and write operations may then be associated the session.
      * @see https://www.php.net/manual/en/class.mongodb-driver-session.php
      */
     public $clientSession;
-
 
     /**
      * Set debug message if `enableLogging` property is enable in yii\mongodb\Connection
@@ -51,7 +51,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiDebug($message, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableLogging) {
-            Yii::debug($message,$category);
+            Yii::debug($message, $category);
         }
     }
 
@@ -63,7 +63,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiBeginProfile($token, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableProfiling) {
-            Yii::beginProfile($token,$category);
+            Yii::beginProfile($token, $category);
         }
     }
 
@@ -75,7 +75,7 @@ class Transaction extends \yii\base\BaseObject
     protected function yiiEndProfile($token, $category = 'mongodb')
     {
         if ($this->clientSession->db->enableProfiling) {
-            Yii::endProfile($token,$category);
+            Yii::endProfile($token, $category);
         }
     }
 

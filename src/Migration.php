@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -71,7 +72,7 @@ abstract class Migration extends Component implements MigrationInterface
             $database = null;
             $collectionName = $collection;
         }
-        $this->beginProfile($token = "    > create collection " . $this->composeCollectionLogName($collection) . " ...");
+        $this->beginProfile($token = '    > create collection ' . $this->composeCollectionLogName($collection) . ' ...');
         $this->db->getDatabase($database)->createCollection($collectionName, $options);
         $this->endProfile($token);
     }
@@ -82,7 +83,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropCollection($collection)
     {
-        $this->beginProfile($token = "    > drop collection " . $this->composeCollectionLogName($collection) . " ...");
+        $this->beginProfile($token = '    > drop collection ' . $this->composeCollectionLogName($collection) . ' ...');
         $this->db->getCollection($collection)->drop();
         $this->endProfile($token);
     }
@@ -95,7 +96,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function createIndexes($collection, $indexes)
     {
-        $this->beginProfile($token = "    > create indexes on " . $this->composeCollectionLogName($collection) . " (" . Json::encode($indexes) . ") ...");
+        $this->beginProfile($token = '    > create indexes on ' . $this->composeCollectionLogName($collection) . ' (' . Json::encode($indexes) . ') ...');
         $this->db->getCollection($collection)->createIndexes($indexes);
         $this->endProfile($token);
     }
@@ -108,7 +109,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropIndexes($collection, $indexes)
     {
-        $this->beginProfile($token = "    > drop indexes '{$indexes}' on " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = "    > drop indexes '$indexes' on " . $this->composeCollectionLogName($collection) . ') ...');
         $this->db->getCollection($collection)->dropIndexes($indexes);
         $this->endProfile($token);
     }
@@ -121,7 +122,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function createIndex($collection, $columns, $options = [])
     {
-        $this->beginProfile($token = "    > create index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . empty($options) ? "" : ", " . Json::encode($options) . ") ...");
+        $this->beginProfile($token = '    > create index on ' . $this->composeCollectionLogName($collection) . ' (' . Json::encode((array) $columns) . empty($options) ? '' : ', ' . Json::encode($options) . ') ...');
         $this->db->getCollection($collection)->createIndex($columns, $options);
         $this->endProfile($token);
     }
@@ -133,7 +134,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropIndex($collection, $columns)
     {
-        $this->beginProfile($token = "    > drop index on " . $this->composeCollectionLogName($collection) . " (" . Json::encode((array) $columns) . ") ...");
+        $this->beginProfile($token = '    > drop index on ' . $this->composeCollectionLogName($collection) . ' (' . Json::encode((array) $columns) . ') ...');
         $this->db->getCollection($collection)->dropIndex($columns);
         $this->endProfile($token);
     }
@@ -144,7 +145,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function dropAllIndexes($collection)
     {
-        $this->beginProfile($token = "    > drop all indexes on " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > drop all indexes on ' . $this->composeCollectionLogName($collection) . ') ...');
         $this->db->getCollection($collection)->dropAllIndexes();
         $this->endProfile($token);
     }
@@ -158,7 +159,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function insert($collection, $data, $options = [])
     {
-        $this->beginProfile($token = "    > insert into " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > insert into ' . $this->composeCollectionLogName($collection) . ') ...');
         $id = $this->db->getCollection($collection)->insert($data, $options);
         $this->endProfile($token);
         return $id;
@@ -173,7 +174,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function batchInsert($collection, $rows, $options = [])
     {
-        $this->beginProfile($token = "    > insert into " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > insert into ' . $this->composeCollectionLogName($collection) . ') ...');
         $rows = $this->db->getCollection($collection)->batchInsert($rows, $options);
         $this->endProfile($token);
         return $rows;
@@ -191,7 +192,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function update($collection, $condition, $newData, $options = [])
     {
-        $this->beginProfile($token = "    > update " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > update ' . $this->composeCollectionLogName($collection) . ') ...');
         $result = $this->db->getCollection($collection)->update($condition, $newData, $options);
         $this->endProfile($token);
         return $result;
@@ -206,7 +207,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function save($collection, $data, $options = [])
     {
-        $this->beginProfile($token = "    > save " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > save ' . $this->composeCollectionLogName($collection) . ') ...');
         $id = $this->db->getCollection($collection)->save($data, $options);
         $this->endProfile($token);
         return $id;
@@ -221,7 +222,7 @@ abstract class Migration extends Component implements MigrationInterface
      */
     public function remove($collection, $condition = [], $options = [])
     {
-        $this->beginProfile($token = "    > remove " . $this->composeCollectionLogName($collection) . ") ...");
+        $this->beginProfile($token = '    > remove ' . $this->composeCollectionLogName($collection) . ') ...');
         $result = $this->db->getCollection($collection)->remove($condition, $options);
         $this->endProfile($token);
         return $result;
@@ -242,6 +243,7 @@ abstract class Migration extends Component implements MigrationInterface
     }
 
     /**
+     * phpcs:disable Squiz.NamingConventions.ValidVariableName.PrivateNoUnderscore
      * @var array opened profile tokens.
      * @since 2.1.1
      */
@@ -287,7 +289,7 @@ abstract class Migration extends Component implements MigrationInterface
         }
 
         if (!$this->compact) {
-            $this->log(" done (time: " . sprintf('%.3f', $time) . "s)\n");
+            $this->log(' done (time: ' . sprintf('%.3f', $time) . "s)\n");
         }
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -212,7 +213,7 @@ class Query extends Component implements QueryInterface
      */
     protected function fetchRows($cursor, $all = true, $indexBy = null)
     {
-        $token = 'fetch cursor id = ' . $cursor->getId(true);
+        $token = 'fetch cursor id = ' . $cursor->getId();
         Yii::info($token, __METHOD__);
         try {
             Yii::beginProfile($token, __METHOD__);
@@ -588,6 +589,7 @@ class Query extends Component implements QueryInterface
             ]
         ];
         $result = $collection->aggregate($pipelines);
+        $result = is_array($result) ? $result : iterator_to_array($result, false);
         if (array_key_exists(0, $result)) {
             return $result[0]['total'];
         }

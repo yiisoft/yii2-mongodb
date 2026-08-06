@@ -15,27 +15,33 @@ Documentation is at [docs/guide/README.md](docs/guide/README.md).
 [![Latest Stable Version](https://poser.pugx.org/yiisoft/yii2-mongodb/v/stable.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Total Downloads](https://poser.pugx.org/yiisoft/yii2-mongodb/downloads.png)](https://packagist.org/packages/yiisoft/yii2-mongodb)
 [![Build Status](https://github.com/yiisoft/yii2-mongodb/workflows/build/badge.svg)](https://github.com/yiisoft/yii2-mongodb/actions)
+[![codecov](https://codecov.io/gh/yiisoft/yii2-mongodb/graph/badge.svg?token=1Xo867R6He)](https://codecov.io/gh/yiisoft/yii2-mongodb)
 
-
-Installation
+Requirements
 ------------
 
 This extension requires [MongoDB PHP Extension](https://www.php.net/manual/en/set.mongodb.php) version 1.20.1 or higher.
 
 This extension requires MongoDB server version 4.0 or higher.
 
+Installation
+------------
+
+> [!IMPORTANT]
+> - The minimum required [PHP](https://www.php.net/) version is PHP `8.3`.
+
 The preferred way to install this extension is through [composer](https://getcomposer.org/download/).
 
 Either run
 
 ```
-php composer.phar require --prefer-dist yiisoft/yii2-mongodb
+composer require --prefer-dist yiisoft/yii2-mongodb:^22.0@dev
 ```
 
 or add
 
 ```
-"yiisoft/yii2-mongodb": "~3.0.0"
+"yiisoft/yii2-mongodb": "22.0@dev"
 ```
 
 to the `require` section of your `composer.json`.

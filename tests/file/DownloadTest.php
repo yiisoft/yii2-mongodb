@@ -26,6 +26,7 @@ class DownloadTest extends TestCase
 
         $download = $collection->createDownload($document);
         $stream = fopen('php://temp', 'w+');
+        $this->assertIsResource($stream, 'Stream must be a valid resource.');
         $download->toStream($stream);
 
         rewind($stream);

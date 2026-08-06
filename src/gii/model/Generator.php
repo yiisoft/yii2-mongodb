@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -54,8 +55,9 @@ class Generator extends \yii\gii\Generator
     {
         return array_merge(parent::rules(), [
             [['db', 'ns', 'collectionName', 'databaseName', 'attributeList', 'modelClass', 'baseClass'], 'filter', 'filter' => 'trim', 'skipOnEmpty' => true],
-            [['ns'], 'filter', 'filter' => function($value) { return trim($value, '\\'); }],
-
+            [['ns'], 'filter', 'filter' => function ($value) {
+                return trim($value, '\\');
+            }],
             [['db', 'ns', 'collectionName', 'baseClass'], 'required'],
             [['db', 'modelClass'], 'match', 'pattern' => '/^\w+$/', 'message' => 'Only word characters are allowed.'],
             [['ns', 'baseClass'], 'match', 'pattern' => '/^[\w\\\\]+$/', 'message' => 'Only word characters and backslashes are allowed.'],

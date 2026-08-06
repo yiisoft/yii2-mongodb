@@ -88,8 +88,8 @@ class ActiveRecordTest extends TestCase
         // find count, sum, average, min, max, distinct
         $this->assertEquals(10, Customer::find()->count());
         $this->assertEquals(1, Customer::find()->where(['status' => 2])->count());
-        $this->assertEquals((1+10)/2*10, Customer::find()->sum('status'));
-        $this->assertEquals((1+10)/2, Customer::find()->average('status'));
+        $this->assertEquals((1 + 10) / 2 * 10, Customer::find()->sum('status'));
+        $this->assertEquals((1 + 10) / 2, Customer::find()->average('status'));
         $this->assertEquals(1, Customer::find()->min('status'));
         $this->assertEquals(10, Customer::find()->max('status'));
         $this->assertEquals(range(1, 10), Customer::find()->distinct('status'));
@@ -403,7 +403,7 @@ class ActiveRecordTest extends TestCase
         $record->email = new Regex('[a-z]@[a-z]', 'i');
         $record->address = new Binary('abcdef', Binary::TYPE_MD5);
         $record->status = 1;
-        $record->file_id = new Binary('Test Binary', Binary::TYPE_GENERIC);;
+        $record->file_id = new Binary('Test Binary', Binary::TYPE_GENERIC);
         $record->save(false);
 
         $this->assertEquals($record->attributes, $record->toArray([], [], false));

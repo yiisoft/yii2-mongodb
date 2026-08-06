@@ -216,27 +216,6 @@ class CollectionTest extends TestCase
     public function testGroup()
     {
         $this->markTestSkipped('Group is not supported in MongoDB 3.0+');
-
-        $collection = $this->getConnection()->getCollection('customer');
-        $rows = [
-            [
-                'name' => 'customer 1',
-                'address' => 'customer 1 address',
-            ],
-            [
-                'name' => 'customer 2',
-                'address' => 'customer 2 address',
-            ],
-        ];
-        $collection->batchInsert($rows);
-
-        $keys = ['address' => 1];
-        $initial = ['items' => []];
-        $reduce = "function (obj, prev) { prev.items.push(obj.name); }";
-        $result = $collection->group($keys, $initial, $reduce);
-        $this->assertEquals(2, count($result));
-        $this->assertNotEmpty($result[0]['address']);
-        $this->assertNotEmpty($result[0]['items']);
     }
 
     public function testFindAndModify()
@@ -394,6 +373,7 @@ class CollectionTest extends TestCase
             ],
         ];
 
+        $this->assertIsArray($result, 'mapReduce must return an array for inline output.');
         sort($result);
 
         $this->assertEquals($expectedRows, $result);

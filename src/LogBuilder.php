@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @link https://www.yiiframework.com/
  * @copyright Copyright (c) 2008 Yii Software LLC
@@ -58,7 +59,8 @@ class LogBuilder extends BaseObject
     protected function processData($data)
     {
         if (is_object($data)) {
-            if ($data instanceof ObjectID ||
+            if (
+                $data instanceof ObjectID ||
                 $data instanceof Regex ||
                 $data instanceof UTCDateTime ||
                 $data instanceof Timestamp
