@@ -16,7 +16,7 @@ use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\Type;
-use MongoDB\BSON\UTCDatetime;
+use MongoDB\BSON\UTCDateTime;
 use yii\base\BaseObject;
 
 /**

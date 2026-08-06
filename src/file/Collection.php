@@ -84,7 +84,7 @@ class Collection extends \yii\mongodb\Collection
 
     /**
      * Creates download command.
-     * @param array|ObjectId $document file document ot be downloaded.
+     * @param array|ObjectId $document file document to be downloaded.
      * @return Download file download instance.
      * @since 2.1
      */

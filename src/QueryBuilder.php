@@ -552,8 +552,13 @@ class QueryBuilder extends BaseObject
     /**
      * Converts given value into [[ObjectId]] instance.
      * If array given, each element of it will be processed.
+     *
+     * Values that `ObjectId::__construct()` cannot accept are returned unchanged: it declares a `?string`
+     * parameter, so passing an unsupported type raises a `TypeError`, which is an `\Error` and therefore
+     * escapes the `InvalidArgumentException` handler below.
+     *
      * @param mixed $rawId raw id(s).
-     * @return array|ObjectId normalized id(s).
+     * @return mixed normalized id(s), left untouched when conversion is not possible.
      */
     protected function ensureMongoId($rawId)
     {
@@ -564,15 +569,20 @@ class QueryBuilder extends BaseObject
             }
 
             return $result;
-        } elseif (is_object($rawId)) {
+        }
+
+        if (is_object($rawId)) {
             if ($rawId instanceof ObjectId) {
                 return $rawId;
-            } else {
-                $rawId = (string) $rawId;
+            }
+
+            if (!$rawId instanceof \Stringable) {
+                return $rawId;
             }
         }
+
         try {
-            $mongoId = new ObjectId($rawId);
+            $mongoId = new ObjectId((string) $rawId);
         } catch (InvalidArgumentException $e) {
             // invalid id format
             $mongoId = $rawId;

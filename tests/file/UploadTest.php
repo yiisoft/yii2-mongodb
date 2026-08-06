@@ -114,4 +114,20 @@ class UploadTest extends TestCase
         $document = $upload->addContent('object ID')->complete();
         $this->assertSame($id, $document['_id']);
     }
+
+    public function testCustomIdOfTypeUnsupportedByObjectId(): void
+    {
+        $collection = $this->getConnection()->getFileCollection();
+
+        $id = ['group' => 'reports', 'seq' => 1];
+        $upload = $collection->createUpload([
+            'document' => [
+                '_id' => $id,
+            ]
+        ]);
+
+        $this->assertSame($id, $upload->document['_id'], 'Composite `_id` must survive init without a `TypeError`.');
+
+        $upload->cancel();
+    }
 }
