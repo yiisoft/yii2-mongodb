@@ -103,15 +103,15 @@ class MongoIdTestModel extends Model
 
 class MongoIdStringable
 {
-    private string $value;
+    private string $_value;
 
     public function __construct(string $value)
     {
-        $this->value = $value;
+        $this->_value = $value;
     }
 
     public function __toString(): string
     {
-        return $this->value;
+        return $this->_value;
     }
 }
