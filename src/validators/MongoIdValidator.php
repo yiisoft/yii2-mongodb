@@ -8,7 +8,7 @@
 
 namespace yii\mongodb\validators;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\base\InvalidConfigException;
 use yii\validators\Validator;
 use Yii;
@@ -100,15 +100,15 @@ class MongoIdValidator extends Validator
 
     /**
      * @param mixed $value
-     * @return ObjectID|null
+     * @return ObjectId|null
      */
     private function parseMongoId($value)
     {
-        if ($value instanceof ObjectID) {
+        if ($value instanceof ObjectId) {
             return $value;
         }
         try {
-            return new ObjectID($value);
+            return new ObjectId($value);
         } catch (\Exception $e) {
             return null;
         }

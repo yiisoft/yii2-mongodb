@@ -8,7 +8,7 @@
 
 namespace yii\mongodb\file;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use Yii;
 use yii\base\InvalidConfigException;
 use yii\base\BaseObject;
@@ -36,7 +36,7 @@ use yii\helpers\StringHelper;
  * @property-read \MongoDB\Driver\Cursor $chunkCursor Chuck list cursor.
  * @property-read \Iterator $chunkIterator Chuck cursor iterator.
  * @property-read array $document Document to be downloaded.
- * @property-write array|ObjectID $document Document raw data or document ID.
+ * @property-write array|ObjectId $document Document raw data or document ID.
  * @property-read string|null $filename File name.
  * @property-read resource $resource File stream resource.
  * @property-read int $size File size.
@@ -52,7 +52,7 @@ class Download extends BaseObject
     public $collection;
 
     /**
-     * @var array|ObjectID document to be downloaded.
+     * @var array|ObjectId document to be downloaded.
      */
     private $_document;
     /**
@@ -76,7 +76,7 @@ class Download extends BaseObject
     public function getDocument()
     {
         if (!is_array($this->_document)) {
-            if (is_scalar($this->_document) || $this->_document instanceof ObjectID) {
+            if (is_scalar($this->_document) || $this->_document instanceof ObjectId) {
                 $document = $this->collection->findOne(['_id' => $this->_document]);
                 if (empty($document)) {
                     throw new InvalidConfigException('Document id=' . $this->_document . ' does not exist at collection "' . $this->collection->getFullName() . '"');
@@ -93,7 +93,7 @@ class Download extends BaseObject
      * Sets data of the document to be downloaded.
      * Document can be specified by its ID, in this case its data will be fetched automatically
      * via extra query.
-     * @param array|ObjectID $document document raw data or document ID.
+     * @param array|ObjectId $document document raw data or document ID.
      */
     public function setDocument($document)
     {

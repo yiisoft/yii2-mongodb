@@ -9,7 +9,7 @@
 namespace yii\mongodb\file;
 
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\UTCDatetime;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\BaseObject;
@@ -69,7 +69,7 @@ class Upload extends BaseObject
     public $chunkCount = 0;
 
     /**
-     * @var ObjectID file document ID.
+     * @var ObjectId file document ID.
      */
     private $_documentId;
     /**
@@ -105,18 +105,18 @@ class Upload extends BaseObject
         $this->_hashContext = hash_init('md5');
 
         if (isset($this->document['_id'])) {
-            if ($this->document['_id'] instanceof ObjectID) {
+            if ($this->document['_id'] instanceof ObjectId) {
                 $this->_documentId = $this->document['_id'];
             } else {
                 try {
-                    $this->_documentId = new ObjectID($this->document['_id']);
+                    $this->_documentId = new ObjectId($this->document['_id']);
                 } catch (InvalidArgumentException $e) {
                     // invalid id format
                     $this->_documentId = $this->document['_id'];
                 }
             }
         } else {
-            $this->_documentId = new ObjectID();
+            $this->_documentId = new ObjectId();
         }
 
         $this->collection->ensureIndexes();

@@ -3,7 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\Javascript;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 
 class LogBuilderTest extends TestCase
 {
@@ -19,8 +19,8 @@ class LogBuilderTest extends TestCase
                 '"foo"',
             ],
             [
-                new ObjectID('57684eed962078354a21ec11'),
-                '"MongoDB\\\\BSON\\\\ObjectID(57684eed962078354a21ec11)"',
+                new ObjectId('57684eed962078354a21ec11'),
+                '"MongoDB\\\\BSON\\\\ObjectId(57684eed962078354a21ec11)"',
             ],
             [
                 new Javascript('function () {return 0;}'),

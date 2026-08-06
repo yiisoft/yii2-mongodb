@@ -8,7 +8,7 @@
 
 namespace yii\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Driver\BulkWrite;
 use MongoDB\Driver\Exception\RuntimeException;
 use MongoDB\Driver\WriteResult;
@@ -485,7 +485,7 @@ class Command extends BaseObject
      * @param array $document document content
      * @param array $options list of options in format: optionName => optionValue.
      * @param array $execOptions {@see executeBatch()}
-     * @return ObjectID|bool inserted record ID, `false` - on failure.
+     * @return ObjectId|bool inserted record ID, `false` - on failure.
      */
     public function insert($collectionName, $document, $options = [], $execOptions = [])
     {

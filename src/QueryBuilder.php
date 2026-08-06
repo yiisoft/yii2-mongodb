@@ -9,7 +9,7 @@
 namespace yii\mongodb;
 
 use MongoDB\BSON\Javascript;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\BaseObject;
@@ -47,8 +47,8 @@ use yii\helpers\ArrayHelper;
  * ]
  * ```
  *
- * Note: condition values for the key '_id' will be automatically cast to [[\MongoDB\BSON\ObjectID]] instance,
- * even if they are plain strings. However, if you have other columns, containing [[\MongoDB\BSON\ObjectID]], you
+ * Note: condition values for the key '_id' will be automatically cast to [[\MongoDB\BSON\ObjectId]] instance,
+ * even if they are plain strings. However, if you have other columns, containing [[\MongoDB\BSON\ObjectId]], you
  * should take care of possible typecast on your own.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
@@ -550,10 +550,10 @@ class QueryBuilder extends BaseObject
     }
 
     /**
-     * Converts given value into [[ObjectID]] instance.
+     * Converts given value into [[ObjectId]] instance.
      * If array given, each element of it will be processed.
      * @param mixed $rawId raw id(s).
-     * @return array|ObjectID normalized id(s).
+     * @return array|ObjectId normalized id(s).
      */
     protected function ensureMongoId($rawId)
     {
@@ -565,14 +565,14 @@ class QueryBuilder extends BaseObject
 
             return $result;
         } elseif (is_object($rawId)) {
-            if ($rawId instanceof ObjectID) {
+            if ($rawId instanceof ObjectId) {
                 return $rawId;
             } else {
                 $rawId = (string) $rawId;
             }
         }
         try {
-            $mongoId = new ObjectID($rawId);
+            $mongoId = new ObjectId($rawId);
         } catch (InvalidArgumentException $e) {
             // invalid id format
             $mongoId = $rawId;

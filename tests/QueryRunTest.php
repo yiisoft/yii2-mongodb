@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\mongodb\Query;
 
 class QueryRunTest extends TestCase
@@ -426,7 +426,7 @@ class QueryRunTest extends TestCase
             ->from('customer')
             ->limit(1)
             ->scalar($connection);
-        $this->assertTrue($result instanceof ObjectID);
+        $this->assertTrue($result instanceof ObjectId);
     }
 
     public function testColumn()
@@ -460,8 +460,8 @@ class QueryRunTest extends TestCase
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
             ->column($connection);
-        $this->assertTrue($result[0] instanceof ObjectID);
-        $this->assertTrue($result[1] instanceof ObjectID);
+        $this->assertTrue($result[0] instanceof ObjectId);
+        $this->assertTrue($result[1] instanceof ObjectId);
     }
 
     /**

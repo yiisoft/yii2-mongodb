@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Driver\Cursor;
 
 class CollectionTest extends TestCase
@@ -39,7 +39,7 @@ class CollectionTest extends TestCase
             'address' => 'customer 1 address',
         ];
         $id = $collection->insert($data);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
         $this->assertNotEmpty($id->__toString());
     }
 
@@ -102,8 +102,8 @@ class CollectionTest extends TestCase
             ],
         ];
         $insertedRows = $collection->batchInsert($rows);
-        $this->assertTrue($insertedRows[0]['_id'] instanceof ObjectID);
-        $this->assertTrue($insertedRows[1]['_id'] instanceof ObjectID);
+        $this->assertTrue($insertedRows[0]['_id'] instanceof ObjectId);
+        $this->assertTrue($insertedRows[1]['_id'] instanceof ObjectId);
         $this->assertCount(count($rows), $collection->find()->toArray());
     }
 
@@ -115,7 +115,7 @@ class CollectionTest extends TestCase
             'address' => 'customer 1 address',
         ];
         $id = $collection->save($data);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
         $this->assertNotEmpty($id->__toString());
     }
 
@@ -513,7 +513,7 @@ class CollectionTest extends TestCase
             'binData' => new \MongoDB\BSON\Binary(file_get_contents($fileName), 2),
         ];
         $id = $collection->insert($data);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
         $this->assertNotEmpty($id->__toString());
     }
 

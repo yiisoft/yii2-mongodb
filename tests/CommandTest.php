@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\Driver\Cursor;
 use yii\helpers\ArrayHelper;
 
@@ -102,7 +102,7 @@ class CommandTest extends TestCase
     {
         $command = $this->getConnection()->createCommand();
         $insertedId = $command->insert('customer', ['name' => 'John']);
-        $this->assertTrue($insertedId instanceof ObjectID);
+        $this->assertTrue($insertedId instanceof ObjectId);
     }
 
     /**
@@ -115,8 +115,8 @@ class CommandTest extends TestCase
             ['name' => 'John'],
             ['name' => 'Sara'],
         ]);
-        $this->assertTrue($insertedIds[0] instanceof ObjectID);
-        $this->assertTrue($insertedIds[1] instanceof ObjectID);
+        $this->assertTrue($insertedIds[0] instanceof ObjectId);
+        $this->assertTrue($insertedIds[1] instanceof ObjectId);
     }
 
     /**

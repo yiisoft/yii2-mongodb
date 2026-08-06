@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yiiunit\extensions\mongodb\TestCase;
 
 /**
@@ -27,7 +27,7 @@ class UploadTest extends TestCase
             ->addContent('content line 2')
             ->complete();
 
-        $this->assertTrue($document['_id'] instanceof ObjectID);
+        $this->assertTrue($document['_id'] instanceof ObjectId);
         $this->assertEquals(1, $collection->count());
         $this->assertEquals(1, $collection->getChunkCollection()->count());
     }
@@ -43,7 +43,7 @@ class UploadTest extends TestCase
         $upload->chunkSize = 10;
         $document = $upload->addContent('0123456789-tail')->complete();
 
-        $this->assertTrue($document['_id'] instanceof ObjectID);
+        $this->assertTrue($document['_id'] instanceof ObjectId);
         $this->assertEquals(1, $collection->count());
         $this->assertEquals(2, $collection->getChunkCollection()->count());
     }
@@ -58,7 +58,7 @@ class UploadTest extends TestCase
 
         $document = $upload->addStream($resource)->complete();
 
-        $this->assertTrue($document['_id'] instanceof ObjectID);
+        $this->assertTrue($document['_id'] instanceof ObjectId);
         $this->assertEquals(1, $collection->count());
         $this->assertEquals(1, $collection->getChunkCollection()->count());
     }
@@ -87,7 +87,7 @@ class UploadTest extends TestCase
     {
         $collection = $this->getConnection()->getFileCollection();
 
-        $id = new ObjectID();
+        $id = new ObjectId();
         $upload = $collection->createUpload([
             'document' => [
                 '_id' => $id,

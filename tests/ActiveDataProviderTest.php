@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\data\ActiveDataProvider;
 use yii\mongodb\Query;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
@@ -76,7 +76,7 @@ class ActiveDataProviderTest extends TestCase
         $this->assertEquals(10, count($models));
         $this->assertTrue($models[0] instanceof Customer);
         $keys = $provider->getKeys();
-        $this->assertTrue($keys[0] instanceof ObjectID);
+        $this->assertTrue($keys[0] instanceof ObjectId);
 
         $provider = new ActiveDataProvider([
             'query' => Customer::find(),
