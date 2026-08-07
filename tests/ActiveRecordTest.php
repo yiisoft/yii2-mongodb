@@ -3,7 +3,7 @@
 namespace yiiunit\extensions\mongodb;
 
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use yii\mongodb\ActiveQuery;
 use yiiunit\extensions\mongodb\data\ar\ActiveRecord;
@@ -127,7 +127,7 @@ class ActiveRecordTest extends TestCase
 
         $record->save();
 
-        $this->assertTrue($record->_id instanceof ObjectID);
+        $this->assertTrue($record->_id instanceof ObjectId);
         $this->assertFalse($record->isNewRecord);
     }
 
@@ -308,7 +308,7 @@ class ActiveRecordTest extends TestCase
             ->select(['_id'])
             ->limit(1)
             ->scalar($connection);
-        $this->assertTrue($result instanceof ObjectID);
+        $this->assertTrue($result instanceof ObjectId);
     }
 
     public function testColumn()
@@ -342,8 +342,8 @@ class ActiveRecordTest extends TestCase
             ->orderBy(['name' => SORT_ASC])
             ->limit(2)
             ->column($connection);
-        $this->assertTrue($result[0] instanceof ObjectID);
-        $this->assertTrue($result[1] instanceof ObjectID);
+        $this->assertTrue($result[0] instanceof ObjectId);
+        $this->assertTrue($result[1] instanceof ObjectId);
     }
 
     public function testModify()
@@ -373,7 +373,7 @@ class ActiveRecordTest extends TestCase
         $record = new Customer();
         $record->save(false);
 
-        $this->assertTrue($record->_id instanceof ObjectID);
+        $this->assertTrue($record->_id instanceof ObjectId);
         $this->assertFalse($record->isNewRecord);
     }
 

@@ -3,7 +3,7 @@
 namespace yiiunit\extensions\mongodb\data\ar;
 
 /**
- * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property \MongoDB\BSON\ObjectId|string $_id
  * @property string $name
  * @property float $price
  */

@@ -9,7 +9,7 @@
 namespace yii\mongodb;
 
 use MongoDB\BSON\Javascript;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\BaseObject;
@@ -47,8 +47,8 @@ use yii\helpers\ArrayHelper;
  * ]
  * ```
  *
- * Note: condition values for the key '_id' will be automatically cast to [[\MongoDB\BSON\ObjectID]] instance,
- * even if they are plain strings. However, if you have other columns, containing [[\MongoDB\BSON\ObjectID]], you
+ * Note: condition values for the key '_id' will be automatically cast to [[\MongoDB\BSON\ObjectId]] instance,
+ * even if they are plain strings. However, if you have other columns, containing [[\MongoDB\BSON\ObjectId]], you
  * should take care of possible typecast on your own.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
@@ -550,10 +550,15 @@ class QueryBuilder extends BaseObject
     }
 
     /**
-     * Converts given value into [[ObjectID]] instance.
+     * Converts given value into [[ObjectId]] instance.
      * If array given, each element of it will be processed.
+     *
+     * Values that `ObjectId::__construct()` cannot accept are returned unchanged: it declares a `?string`
+     * parameter, so passing an unsupported type raises a `TypeError`, which is an `\Error` and therefore
+     * escapes the `InvalidArgumentException` handler below.
+     *
      * @param mixed $rawId raw id(s).
-     * @return array|ObjectID normalized id(s).
+     * @return mixed normalized id(s), left untouched when conversion is not possible.
      */
     protected function ensureMongoId($rawId)
     {
@@ -564,15 +569,20 @@ class QueryBuilder extends BaseObject
             }
 
             return $result;
-        } elseif (is_object($rawId)) {
-            if ($rawId instanceof ObjectID) {
+        }
+
+        if (is_object($rawId)) {
+            if ($rawId instanceof ObjectId) {
                 return $rawId;
-            } else {
-                $rawId = (string) $rawId;
+            }
+
+            if (!$rawId instanceof \Stringable) {
+                return $rawId;
             }
         }
+
         try {
-            $mongoId = new ObjectID($rawId);
+            $mongoId = new ObjectId((string) $rawId);
         } catch (InvalidArgumentException $e) {
             // invalid id format
             $mongoId = $rawId;

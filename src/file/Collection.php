@@ -8,7 +8,7 @@
 
 namespace yii\mongodb\file;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\mongodb\Exception;
 use Yii;
 use yii\web\UploadedFile;
@@ -84,7 +84,7 @@ class Collection extends \yii\mongodb\Collection
 
     /**
      * Creates download command.
-     * @param array|ObjectID $document file document ot be downloaded.
+     * @param array|ObjectId $document file document to be downloaded.
      * @return Download file download instance.
      * @since 2.1
      */

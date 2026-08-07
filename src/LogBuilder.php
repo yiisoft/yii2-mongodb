@@ -12,11 +12,11 @@ use MongoDB\BSON\Binary;
 use MongoDB\BSON\Javascript;
 use MongoDB\BSON\MaxKey;
 use MongoDB\BSON\MinKey;
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use MongoDB\BSON\Regex;
 use MongoDB\BSON\Timestamp;
 use MongoDB\BSON\Type;
-use MongoDB\BSON\UTCDatetime;
+use MongoDB\BSON\UTCDateTime;
 use yii\base\BaseObject;
 
 /**
@@ -60,7 +60,7 @@ class LogBuilder extends BaseObject
     {
         if (is_object($data)) {
             if (
-                $data instanceof ObjectID ||
+                $data instanceof ObjectId ||
                 $data instanceof Regex ||
                 $data instanceof UTCDateTime ||
                 $data instanceof Timestamp

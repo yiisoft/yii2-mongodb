@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb\file;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\mongodb\file\Cursor;
 use yii\mongodb\file\Download;
 use yiiunit\extensions\mongodb\TestCase;
@@ -65,7 +65,7 @@ class CollectionTest extends TestCase
 
         $filename = __FILE__;
         $id = $collection->insertFile($filename);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
 
         $files = $this->findAll($collection);
         $this->assertEquals(1, count($files));
@@ -81,7 +81,7 @@ class CollectionTest extends TestCase
 
         $bytes = 'Test file content';
         $id = $collection->insertFileContent($bytes);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
 
         $files = $this->findAll($collection);
         $this->assertEquals(1, count($files));

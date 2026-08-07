@@ -8,7 +8,7 @@
 
 namespace yii\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 use yii\base\BaseObject;
 use Yii;
 
@@ -279,7 +279,7 @@ class Collection extends BaseObject
      * Inserts new data into collection.
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoDB\BSON\ObjectID new record ID instance.
+     * @return \MongoDB\BSON\ObjectId new record ID instance.
      * @param array $execOptions {@see Command::insert()}
      * @throws Exception on failure.
      */
@@ -326,7 +326,7 @@ class Collection extends BaseObject
      * Update the existing database data, otherwise insert this data
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoDB\BSON\ObjectID updated/new record id instance.
+     * @return \MongoDB\BSON\ObjectId updated/new record id instance.
      * @param array $execOptions {@see Command::insert()}
      * @throws Exception on failure.
      */
@@ -339,7 +339,7 @@ class Collection extends BaseObject
         unset($data['_id']);
         $this->update(['_id' => $id], ['$set' => $data], ['upsert' => true], $execOptions);
 
-        return is_object($id) ? $id : new ObjectID($id);
+        return is_object($id) ? $id : new ObjectId($id);
     }
 
     /**

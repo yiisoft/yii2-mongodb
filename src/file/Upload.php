@@ -9,8 +9,8 @@
 namespace yii\mongodb\file;
 
 use MongoDB\BSON\Binary;
-use MongoDB\BSON\ObjectID;
-use MongoDB\BSON\UTCDatetime;
+use MongoDB\BSON\ObjectId;
+use MongoDB\BSON\UTCDateTime;
 use MongoDB\Driver\Exception\InvalidArgumentException;
 use yii\base\BaseObject;
 use yii\helpers\StringHelper;
@@ -69,7 +69,7 @@ class Upload extends BaseObject
     public $chunkCount = 0;
 
     /**
-     * @var ObjectID file document ID.
+     * @var mixed file document ID: an [[ObjectId]] instance, or the raw `_id` value when it cannot be converted.
      */
     private $_documentId;
     /**
@@ -105,18 +105,23 @@ class Upload extends BaseObject
         $this->_hashContext = hash_init('md5');
 
         if (isset($this->document['_id'])) {
-            if ($this->document['_id'] instanceof ObjectID) {
-                $this->_documentId = $this->document['_id'];
-            } else {
+            $documentId = $this->document['_id'];
+
+            if ($documentId instanceof ObjectId) {
+                $this->_documentId = $documentId;
+            } elseif (is_string($documentId) || $documentId instanceof \Stringable) {
                 try {
-                    $this->_documentId = new ObjectID($this->document['_id']);
+                    $this->_documentId = new ObjectId((string) $documentId);
                 } catch (InvalidArgumentException $e) {
                     // invalid id format
-                    $this->_documentId = $this->document['_id'];
+                    $this->_documentId = $documentId;
                 }
+            } else {
+                // type unsupported by `ObjectId::__construct()`, which would raise a `TypeError`
+                $this->_documentId = $documentId;
             }
         } else {
-            $this->_documentId = new ObjectID();
+            $this->_documentId = new ObjectId();
         }
 
         $this->collection->ensureIndexes();

@@ -5,7 +5,7 @@ namespace yiiunit\extensions\mongodb\data\ar;
 /**
  * Animal
  *
- * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property \MongoDB\BSON\ObjectId|string $_id
  * @property string $type
  *
  * @author Jose Lorente <jose.lorente.martin@gmail.com>

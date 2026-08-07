@@ -3,9 +3,9 @@
 namespace yiiunit\extensions\mongodb\data\ar;
 
 /**
- * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property \MongoDB\BSON\ObjectId|string $_id
  * @property int $number
- * @property \MongoDB\BSON\ObjectID $customer_id
+ * @property \MongoDB\BSON\ObjectId $customer_id
  * @property array $item_ids
  */
 class CustomerOrder extends ActiveRecord

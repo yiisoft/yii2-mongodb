@@ -155,7 +155,7 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array|string $collection collection name.
      * @param array|object $data data to be inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoDB\BSON\ObjectID new record id instance.
+     * @return \MongoDB\BSON\ObjectId new record id instance.
      */
     public function insert($collection, $data, $options = [])
     {
@@ -203,7 +203,7 @@ abstract class Migration extends Component implements MigrationInterface
      * @param array|string $collection collection name.
      * @param array|object $data data to be updated/inserted.
      * @param array $options list of options in format: optionName => optionValue.
-     * @return \MongoDB\BSON\ObjectID updated/new record id instance.
+     * @return \MongoDB\BSON\ObjectId updated/new record id instance.
      */
     public function save($collection, $data, $options = [])
     {

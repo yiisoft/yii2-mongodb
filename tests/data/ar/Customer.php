@@ -5,7 +5,7 @@ namespace yiiunit\extensions\mongodb\data\ar;
 use yiiunit\extensions\mongodb\data\ar\file\CustomerFile;
 
 /**
- * @property \MongoDB\BSON\ObjectID|string $_id
+ * @property \MongoDB\BSON\ObjectId|string $_id
  * @property string $name
  * @property string $email
  * @property string $address

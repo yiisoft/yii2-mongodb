@@ -8,6 +8,26 @@ if you want to upgrade from version A to version C and there is
 version B between A and C, you need to following the instructions
 for both A and B.
 
+Upgrade from 3.0.x
+----------------------
+
+* PHP 8.3 or higher is now required. Remove any PHP < 8.3 compatibility code from your application.
+
+* Yii2 version 22.0 or higher is now required.
+
+* MongoDB PHP extension (`ext-mongodb`) version 2.0 or higher is now required. Upgrade your environment
+  if using an older version. Key breaking changes in ext-mongodb 2.0:
+  - `MongoDB\BSON\ObjectID` (uppercase `D`) class alias has been removed. Use `MongoDB\BSON\ObjectId`
+    (lowercase `d`) exclusively. Update any `use`, `instanceof`, `new`, or type-hint references.
+  - `MongoDB\Driver\CursorId` class has been removed, along with the `asInt64` parameter of
+    `MongoDB\Driver\Cursor::getId()`. The method now takes no arguments and always returns
+    `\MongoDB\BSON\Int64`. Replace any `getId(true)` call — the migration path introduced in
+    ext-mongodb 1.20 — with `getId()`.
+  - `MongoDB\BSON\UTCDateTime::__construct()` no longer accepts float values.
+
+* `yii\base\InvalidParamException` has been removed in Yii2 22.0. Replace all usages with
+  `yii\base\InvalidArgumentException`.
+
 Upgrade from 3.0.2
 ----------------------
 * MongoDB PHP extension min version raised up to 1.20.1. You should upgrade your environment in case you are

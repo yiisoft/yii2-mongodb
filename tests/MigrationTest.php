@@ -2,7 +2,7 @@
 
 namespace yiiunit\extensions\mongodb;
 
-use MongoDB\BSON\ObjectID;
+use MongoDB\BSON\ObjectId;
 
 class MigrationTest extends TestCase
 {
@@ -61,7 +61,7 @@ class MigrationTest extends TestCase
         $migration = $this->createMigration();
 
         $id = $migration->insert('customer', ['name' => 'John Doe']);
-        $this->assertTrue($id instanceof ObjectID);
+        $this->assertTrue($id instanceof ObjectId);
 
         $migration->update('customer', ['_id' => $id], ['name' => 'new name']);
         list($row) = $this->findAll($migration->db->getCollection('customer'));
