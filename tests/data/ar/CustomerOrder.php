@@ -7,6 +7,8 @@ namespace yiiunit\extensions\mongodb\data\ar;
  * @property int $number
  * @property \MongoDB\BSON\ObjectID $customer_id
  * @property array $item_ids
+ * @property-read Customer $customer
+ * @property-read Item[] $items
  */
 class CustomerOrder extends ActiveRecord
 {
@@ -27,11 +29,11 @@ class CustomerOrder extends ActiveRecord
 
     public function getCustomer()
     {
-        return $this->hasOne(Customer::className(), ['_id' => 'customer_id']);
+        return $this->hasOne(Customer::class, ['_id' => 'customer_id']);
     }
 
     public function getItems()
     {
-        return $this->hasMany(Item::className(), ['_id' => 'item_ids']);
+        return $this->hasMany(Item::class, ['_id' => 'item_ids']);
     }
 }

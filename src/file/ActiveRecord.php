@@ -38,8 +38,8 @@ use yii\web\UploadedFile;
  *
  * Note: [[newFileContent]] always takes precedence over [[file]].
  *
- * @property null|string $fileContent File content. This property is read-only.
- * @property resource $fileResource File stream resource. This property is read-only.
+ * @property-read null|string $fileContent File content.
+ * @property-read resource $fileResource File stream resource.
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0
