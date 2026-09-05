@@ -73,7 +73,11 @@ use Yii;
  * @property-write array|string|LogBuilder $logBuilder The log builder for this connection.
  * @property-read QueryBuilder $queryBuilder The query builder for the this MongoDB connection.
  * @property-write QueryBuilder|array|string|null $queryBuilder The query builder for this MongoDB connection.
- * @property-write ClientSession|null $session New instance of ClientSession to replace return $this.
+ * @property-write ClientSession|null $session New instance of ClientSession to replace
+ * return $this.
+ * @property-read ClientSession|null $session New instance of ClientSession to replace return $this.
+ * @property-read mixed $inSession
+ * @property-read mixed $inTransaction
  *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0

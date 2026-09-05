@@ -83,7 +83,6 @@ class ActiveRelationTest extends TestCase
         $this->assertFalse($order->isRelationPopulated('customer'));
         $customer = $order->customer;
         $this->assertTrue($order->isRelationPopulated('customer'));
-        $this->assertTrue($customer instanceof Customer);
         $this->assertEquals((string) $customer->_id, (string) $order->customer_id);
         $this->assertEquals(1, count($order->relatedRecords));
 

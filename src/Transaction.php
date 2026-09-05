@@ -27,6 +27,7 @@ use Yii;
  *
  * @property-read bool $isActive Whether this transaction is active. Only an active transaction can
  * [[commit()]] or [[rollBack()]].
+ * @property-read mixed $state
  *
  * @author Abolfazl Ziaratban <abolfazl.ziaratban@gmail.com>
  */

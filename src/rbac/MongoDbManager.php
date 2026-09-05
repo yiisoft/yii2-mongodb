@@ -32,6 +32,8 @@ use yii\rbac\Rule;
  *
  * These collection are better to be pre-created with search fields indexed.
  *
+ * @property-read Rule[] $rules The rules indexed by the rule names.
+ *
  * @author Paul Klimov <klimov.paul@gmail.com>
  * @since 2.0.5
  */
