@@ -6505,18 +6505,6 @@ parameters:
 			path: tests/data/ar/CustomerOrder.php
 
 		-
-			message: '#^Parameter \#1 \$class of method yii\\db\\BaseActiveRecord\:\:hasMany\(\) expects class\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/data/ar/CustomerOrder.php
-
-		-
-			message: '#^Parameter \#1 \$class of method yii\\db\\BaseActiveRecord\:\:hasOne\(\) expects class\-string, string given\.$#'
-			identifier: argument.type
-			count: 1
-			path: tests/data/ar/CustomerOrder.php
-
-		-
 			message: '#^Method yiiunit\\extensions\\mongodb\\data\\ar\\CustomerQuery\:\:activeOnly\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
