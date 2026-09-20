@@ -8,7 +8,6 @@
 
 namespace yii\mongodb;
 
-use Yii;
 use yii\base\InvalidConfigException;
 use yii\test\BaseActiveFixture;
 

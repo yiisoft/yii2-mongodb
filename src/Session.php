@@ -9,7 +9,6 @@
 namespace yii\mongodb;
 
 use Yii;
-use yii\base\ErrorHandler;
 use yii\base\InvalidConfigException;
 use yii\di\Instance;
 use yii\web\MultiFieldSession;
