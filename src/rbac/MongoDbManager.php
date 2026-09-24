@@ -988,7 +988,7 @@ class MongoDbManager extends BaseManager
 
         $data = $this->cache->get($this->cacheKey);
         if (is_array($data) && isset($data[0], $data[1])) {
-            list ($this->items, $this->rules) = $data;
+            list($this->items, $this->rules) = $data;
             return;
         }
 

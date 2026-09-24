@@ -1,8 +1,13 @@
 <?php
 
+/**
+ * @link https://www.yiiframework.com/
+ * @copyright Copyright (c) 2008 Yii Software LLC
+ * @license https://www.yiiframework.com/license/
+ */
+
 namespace yiiunit\extensions\mongodb\rbac;
 
-use Yii;
 use yii\caching\ArrayCache;
 use yii\rbac\Item;
 use yii\rbac\Permission;
