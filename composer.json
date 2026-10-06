@@ -29,7 +29,7 @@
         "yiisoft/yii2-gii": "^2.2",
         "yiisoft/yii2-debug": "^2.1",
         "rector/rector": "^2.6",
-        "mspirkov/yii2-rector": "^0.1",
+        "mspirkov/yii2-rector": "^0.2",
         "friendsofphp/php-cs-fixer": "^3.95"
     },
     "repositories": [
