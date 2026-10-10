@@ -9,6 +9,7 @@ Yii Framework 2 mongodb extension Change Log
 - Enh #397: Applying Yii2 coding standards (@s1lver)
 - Bug #406: Fix `@property` annotations in `Command`, `Connection`, `MongoDbPanel` and `Download` (mspirkov)
 - Enh #409: Add the missing `@property` tags (mspirkov)
+- Bug #413: Fix PHP 8.5 null array offset deprecation when updating ActiveRecord without optimistic locking (jafaripur)
 
 
 3.0.4 October 08, 2025
