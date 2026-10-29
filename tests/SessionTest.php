@@ -126,7 +126,7 @@ class SessionTest extends TestCase
     /**
      * @depends testWriteSession
      */
-    public function testSessionIdExists()
+    public function testSessionIdExists(): void
     {
         $session = $this->createSession();
 
@@ -135,8 +135,7 @@ class SessionTest extends TestCase
         $session->writeSession($id, 'session data');
         $this->assertTrue($session->sessionIdExists($id));
 
-        $collection = $session->db->getCollection($session->sessionCollection);
-        $collection->update(['id' => $id], ['expire' => time() - 1]);
+        $this->getConnection()->getCollection(static::$sessionCollection)->update(['id' => $id], ['expire' => time() - 1]);
         $this->assertFalse($session->sessionIdExists($id), 'Expired session reported as existing!');
 
         $session->destroySession($id);
