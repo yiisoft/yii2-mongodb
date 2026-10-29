@@ -12,6 +12,7 @@ use Yii;
 use yii\base\InvalidConfigException;
 use yii\di\Instance;
 use yii\web\MultiFieldSession;
+use yii\web\SessionHandler;
 
 /**
  * Session extends [[\yii\web\Session]] by using MongoDB as session data storage.
@@ -83,20 +84,32 @@ class Session extends MultiFieldSession
      */
     public function openSession($savePath, $sessionName)
     {
-        if ($this->getUseStrictMode()) {
+        if ($this->useLegacyStrictMode()) {
             $id = $this->getId();
-            $collection = $this->db->getCollection($this->sessionCollection);
-            $condition = [
-                'id' => $id,
-                'expire' => ['$gt' => time()],
-            ];
-            if (!$collection->documentExists($condition)) {
+            if (!$this->sessionIdExists($id)) {
                 //This session id does not exist, mark it for forced regeneration
                 $this->_forceRegenerateId = $id;
             }
         }
 
         return parent::openSession($savePath, $sessionName);
+    }
+
+    /**
+     * Session ID existence check handler.
+     * With Yii 2.0.56 or later, PHP calls this method through [[SessionHandler::validateId()]] when [[useStrictMode]]
+     * is enabled, so that `session_start()` replaces a session ID that is not present in [[sessionCollection]].
+     * @internal Do not call this method directly.
+     * @param string $id session ID
+     * @return bool whether a non-expired session with the given ID exists in [[sessionCollection]]
+     * @since 4.0.0
+     */
+    public function sessionIdExists($id)
+    {
+        return $this->db->getCollection($this->sessionCollection)->documentExists([
+            'id' => $id,
+            'expire' => ['$gt' => time()],
+        ]);
     }
 
     /**
@@ -167,7 +180,7 @@ class Session extends MultiFieldSession
      */
     public function writeSession($id, $data)
     {
-        if ($this->getUseStrictMode() && $id === $this->_forceRegenerateId) {
+        if ($this->useLegacyStrictMode() && $id === $this->_forceRegenerateId) {
             //Ignore write when forceRegenerate is active for this id
             return true;
         }
@@ -238,5 +251,16 @@ class Session extends MultiFieldSession
             ->remove(['expire' => ['$lt' => time()]]);
 
         return true;
+    }
+
+    /**
+     * Returns whether strict mode has to be enforced by [[openSession()]] and [[writeSession()]].
+     * Yii 2.0.56 and later validate session IDs through [[SessionHandler::validateId()]] and [[sessionIdExists()]],
+     * so the check is only needed with earlier versions.
+     * @return bool whether strict mode is enabled and the Yii session handler does not validate session IDs
+     */
+    private function useLegacyStrictMode()
+    {
+        return $this->getUseStrictMode() && !method_exists(SessionHandler::class, 'validateId');
     }
 }

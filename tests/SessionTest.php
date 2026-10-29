@@ -123,6 +123,26 @@ class SessionTest extends TestCase
         $this->assertEquals('', $sessionData, 'Expired session read!');
     }
 
+    /**
+     * @depends testWriteSession
+     */
+    public function testSessionIdExists()
+    {
+        $session = $this->createSession();
+
+        $id = uniqid();
+        $this->assertFalse($session->sessionIdExists($id));
+        $session->writeSession($id, 'session data');
+        $this->assertTrue($session->sessionIdExists($id));
+
+        $collection = $session->db->getCollection($session->sessionCollection);
+        $collection->update(['id' => $id], ['expire' => time() - 1]);
+        $this->assertFalse($session->sessionIdExists($id), 'Expired session reported as existing!');
+
+        $session->destroySession($id);
+        $this->assertFalse($session->sessionIdExists($id));
+    }
+
     public function testGcSession()
     {
         $session = $this->createSession();
