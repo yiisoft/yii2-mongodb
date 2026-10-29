@@ -11,6 +11,7 @@ namespace yiiunit\extensions\mongodb;
 use yii\mongodb\Session;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yiiunit\extensions\mongodb\data\session\DelegatingSessionHandler;
 
 class SessionTest extends TestCase
 {
@@ -225,5 +226,29 @@ class SessionTest extends TestCase
         $this->assertEquals($id, $strictSession->getId());
         $this->assertEquals('session data', $strictSession->get('strict_mode_test'));
         $strictSession->close();
+    }
+
+    /**
+     * A configured handler without `validateId()` leaves strict mode to [[Session::openSession()]].
+     * PHP 8.6 deprecates such handlers.
+     * @requires PHP < 8.6.0-dev
+     * @runInSeparateProcess
+     */
+    public function testStrictModeWithHandlerWithoutValidateId(): void
+    {
+        $session = $this->createSession([
+            'useStrictMode' => true,
+        ]);
+        $session->handler = new DelegatingSessionHandler($session);
+        $session->close();
+        $session->destroySession('non-existing-strict-handler');
+        $session->setId('non-existing-strict-handler');
+        $session->open();
+        $id = $session->getId();
+        $this->assertNotEquals('non-existing-strict-handler', $id);
+        $session->set('strict_mode_test', 'session data');
+        $session->close();
+        $this->assertSame('', $session->readSession('non-existing-strict-handler'));
+        $session->destroySession($id);
     }
 }
