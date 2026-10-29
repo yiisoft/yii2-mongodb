@@ -11,6 +11,7 @@ namespace yiiunit\extensions\mongodb;
 use yii\mongodb\Session;
 use Yii;
 use yii\helpers\ArrayHelper;
+use yiiunit\extensions\mongodb\data\session\DelegatingSessionHandler;
 
 class SessionTest extends TestCase
 {
@@ -123,6 +124,25 @@ class SessionTest extends TestCase
         $this->assertEquals('', $sessionData, 'Expired session read!');
     }
 
+    /**
+     * @depends testWriteSession
+     */
+    public function testSessionIdExists(): void
+    {
+        $session = $this->createSession();
+
+        $id = uniqid();
+        $this->assertFalse($session->sessionIdExists($id));
+        $session->writeSession($id, 'session data');
+        $this->assertTrue($session->sessionIdExists($id));
+
+        $this->getConnection()->getCollection(static::$sessionCollection)->update(['id' => $id], ['expire' => time() - 1]);
+        $this->assertFalse($session->sessionIdExists($id), 'Expired session reported as existing!');
+
+        $session->destroySession($id);
+        $this->assertFalse($session->sessionIdExists($id));
+    }
+
     public function testGcSession()
     {
         $session = $this->createSession();
@@ -206,5 +226,29 @@ class SessionTest extends TestCase
         $this->assertEquals($id, $strictSession->getId());
         $this->assertEquals('session data', $strictSession->get('strict_mode_test'));
         $strictSession->close();
+    }
+
+    /**
+     * A configured handler without `validateId()` leaves strict mode to [[Session::openSession()]].
+     * PHP 8.6 deprecates such handlers.
+     * @requires PHP < 8.6.0-dev
+     * @runInSeparateProcess
+     */
+    public function testStrictModeWithHandlerWithoutValidateId(): void
+    {
+        $session = $this->createSession([
+            'useStrictMode' => true,
+        ]);
+        $session->handler = new DelegatingSessionHandler($session);
+        $session->close();
+        $session->destroySession('non-existing-strict-handler');
+        $session->setId('non-existing-strict-handler');
+        $session->open();
+        $id = $session->getId();
+        $this->assertNotEquals('non-existing-strict-handler', $id);
+        $session->set('strict_mode_test', 'session data');
+        $session->close();
+        $this->assertSame('', $session->readSession('non-existing-strict-handler'));
+        $session->destroySession($id);
     }
 }
