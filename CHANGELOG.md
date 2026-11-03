@@ -1,15 +1,15 @@
 Yii Framework 2 mongodb extension Change Log
 ============================================
 
-4.0.0 under development
+3.0.5 November 03, 2026
 -----------------------
 
+- Bug #406: Fix `@property` annotations in `Command`, `Connection`, `MongoDbPanel` and `Download` (mspirkov)
+- Bug #413: Fix PHP 8.5 null array offset deprecation when updating ActiveRecord without optimistic locking (jafaripur)
 - Enh #397: Static analysis with PHPStan has been added (@s1lver)
 - Enh #397: PHP 7.3 support was removed to align with Yii2 minimum PHP version (@s1lver)
 - Enh #397: Applying Yii2 coding standards (@s1lver)
-- Bug #406: Fix `@property` annotations in `Command`, `Connection`, `MongoDbPanel` and `Download` (mspirkov)
 - Enh #409: Add the missing `@property` tags (mspirkov)
-- Bug #413: Fix PHP 8.5 null array offset deprecation when updating ActiveRecord without optimistic locking (jafaripur)
 - Enh #415: Add `yii\mongodb\Session::sessionIdExists()` so that Yii 2.0.56 strict mode checks session IDs through it instead of the deprecated `Session::$_forceRegenerateId` (samdark)
 
 
