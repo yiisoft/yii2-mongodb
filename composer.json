@@ -23,7 +23,7 @@
         "yiisoft/yii2": "~2.0.54"
     },
     "require-dev": {
-        "phpunit/phpunit": "^9.6",
+        "phpunit/phpunit": "^13.4",
         "phpstan/phpstan": "^2.1",
         "phpstan/phpstan-phpunit": "^2.0",
         "yiisoft/yii2-gii": "^2.2",
